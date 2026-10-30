@@ -106,16 +106,16 @@ class _DocCanvasScreenState extends ConsumerState<DocCanvasScreen> {
 
   Future<void> _pickRealFile([List<String>? allowedExtensions]) async {
     try {
-      final result = await FilePicker.platform.pickFiles(
+      final files = await FilePicker.pickFiles(
         type: allowedExtensions != null && allowedExtensions.isNotEmpty
             ? FileType.custom
             : FileType.any,
         allowedExtensions: allowedExtensions,
       );
 
-      if (result == null || result.files.isEmpty) return;
+      if (files.isEmpty) return;
 
-      final picked = result.files.first;
+      final picked = files.first;
       final path = picked.path;
       final name = picked.name;
       final ext = (picked.extension ?? name.split('.').last).toLowerCase();
@@ -134,8 +134,8 @@ class _DocCanvasScreenState extends ConsumerState<DocCanvasScreen> {
         }
         if (content == null) {
           try {
-            final rawBytes = picked.bytes ?? (path != null ? await File(path).readAsBytes() : null);
-            if (rawBytes != null && rawBytes.isNotEmpty) {
+            final rawBytes = await picked.readAsBytes();
+            if (rawBytes.isNotEmpty) {
               content = utf8.decode(rawBytes);
               pageCount = (content.split('\n').length / 32).ceil().clamp(1, 100);
             }
