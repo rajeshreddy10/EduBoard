@@ -33,3 +33,4 @@ def test_shape_geometry_bounding_box():
     height = abs(p2[1] - p1[1])
     assert width == 100
     assert height == 100
+

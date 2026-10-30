@@ -39,3 +39,4 @@ Examples of unacceptable behavior include:
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to the project team at security@eduboard.app. All complaints will be
 reviewed and investigated promptly and fairly.
+

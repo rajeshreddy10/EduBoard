@@ -21,3 +21,4 @@ Provide a concise overview of the changes introduced in this Pull Request.
 - [ ] `flutter analyze` passes with zero errors/warnings.
 - [ ] `npm run build:web` completes with zero build errors.
 - [ ] No private keys or secrets are exposed in this pull request.
+

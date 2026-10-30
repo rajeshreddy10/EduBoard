@@ -34,3 +34,4 @@ def test_document_metadata_preservation():
     }
     assert doc_payload["fileName"].endswith(".pdf")
     assert doc_payload["pageCount"] > 0
+

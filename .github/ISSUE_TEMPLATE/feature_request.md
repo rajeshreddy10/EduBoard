@@ -22,3 +22,4 @@ A clear and concise description of any alternative solutions or features you've 
 - [ ] Cross-Platform Cloud Sync
 - [ ] Mobile Flutter App
 - [ ] Web Next.js App
+

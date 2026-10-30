@@ -260,7 +260,7 @@
     "category": "Authentication",
     "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_signup_empty_form_validation",
     "status": "PASS",
-    "duration_s": 0.0,
+    "duration_s": 0.001,
     "error": ""
   },
   {
@@ -2716,7 +2716,7 @@
     "category": "Boards",
     "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_340_profile",
     "status": "PASS",
-    "duration_s": 0.001,
+    "duration_s": 0.0,
     "error": ""
   },
   {

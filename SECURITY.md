@@ -22,3 +22,4 @@ Include:
 4. Potential impact.
 
 We will acknowledge receipt within 48 hours and work with you to coordinate a responsible patch and release.
+

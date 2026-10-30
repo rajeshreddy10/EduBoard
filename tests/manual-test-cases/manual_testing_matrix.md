@@ -13,3 +13,4 @@ This matrix complements the automated Selenium, Appium, Locust, and DAST test su
 | **TC-MAN-005** | Offline Sync | Network Drop & Reconnect | Airplane Mode Toggle | Local board changes queued and synced upon WiFi reconnect |
 | **TC-MAN-006** | Hardware Keyboard | Alt+V Voice Toggle Shortcut | Physical Desktop / Bluetooth Keyboard | Toggling Alt+V starts/stops transcription cleanly |
 | **TC-MAN-007** | Display Adaptation | Foldable & Dual Screen Reflow | Galaxy Z Fold 5 / Pixel Fold | Canvas reflows seamlessly across fold hinge angle changes |
+

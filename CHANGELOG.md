@@ -34,3 +34,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed type mismatch in `whiteboard_repository.dart`.
 - Removed Google sign-in from mobile authentication per production requirements.
 - Resolved deep-link 404 routing with client-side SPA fallback for static GitHub Pages hosting.
+
