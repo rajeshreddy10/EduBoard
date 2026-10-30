@@ -16,24 +16,23 @@ const FAQS: FAQItem[] = [
   { id: '4', category: 'Smart Board', q: 'How do I open and use the Reference Drawer?', a: 'Click the small "Reference" button in the board header to slide open a 30/70 side-by-side drawer. You can load lesson notes or reference materials on the left while keeping your main canvas active on the right.', helpful: 128 },
   { id: '5', category: 'Smart Board', q: 'How do I export my whiteboard drawings?', a: 'Click the Save or Export button in the board header to export your canvas session as a high-resolution PDF document, PNG image, or JSON data file.', helpful: 110 },
 
-  // Gesture Control (DocCanvas)
-  { id: '6', category: 'Gesture Control', q: 'How does Gesture Controlled Smart Board work?', a: 'Launch Gesture Board from the main menu. Using MediaPipe & TensorFlow webcam tracking, you can draw with your index finger, pan with an open palm, erase with a pinch gesture, clear with a fist, or select text with a peace sign.', helpful: 195 },
-  { id: '7', category: 'Gesture Control', q: 'What document formats can I annotate in DocCanvas?', a: 'DocCanvas supports PDF (.pdf), Word (.doc, .docx), PowerPoint (.ppt, .pptx), Text (.txt), and Images (.png, .jpg). You can switch between "Write" mode to annotate and "Scroll" mode to flip pages.', helpful: 134 },
+  // DocCanvas Studio
+  { id: '6', category: 'DocCanvas Studio', q: 'What tools are available in DocCanvas Document Studio?', a: 'DocCanvas provides pen markup, text overlay, highlighter, focus magnifier, vanishing laser pointer, 30/70 reference drawer, and vector replay player.', helpful: 195 },
+  { id: '7', category: 'DocCanvas Studio', q: 'What document formats can I annotate in DocCanvas?', a: 'DocCanvas supports PDF (.pdf), Word (.doc, .docx), Text (.txt), and Images (.png, .jpg). You can switch between annotation tools and scroll/zoom controls smoothly.', helpful: 134 },
 
   // Voice Control & AI
   { id: '8', category: 'Voice & AI', q: 'How does Voice Board speech transcription work?', a: 'Click the "Voice ON" button (or press Alt+V) and speak into your microphone. Your spoken words are automatically transcribed into canvas text elements with real-time sentence deduplication.', helpful: 172 },
-  { id: '9', category: 'Voice & AI', q: 'How do I generate AI Quizzes and Summaries?', a: 'Click the AI action button in the board header or voice toolbar to generate instant quizzes, lecture summaries, or ask the AI assistant questions based on your lesson content.', helpful: 156 },
 
-  // Classrooms & Collaboration
-  { id: '10', category: 'Classrooms', q: 'How do I host or join a live classroom session?', a: 'Navigate to "Classrooms" in the main menu to create or join a session. Features include real-time stroke synchronization, student chat, hand raising, live poll voting, and attendance tracking.', helpful: 180 },
-  { id: '11', category: 'Classrooms', q: 'How does real-time collaboration work?', a: 'Socket.IO powers instant sub-second stroke and cursor synchronization across all connected web and mobile participants in a classroom.', helpful: 125 },
+  // Board Sharing & Collaboration
+  { id: '10', category: 'Collaboration', q: 'How do I share a whiteboard with team members or students?', a: 'Click the "Share" button on any board from your dashboard or canvas header. You can invite collaborators by email and assign Viewer or Editor permissions.', helpful: 180 },
+  { id: '11', category: 'Collaboration', q: 'How does real-time collaboration work?', a: 'Socket.IO powers instant stroke and cursor synchronization across all connected participants on a shared board session.', helpful: 125 },
 
-  // Analytics & Security
-  { id: '12', category: 'Analytics & Profile', q: 'What statistics can I track in Analytics?', a: 'The Analytics menu section displays student engagement metrics, class participation charts, drawing time stats, and exportable reports.', helpful: 98 },
-  { id: '13', category: 'Analytics & Profile', q: 'How do I manage profile security and password reset?', a: 'Go to Profile -> Security in the main menu to change your password, view active login sessions, manage security keys, or update your profile avatar.', helpful: 115 },
+  // Profile & Security
+  { id: '12', category: 'Profile & Security', q: 'Where can I see my saved whiteboard history and stats?', a: 'Click "Saved History" in the sidebar or dashboard to view your recent sessions, activity timestamps, and board details.', helpful: 98 },
+  { id: '13', category: 'Profile & Security', q: 'How do I manage profile security and password reset?', a: 'Go to Profile -> Security in the main menu to change your password, view active login sessions, or update your profile avatar.', helpful: 115 },
 
-  // Settings & Mobile LAN
-  { id: '14', category: 'Settings & Mobile', q: 'How do I connect my mobile phone to my laptop app?', a: 'Connect both your mobile phone and laptop to the same Wi-Fi network. Open Chrome/Safari on your phone or launch the EduBoard Android App and navigate to http://<laptop-ip>:3000 (e.g. http://10.101.120.243:3000).', helpful: 210 },
+  // Settings & Devices
+  { id: '14', category: 'Settings & Mobile', q: 'How do I connect another device on my local network?', a: 'Connect both devices to the same Wi-Fi network. Open Chrome or Safari on your phone or tablet and navigate to http://<laptop-ip>:3000 to access the whiteboard.', helpful: 210 },
   { id: '15', category: 'Settings & Mobile', q: 'How do I switch themes or languages?', a: 'Go to Settings in the main menu to toggle between Dark/Light modes or select your preferred display language.', helpful: 105 },
 ];
 

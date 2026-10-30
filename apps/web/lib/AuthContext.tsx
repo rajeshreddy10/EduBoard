@@ -19,20 +19,31 @@ import {
   User as FirebaseUser
 } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import * as store from '@/lib/store';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   error: string | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
   loginWithGoogle: () => Promise<void>;
-  signup: (email: string, password: string, name: string, confirmPassword: string) => Promise<void>;
+  signup: (email: string, password: string, name: string, confirmPassword: string, role?: UserRole) => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updateUserPassword: (password: string) => Promise<void>;
   updateUserProfile: (updates: Partial<User>) => Promise<void>;
   clearError: () => void;
+}
+
+export function getCanonicalUserId(email: string, firebaseUid?: string): string {
+  if (firebaseUid) return firebaseUid;
+  if (auth.currentUser?.uid) return auth.currentUser.uid;
+  if (email && email.includes('@')) {
+    const cleanEmail = email.toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
+    return `usr_${cleanEmail}`;
+  }
+  return 'usr_guest';
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,31 +53,64 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Map Firebase User to App User
+  // Map Firebase User to App User using Firebase Auth UID as primary key
   const mapUser = async (firebaseUser: FirebaseUser | null): Promise<User | null> => {
     if (!firebaseUser) return null;
+    const email = firebaseUser.email || '';
+    const uid = firebaseUser.uid;
+
+    console.log(`[Firebase Diagnostic] [Web] Project ID: eduboard-6fdcc | Auth UID: ${uid} | Email: ${email} | Firestore Document Path: /users/${uid}`);
 
     let userData: any = null;
     try {
-      // Attempt to get Firestore data, but don't crash if it fails (e.g. offline/not enabled)
-      const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
-      userData = userDoc.exists() ? userDoc.data() : null;
+      const authDocSnap = await getDoc(doc(db, 'users', uid));
+      const legacyId = email && email.includes('@') ? `usr_${email.toLowerCase().trim().replace(/[^a-z0-9]/g, '_')}` : '';
+      let legacyData: any = null;
+      if (legacyId && legacyId !== uid) {
+        const legacySnap = await getDoc(doc(db, 'users', legacyId));
+        if (legacySnap.exists()) legacyData = legacySnap.data();
+      }
+
+      const authData = authDocSnap.exists() ? authDocSnap.data() : null;
+      userData = { ...legacyData, ...authData };
+
+      const name = userData?.full_name || userData?.name || firebaseUser.displayName || email.split('@')[0] || 'EduBoard User';
+      const mergedPayload = {
+        name,
+        full_name: name,
+        email,
+        role: userData?.role || 'teacher',
+        username: userData?.username || email.split('@')[0] || 'user',
+        avatar: userData?.avatar || firebaseUser.photoURL || '',
+        institution: userData?.institution || '',
+        updatedAt: serverTimestamp()
+      };
+
+      await setDoc(doc(db, 'users', uid), mergedPayload, { merge: true });
+      console.log(`[Firebase Diagnostic] [Web] Firestore Document Path: /users/${uid} Data:`, mergedPayload);
     } catch (err) {
-      console.warn("Firestore user fetch failed (likely service not enabled):", err);
+      console.warn("[Firebase Diagnostic] [Web] Firestore user fetch/sync note:", err);
     }
 
-    return {
-      id: firebaseUser.uid,
-      email: firebaseUser.email || '',
-      name: firebaseUser.displayName || userData?.full_name || userData?.name || firebaseUser.email?.split('@')[0] || 'User',
-      role: userData?.role || 'student',
-      username: userData?.username || firebaseUser.email?.split('@')[0] || '',
-      avatar: firebaseUser.photoURL || '',
+    const name = userData?.full_name || userData?.name || firebaseUser.displayName || email.split('@')[0] || 'EduBoard User';
+    const mapped: User = {
+      id: uid,
+      email: email,
+      name: name,
+      role: userData?.role || 'teacher',
+      username: userData?.username || email.split('@')[0] || 'user',
+      avatar: userData?.avatar || firebaseUser.photoURL || '',
       isVerified: firebaseUser.emailVerified,
       isBiometricEnabled: userData?.isBiometricEnabled || false,
       createdAt: userData?.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
       lastLoginAt: new Date().toISOString(),
+      institution: userData?.institution || '',
+      bio: userData?.bio || '',
+      phone: userData?.phone || '',
+      location: userData?.location || '',
     };
+    store.setUser(mapped);
+    return mapped;
   };
 
   useEffect(() => {
@@ -74,14 +118,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     getRedirectResult(auth).then(async (result) => {
       if (result?.user) {
         console.log('[Firebase Auth] Google redirect login successful for UID:', result.user.uid);
+        const email = result.user.email || '';
+        const canonicalId = getCanonicalUserId(email, result.user.uid);
         try {
-          const userRef = doc(db, 'users', result.user.uid);
+          const userRef = doc(db, 'users', canonicalId);
           const userDoc = await getDoc(userRef);
           if (!userDoc.exists()) {
             await setDoc(userRef, {
-              name: result.user.displayName || result.user.email?.split('@')[0],
-              email: result.user.email,
-              role: 'student',
+              name: result.user.displayName || email.split('@')[0],
+              full_name: result.user.displayName || email.split('@')[0],
+              email: email,
+              role: 'teacher',
               createdAt: serverTimestamp(),
               lastLoginAt: serverTimestamp(),
             });
@@ -110,21 +157,102 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
+  // Real-time Firestore profile subscription for instant cross-platform sync
+  useEffect(() => {
+    if (!user?.id) return;
+    let unsubProfile: (() => void) | null = null;
+    import('@/lib/services/firebaseData').then(({ userProfileService }) => {
+      unsubProfile = userProfileService.subscribeToProfile(user.id, (liveProfile) => {
+        if (liveProfile) {
+          setUser(prev => prev ? { ...prev, ...liveProfile } : liveProfile);
+          store.setUser({ ...user, ...liveProfile });
+        }
+      });
+    }).catch(console.warn);
+
+    return () => {
+      if (unsubProfile) unsubProfile();
+    };
+  }, [user?.id]);
+
   const login = async (email: string, password: string) => {
     try {
       setError(null);
       const normalizedEmail = email.toLowerCase().trim();
-      console.log('[Firebase Auth] Initiating email/password login for:', normalizedEmail);
-      const res = await signInWithEmailAndPassword(auth, normalizedEmail, password);
-      console.log('[Firebase Auth] Login successful for UID:', res.user.uid);
+      console.log('[Firebase Auth] Initiating login for account:', normalizedEmail);
+
+      let firebaseUser: FirebaseUser | null = null;
       try {
-        await api.login({ email: normalizedEmail, password });
-      } catch (backendErr) {
-        console.warn("[Firebase Auth] Backend login sync note:", backendErr);
+        const res = await signInWithEmailAndPassword(auth, normalizedEmail, password);
+        firebaseUser = res.user;
+        console.log('[Firebase Auth] Firebase login successful for Auth UID:', firebaseUser.uid);
+      } catch (fbErr: any) {
+        console.warn('[Firebase Auth] Primary Firebase login note:', fbErr.code, fbErr.message);
+        try {
+          await api.login({ email: normalizedEmail, password });
+        } catch (apiErr) {
+          let userMsg = 'Invalid email or password. Please check your credentials.';
+          if (fbErr.code === 'auth/user-not-found' || fbErr.code === 'auth/wrong-password' || fbErr.code === 'auth/invalid-credential') {
+            userMsg = 'Invalid email or password. Please try again.';
+          } else if (fbErr.code === 'auth/invalid-email') {
+            userMsg = 'Please enter a valid email address.';
+          } else if (fbErr.code === 'auth/too-many-requests') {
+            userMsg = 'Access to this account has been temporarily disabled due to many failed login attempts.';
+          }
+          setError(userMsg);
+          throw new Error(userMsg);
+        }
       }
+
+      const uid = firebaseUser?.uid || auth.currentUser?.uid;
+      if (!uid) {
+        const canonicalId = `usr_${normalizedEmail.replace(/[^a-z0-9]/g, '_')}`;
+        console.warn('[Firebase Auth] Auth UID not available yet, using canonical ID:', canonicalId);
+      }
+
+      const activeUid = uid || `usr_${normalizedEmail.replace(/[^a-z0-9]/g, '_')}`;
+
+      // Fetch or sync Firestore user profile record using Auth UID
+      let firestoreProfile: any = null;
+      try {
+        const userRef = doc(db, 'users', activeUid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          firestoreProfile = userSnap.data();
+        } else {
+          firestoreProfile = {
+            name: firebaseUser?.displayName || normalizedEmail.split('@')[0],
+            full_name: firebaseUser?.displayName || normalizedEmail.split('@')[0],
+            email: normalizedEmail,
+            role: 'teacher',
+            createdAt: serverTimestamp(),
+            lastLoginAt: serverTimestamp(),
+          };
+          await setDoc(userRef, firestoreProfile, { merge: true });
+        }
+      } catch (fsErr) {
+        console.warn('[Firebase Firestore] Login profile fetch note:', fsErr);
+      }
+
+      const loggedInUser: User = {
+        id: activeUid,
+        email: normalizedEmail,
+        name: firestoreProfile?.full_name || firestoreProfile?.name || firebaseUser?.displayName || normalizedEmail.split('@')[0] || 'EduBoard User',
+        role: firestoreProfile?.role || 'teacher',
+        username: firestoreProfile?.username || normalizedEmail.split('@')[0] || 'user',
+        avatar: firestoreProfile?.avatar || firebaseUser?.photoURL || '',
+        isVerified: firebaseUser?.emailVerified ?? true,
+        isBiometricEnabled: firestoreProfile?.isBiometricEnabled || false,
+        createdAt: firestoreProfile?.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+        lastLoginAt: new Date().toISOString(),
+      };
+
+      store.setUser(loggedInUser);
+      setUser(loggedInUser);
+      return loggedInUser;
     } catch (err: any) {
       console.error('[Firebase Auth] Login error:', err.message);
-      setError(err.message);
+      setError(err.message || 'Login failed.');
       throw err;
     }
   };
@@ -140,17 +268,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const result = await signInWithPopup(auth, provider);
         console.log('[Firebase Auth] Google popup login successful for UID:', result.user.uid);
 
-        // Ensure user document exists in Firestore
+        // Sync backend API session if available
         try {
-          const userRef = doc(db, 'users', result.user.uid);
+          const idToken = await result.user.getIdToken();
+          if (idToken) {
+            await fetch('/api/auth/oauth/google', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ idToken })
+            }).catch(() => {});
+          }
+        } catch {}
+
+        // Ensure user document exists in Firestore using canonical ID
+        try {
+          const canonicalId = getCanonicalUserId(result.user.email || '', result.user.uid);
+          const userRef = doc(db, 'users', canonicalId);
           const userDoc = await getDoc(userRef);
 
           if (!userDoc.exists()) {
-            console.log('[Firebase Firestore] Creating new user profile document for Google user:', result.user.uid);
+            console.log('[Firebase Firestore] Creating new user profile document for Google user:', canonicalId);
             await setDoc(userRef, {
               name: result.user.displayName || result.user.email?.split('@')[0],
+              full_name: result.user.displayName || result.user.email?.split('@')[0],
               email: result.user.email,
-              role: 'student',
+              role: 'teacher',
               createdAt: serverTimestamp(),
               lastLoginAt: serverTimestamp(),
             });
@@ -164,14 +306,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           popupErr.code === 'auth/popup-blocked' ||
           popupErr.code === 'auth/cancelled-popup-request' ||
           popupErr.code === 'auth/operation-not-supported-in-this-environment' ||
-          popupErr.code === 'auth/disallowed_useragent'
+          popupErr.code === 'auth/disallowed_useragent' ||
+          popupErr.code === 'auth/internal-error'
         ) {
           console.log('[Firebase Auth] Popup blocked or unsupported. Falling back to OAuth redirect mode...');
           await signInWithRedirect(auth, provider);
         } else if (popupErr.code === 'auth/popup-closed-by-user') {
           throw new Error('Google Sign-In popup was closed before completing. Please try again.');
         } else if (popupErr.code === 'auth/unauthorized-domain') {
-          throw new Error('This domain/IP is not listed in Firebase Console Authorized Domains. Please add it in Firebase Console.');
+          const domain = typeof window !== 'undefined' ? window.location.hostname : 'current domain';
+          throw new Error(`Domain/IP '${domain}' is not in Firebase Console Authorized Domains. Please add '${domain}' in Firebase Console under Authentication -> Settings -> Authorized domains.`);
         } else {
           throw popupErr;
         }
@@ -195,33 +339,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setError(null);
       if (password !== confirmPassword) throw new Error("Passwords do not match");
       const normalizedEmail = email.toLowerCase().trim();
-      console.log('[Firebase Auth] Creating user account:', normalizedEmail);
+      const canonicalId = getCanonicalUserId(normalizedEmail);
+      console.log('[Firebase Auth] Creating user account:', normalizedEmail, 'canonicalId:', canonicalId);
 
       const result = await createUserWithEmailAndPassword(auth, normalizedEmail, password);
-      console.log('[Firebase Auth] User created successfully. UID:', result.user.uid);
+      const uid = result.user.uid;
+      console.log('[Firebase Auth] User created successfully. UID:', uid);
 
       // Update display name in Firebase Auth
       await firebaseUpdateProfile(result.user, { displayName: name });
       console.log('[Firebase Auth] Updated display name to:', name);
 
-      // Create user document in Firestore (Menu Option integration)
+      // Create user document in Firestore using the exact Firebase Auth UID
       try {
-        console.log('[Firebase Firestore] Creating user profile record for:', result.user.uid);
-        await setDoc(doc(db, 'users', result.user.uid), {
+        console.log('[Firebase Firestore] Creating user profile record for UID:', uid);
+        const userProfilePayload = {
+          id: uid,
+          uid: uid,
           name,
           full_name: name,
           email: normalizedEmail,
           role,
           createdAt: serverTimestamp(),
           lastLoginAt: serverTimestamp(),
-        });
+        };
+        await setDoc(doc(db, 'users', uid), userProfilePayload, { merge: true });
       } catch (firestoreErr) {
         console.warn("[Firebase Firestore] Profile creation note:", firestoreErr);
       }
 
-      // Sync backend register to populate password_hash for Android login
+      // Sync backend register to populate password_hash and shared record using the identical UID
       try {
-        await api.signup({ email: normalizedEmail, password, name, confirmPassword, role });
+        await api.signup({ email: normalizedEmail, password, name, confirmPassword, role, uid });
       } catch (apiErr) {
         console.warn("[Firebase Auth] Backend signup sync note:", apiErr);
       }
@@ -274,6 +423,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updateUserProfile = async (updates: Partial<User>) => {
     try {
       setError(null);
+      const activeUid = user?.id || auth.currentUser?.uid;
       if (auth.currentUser) {
         if (updates.name || updates.avatar) {
           console.log('[Firebase Auth] Updating Auth profile fields:', updates);
@@ -282,6 +432,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             photoURL: updates.avatar || auth.currentUser.photoURL,
           });
         }
+      }
+      if (activeUid) {
+        console.log('[Firebase Firestore] Syncing profile updates to Firestore for UID:', activeUid, updates);
+        const { userProfileService } = await import('@/lib/services/firebaseData');
+        await userProfileService.updateProfile(activeUid, updates);
       }
       setUser(prev => prev ? { ...prev, ...updates } : null);
     } catch (err: any) {
@@ -322,4 +477,3 @@ export function useAuth() {
   }
   return context;
 }
-

@@ -25,6 +25,7 @@ import {
 import { Logo } from '@/components/branding/Logo';
 import { useAuth } from '@/lib/AuthContext';
 import { useTheme } from '@/lib/ThemeContext';
+import { LiveSubtitlesButton, LiveSubtitlesOverlay } from '@/components/subtitles/LiveSubtitles';
 
 const NAV_GROUPS = [
   {
@@ -68,6 +69,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [subtitlesEnabled, setSubtitlesEnabled] = useState(false);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -179,6 +181,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 className="w-64 lg:w-80 pl-9 pr-4 py-2 rounded-xl bg-[var(--bg-tertiary)] border border-[var(--border-primary)] text-xs font-medium text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] focus:outline-none focus:border-[var(--color-primary-500)] focus:ring-2 focus:ring-[var(--color-primary-500)]/15 transition-all"
               />
             </div>
+
+            {/* Live Subtitles Button (CC) beside Search Bar */}
+            <LiveSubtitlesButton
+              enabled={subtitlesEnabled}
+              onToggle={() => setSubtitlesEnabled(prev => !prev)}
+            />
           </div>
 
           {/* User Controls & Actions */}
@@ -243,6 +251,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <main className="flex-1 px-4 py-5 sm:px-6 sm:py-6 w-full max-w-[1600px] mx-auto animate-fade-in">
           {children}
         </main>
+
+        {/* Live Subtitles Overlay (YouTube Style) */}
+        <LiveSubtitlesOverlay
+          enabled={subtitlesEnabled}
+          onClose={() => setSubtitlesEnabled(false)}
+        />
       </div>
     </div>
   );

@@ -214,7 +214,7 @@ function parseCommand(normalized, original) {
     { pattern: /^redo(\s+that)?/, intent: 'redo', confidence: 0.95, extract: () => ({}) },
     { pattern: /^(save|store)\s+(the\s+)?(board|whiteboard)/, intent: 'save', confidence: 0.9, extract: () => ({}) },
     { pattern: /^save/, intent: 'save', confidence: 0.85, extract: () => ({}) },
-    { pattern: /^export(\s+(as|to)\s+)?(pdf|png|svg|json|pptx|docx|html|markdown)?/, intent: 'export', confidence: 0.9, extract: (m) => ({ format: m[3] || 'pdf' }) },
+    { pattern: /^export(\s+(as|to)\s+)?(pdf|png|svg|json)?/, intent: 'export', confidence: 0.9, extract: (m) => ({ format: m[3] || 'pdf' }) },
     { pattern: /^(zoom\s+in|magnify)/, intent: 'zoom_in', confidence: 0.95, extract: () => ({}) },
     { pattern: /^(zoom\s+out|shrink)/, intent: 'zoom_out', confidence: 0.95, extract: () => ({}) },
     { pattern: /^add\s+text(\s+(.+))?/, intent: 'add_text', confidence: 0.9, extract: (m) => ({ text: m[2] || '' }) },

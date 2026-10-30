@@ -4,64 +4,103 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Logo } from '@/components/branding/Logo';
 import { useAuth } from '@/lib/AuthContext';
+import { useTheme } from '@/lib/ThemeContext';
+import { Sun, Moon, ArrowRight } from 'lucide-react';
 
 export default function SplashScreen() {
   const router = useRouter();
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const { theme, toggleTheme, isDark } = useTheme();
   const [progress, setProgress] = useState(0);
-  const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
-    setShowContent(true);
     const timer = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) { clearInterval(timer); return 100; }
+      setProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(timer);
+          return 100;
+        }
         return prev + 5;
       });
-    }, 50);
+    }, 40);
 
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    if (!loading) {
-      setTimeout(() => {
-        if (user) {
-          router.replace('/dashboard');
-        } else {
-          router.replace('/login');
-        }
-      }, 1500);
+  const proceed = () => {
+    if (user) {
+      router.replace('/dashboard');
+    } else {
+      router.replace('/login');
     }
-  }, [loading, user, router]);
+  };
+
+  useEffect(() => {
+    if (progress === 100 && !authLoading) {
+      const timeout = setTimeout(() => {
+        proceed();
+      }, 350);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [progress, authLoading, user, router]);
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] flex flex-col items-center justify-center">
-      <div className={`flex flex-col items-center transition-all duration-700 ease-out ${showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-        <div className="mb-8">
-          <Logo size="xl" />
+    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] flex flex-col justify-between items-center p-6 select-none">
+      {/* Top Header with Theme Switcher */}
+      <header className="w-full max-w-md flex justify-end items-center">
+        <button
+          onClick={toggleTheme}
+          aria-label="Toggle theme"
+          className="p-2 rounded-xl bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] border border-[var(--border-primary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all cursor-pointer"
+          title={`Switch theme (current: ${theme})`}
+        >
+          {isDark ? <Sun size={15} className="text-amber-400" /> : <Moon size={15} className="text-slate-600" />}
+        </button>
+      </header>
+
+      {/* Main Center */}
+      <div className="w-full max-w-sm flex flex-col items-center text-center space-y-6 my-auto">
+        <div className="p-3.5 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-primary)] shadow-sm">
+          <Logo size="lg" showText={false} />
         </div>
 
-        <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-2">
-          EduBoard
-        </h1>
-        <p className="text-[var(--text-secondary)] text-sm mb-12">
-          Your intelligent digital workspace
-        </p>
+        <div className="space-y-1.5">
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">
+            EduBoard
+          </h1>
+          <p className="text-xs text-[var(--text-secondary)]">
+            {progress < 100 ? 'Initializing presentation & whiteboard studio...' : 'Ready for screen sharing!'}
+          </p>
+        </div>
 
-        <div className="w-48 space-y-2">
-          <div className="flex justify-between text-xs text-[var(--text-tertiary)]">
-            <span>Loading</span>
-            <span>{progress}%</span>
-          </div>
-          <div className="progress-bar">
+        <div className="w-56 space-y-2 pt-1">
+          <div className="h-1.5 w-full bg-[var(--bg-tertiary)] rounded-full overflow-hidden border border-[var(--border-primary)]">
             <div
-              className="progress-bar-fill"
+              className="h-full bg-[var(--color-primary-500)] rounded-full transition-all duration-150 ease-out"
               style={{ width: `${progress}%` }}
             />
           </div>
+          <div className="flex justify-between items-center text-[11px] text-[var(--text-tertiary)] font-mono">
+            <span>{progress < 100 ? 'Loading' : 'Ready'}</span>
+            <span>{progress}%</span>
+          </div>
         </div>
+
+        {/* Quick Skip Button */}
+        <button
+          onClick={proceed}
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--text-tertiary)] hover:text-[var(--color-primary-500)] transition-colors cursor-pointer pt-2"
+        >
+          <span>Enter now</span>
+          <ArrowRight size={13} />
+        </button>
       </div>
+
+      {/* Footer */}
+      <footer className="text-[11px] text-[var(--text-tertiary)]">
+        EduBoard &bull; Smart Whiteboard for Online Presentations &amp; Screen Sharing
+      </footer>
     </div>
   );
 }

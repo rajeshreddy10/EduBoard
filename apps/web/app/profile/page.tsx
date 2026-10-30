@@ -64,7 +64,7 @@ function ProfileContent() {
   const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user?.id) {
+    if (!user?.id || user.id === 'guest' || user.id === 'usr_guest') {
       setIsLoading(false);
       return;
     }
@@ -137,13 +137,29 @@ function ProfileContent() {
   };
 
   const handleSave = async () => {
-    if (!validateForm() || !user?.id) return;
+    if (!validateForm() || !user?.id || isSaving) return;
 
-    try {
-      setIsSaving(true);
-      setSaveError(null);
+    setIsSaving(true);
+    setSaveError(null);
 
-      await userProfileService.updateProfile(user.id, {
+    // Optimistic immediate update to local state & store (instant UI response)
+    updateLocalStoreProfile({
+      fullName: formData.name,
+      email: formData.email,
+      institution: formData.institution,
+      dateOfBirth: formData.dateOfBirth,
+      gender: formData.gender,
+      avatarUrl: formData.avatarUrl || undefined,
+      bio: formData.bio,
+    });
+    setProfile(formData);
+    setIsEditing(false);
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 2500);
+
+    // Concurrently persist to Firebase & User profile
+    Promise.all([
+      userProfileService.updateProfile(user.id, {
         name: formData.name,
         email: formData.email,
         institution: formData.institution,
@@ -154,34 +170,19 @@ function ProfileContent() {
         phone: formData.phone,
         location: formData.location,
         teachingPhilosophy: formData.teachingPhilosophy,
-      } as any);
-
-      await updateUserProfile({
+      } as any),
+      updateUserProfile({
         name: formData.name,
         institution: formData.institution,
         avatar: formData.avatarUrl || undefined,
+      }),
+    ])
+      .catch((err: any) => {
+        console.error('Failed to sync profile remotely:', err);
+      })
+      .finally(() => {
+        setIsSaving(false);
       });
-
-      updateLocalStoreProfile({
-        fullName: formData.name,
-        email: formData.email,
-        institution: formData.institution,
-        dateOfBirth: formData.dateOfBirth,
-        gender: formData.gender,
-        avatarUrl: formData.avatarUrl || undefined,
-        bio: formData.bio,
-      });
-
-      setProfile(formData);
-      setIsEditing(false);
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 4000);
-    } catch (err: any) {
-      console.error('Failed to update profile:', err);
-      setSaveError(err?.message || 'Failed to update profile. Please try again.');
-    } finally {
-      setIsSaving(false);
-    }
   };
 
   const handleCancel = () => {

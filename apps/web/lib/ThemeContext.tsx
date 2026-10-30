@@ -38,7 +38,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id || user.id === 'guest' || user.id === 'usr_guest') return;
     async function syncThemeFromFirestore() {
       try {
         console.log('[Firebase Firestore] [Menu Option: Theme Studio] Loading user theme preference from Firestore for user:', user!.id);

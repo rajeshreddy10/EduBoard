@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 import { useBoard } from '@/lib/BoardContext';
+import { boardHref } from '@/lib/boardRouting';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -211,7 +212,8 @@ export default function DashboardPage() {
             {recentHistory.map((item) => (
               <div
                 key={item.id}
-                onClick={() => router.push(`/dashboard/boards/${item.id}`)}
+                onClick={() => router.push(boardHref(item))}
+                title="Restore this saved board — continues exactly where you left off"
                 className="p-5 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-primary)] shadow-xs hover:shadow-md hover:border-[var(--border-secondary)] transition-all cursor-pointer space-y-4 flex flex-col justify-between group"
               >
                 <div>

@@ -1,7 +1,7 @@
 {
   "modelName": "EduBoard-Local-Acoustic-STT-v2.1",
   "version": "2.1.0",
-  "trainedAt": "2026-09-01T07:24:26.765Z",
+  "trainedAt": "2026-10-21T06:20:46.091Z",
   "trainingAccuracy": 100,
   "vocabulary": [
     {
@@ -253,7 +253,7 @@
         "derivative"
       ],
       "confidence": 0.99,
-      "trainedAt": "2026-09-01T07:24:26.765Z"
+      "trainedAt": "2026-10-21T06:20:46.091Z"
     },
     {
       "phrase": "photosynthesis process",

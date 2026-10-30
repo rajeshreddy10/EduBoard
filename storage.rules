@@ -2,21 +2,26 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    // 1. User Profile Avatars — Public read, owner-only write
-    match /users/{uid}/avatar {
+    // Avatars: world-readable (profile thumbnails), owner-only writes with a
+    // hard size + content-type guard so nothing huge or non-image can land.
+    match /users/{userId}/avatar {
       allow read: if true;
-      allow write: if request.auth != null && request.auth.uid == uid
-                   && request.resource.size < 5 * 1024 * 1024; // 5MB max
+      allow write: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
     }
 
-    // 2. User Private Files & Documents
-    match /users/{uid}/files/{fileId} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+    // Board documents offloaded by the web app (documents/{uid}/{boardId}/...):
+    // strictly owner-scoped read/write.
+    match /documents/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId
+        && request.resource.size < 25 * 1024 * 1024;
     }
 
-    // 3. Fallback for authenticated session files
+    // Default fallback rule: deny everything else (no data exfiltration).
     match /{allPaths=**} {
-      allow read, write: if request.auth != null;
+      allow read, write: if false;
     }
   }
 }

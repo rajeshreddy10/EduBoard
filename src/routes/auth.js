@@ -59,7 +59,7 @@ async function upsertOAuthUser({ email, fullName, avatarUrl, provider, providerI
 
 // ── Register ──────────────────────────────────────────────────────────────
 async function handleRegister(req, res) {
-  const { email, password, fullName, name, role } = req.body;
+  const { email, password, fullName, name, role, uid, firebaseUid } = req.body;
   const displayName = fullName || name;
   if (!email || !password || !displayName) {
     return res.status(400).json({ error: 'Email, password, and full name are required' });
@@ -69,10 +69,24 @@ async function handleRegister(req, res) {
   if (existing.length > 0) {
     return res.status(409).json({ error: 'Email already registered' });
   }
-  const userId = uuidv4();
+
+  // Prioritize client-provided Firebase Auth UID or fetch existing Firebase Auth UID
+  let userId = uid || firebaseUid;
+  const admin = require('firebase-admin');
+  if (!userId && admin && admin.apps && admin.apps.length) {
+    try {
+      const fbRecord = await admin.auth().getUserByEmail(normalizedEmail);
+      if (fbRecord) userId = fbRecord.uid;
+    } catch {}
+  }
+  if (!userId) {
+    userId = uuidv4();
+  }
+
   const passwordHash = await hashPassword(password);
   const newUserDoc = {
     id: userId,
+    uid: userId,
     email: normalizedEmail,
     password_hash: passwordHash,
     full_name: displayName,
@@ -83,7 +97,9 @@ async function handleRegister(req, res) {
   };
 
   try {
-    await db.db.collection('users').doc(userId).set(newUserDoc);
+    if (db.db && typeof db.db.collection === 'function') {
+      await db.db.collection('users').doc(userId).set(newUserDoc, { merge: true });
+    }
   } catch (err) {
     await db.query(
       'INSERT INTO users (id, email, password_hash, full_name, role) VALUES (?, ?, ?, ?, ?)',
@@ -93,8 +109,7 @@ async function handleRegister(req, res) {
 
   // Sync user creation with Firebase Auth if Firebase Admin is initialized
   try {
-    const admin = require('firebase-admin');
-    if (admin.apps.length) {
+    if (admin && admin.apps && admin.apps.length) {
       await admin.auth().createUser({
         uid: userId,
         email: normalizedEmail,
@@ -113,14 +128,6 @@ async function handleRegister(req, res) {
   const user = { id: userId, email: normalizedEmail, role: role || 'teacher' };
   const token = generateToken(user);
   const refreshToken = generateRefreshToken(user);
-  try {
-    await db.query(
-      'INSERT INTO sessions (id, user_id, token, refresh_token, ip_address, expires_at) VALUES (?, ?, ?, ?, ?, ?)',
-      [uuidv4(), userId, token, refreshToken, req.ip, new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)]
-    );
-  } catch (err) {
-    console.error('Session creation failed:', err.message);
-  }
   res.status(201).json({
     token, refreshToken,
     user: { id: userId, email: normalizedEmail, fullName: displayName, role: role || 'teacher' },
@@ -210,22 +217,6 @@ router.post('/login', asyncHandler(async (req, res) => {
 
   const token = generateToken(user);
   const refreshToken = generateRefreshToken(user);
-
-  try {
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    const sessionId = uuidv4();
-    await db.db.collection('sessions').doc(sessionId).set({
-      id: sessionId,
-      user_id: user.id,
-      token,
-      refresh_token: refreshToken,
-      ip_address: req.ip || '',
-      expires_at: expiresAt,
-      created_at: new Date().toISOString()
-    });
-  } catch (err) {
-    console.warn('Session Firestore save error:', err.message);
-  }
 
   res.json({
     token, refreshToken,

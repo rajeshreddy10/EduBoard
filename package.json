@@ -3,9 +3,10 @@
   "version": "3.0.0",
   "private": true,
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "packages/*"
   ],
-  "description": "EduBoard PDD — Web-Only Monorepo (Frontend + Backend)",
+  "description": "EduBoard Enterprise Platform (Web Application and API Backend)",
   "scripts": {
     "dev:web": "npm run dev --prefix apps/web",
     "dev:api": "npm run dev --prefix apps/api",
@@ -18,22 +19,16 @@
     "start": "concurrently \"npm run start:api\" \"npm run start:web\"",
     "install:all": "npm install --prefix apps/web && npm install --prefix apps/api",
     "lint": "npm run lint --prefix apps/web && npm run lint --prefix apps/api",
-    "test:load": "node scripts/run_load_test_suite.js",
-    "test:selenium": "node selenium-tests/tests/login-tests.js",
-    "test:appium": "node appium-tests/mobile-tests.js",
-    "test:security": "node scripts/run_security_suite.js",
-    "test:all-300": "node selenium-tests/tests/login-tests.js && node appium-tests/mobile-tests.js && node scripts/run_load_test_suite.js && node scripts/run_security_suite.js",
-    "test:all-reports": "npm run test:all-300",
     "test": "npm run test --prefix apps/web && npm run test --prefix apps/api"
   },
   "devDependencies": {
     "concurrently": "^8.2.0",
-    "exceljs": "^4.4.0",
-    "nodemon": "^3.0.0",
-    "selenium-webdriver": "^4.48.0"
+    "nodemon": "^3.0.0"
   },
   "dependencies": {
-    "flutter": "^0.0.5",
+    "@supabase/supabase-js": "^2.116.0",
+    "firebase": "^12.19.0",
+    "firebase-admin": "^14.4.0",
     "openai": "^6.48.0",
     "redis": "^6.2.1"
   }

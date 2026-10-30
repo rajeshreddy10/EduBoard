@@ -1,4 +1,4 @@
-import { Board, User, UserSettings, UserProfile, UsageStats, ActivityEntry, Notification, CollaborationSession, CollaborationParticipant, CloudFile, Lecture, AttendanceRecord, AISummary, AIInsight, Poll, Quiz, Classroom, DrawingStroke, GestureMapping, VoiceCommand, AdminMetrics, PerformanceReport, AR3DObject } from './types';
+import { Board, User, UserSettings, ActivityEntry, Notification, DrawingStroke, VoiceCommand } from './types';
 
 const KEYS = {
   user: 'sbb_user',
@@ -7,20 +7,7 @@ const KEYS = {
   notifications: 'sbb_notifications',
   activities: 'sbb_activities',
   drawings: 'sbb_drawings',
-  classrooms: 'sbb_classrooms',
-  lectures: 'sbb_lectures',
-  attendance: 'sbb_attendance',
-  polls: 'sbb_polls',
-  quizzes: 'sbb_quizzes',
-  aiSummaries: 'sbb_ai_summaries',
-  aiInsights: 'sbb_ai_insights',
-  cloudFiles: 'sbb_cloud_files',
-  collaborations: 'sbb_collaborations',
-  gestureMappings: 'sbb_gesture_mappings',
   voiceCommands: 'sbb_voice_commands',
-  analytics: 'sbb_analytics',
-  performanceReports: 'sbb_performance',
-  chatHistory: 'sbb_chat_history',
   starredItems: 'sbb_starred',
   logo: 'sbb_logo',
   appName: 'sbb_app_name',
@@ -126,10 +113,19 @@ export function updateBoard(id: string, data: Partial<Board>): Board | undefined
 
 export function deleteBoard(id: string) { set(KEYS.boards, getBoards().filter(b => b.id !== id)); }
 
+/** Insert-or-update a board record (used by duplicates & restores). */
+export function upsertBoard(board: Board) {
+  const boards = getBoards();
+  const idx = boards.findIndex(b => b.id === board.id);
+  if (idx === -1) boards.unshift(board);
+  else boards[idx] = { ...boards[idx], ...board };
+  set(KEYS.boards, boards);
+}
+
 const DEFAULT_SETTINGS: UserSettings = {
-  theme: 'light', language: 'en', gestureMode: 'advanced', voiceAssistance: true, serverSTT: true,
+  theme: 'light', language: 'en', voiceAssistance: true, serverSTT: true,
   autoCorrect: true, spellCheck: true, textSize: 'medium', soundEnabled: true,
-  hapticFeedback: true, gestureAccuracy: 'high', autoSave: true, autoSync: true,
+  hapticFeedback: true, autoSave: true, autoSync: true,
   notificationsEnabled: true, emailNotifications: false, smartSuggestions: true,
   reducedMotion: false, highContrast: false, fontSize: 16, boardWidth: 1920,
   boardHeight: 1080, defaultTool: 'pen', defaultColor: '#6366f1', defaultStrokeWidth: 3,
@@ -138,16 +134,6 @@ const DEFAULT_SETTINGS: UserSettings = {
 export function getSettings(): UserSettings { return get(KEYS.settings, DEFAULT_SETTINGS); }
 export function updateSettings(s: Partial<UserSettings>): UserSettings {
   const updated = { ...getSettings(), ...s }; set(KEYS.settings, updated); return updated;
-}
-
-export function getUsageStats(): UsageStats {
-  const boards = getBoards();
-  return get(KEYS.analytics, {
-    totalBoards: boards.length, totalGestures: 2847, totalWriteTime: 3912,
-    averageAccuracy: 94.2, mostUsedGesture: 'writing', mostUsedTool: 'pen',
-    totalClassrooms: 12, totalLectures: 48, totalStudents: 156,
-    totalCollaborations: 89, storageUsed: 2.4, lastUsed: new Date().toISOString(),
-  });
 }
 
 export function getDrawings(boardId: string): DrawingStroke[] {
@@ -163,22 +149,6 @@ export function addStroke(boardId: string, stroke: DrawingStroke) {
 }
 
 export function clearDrawings(boardId: string) { saveDrawings(boardId, []); }
-
-export function getClassrooms(): Classroom[] { return get(KEYS.classrooms, []); }
-export function getClassroom(id: string): Classroom | undefined { return getClassrooms().find(c => c.id === id); }
-export function createClassroom(data: Partial<Classroom>): Classroom {
-  const rooms = getClassrooms();
-  const c: Classroom = {
-    id: genId(), code: Math.random().toString(36).substr(2, 6).toUpperCase(),
-    name: data.name || 'New Classroom', teacherId: 'u1', teacherName: 'Rajesh Kumar',
-    students: [], isLive: false, maxStudents: 50, settings: {
-      allowChat: true, allowHandRaise: true, allowScreenShare: true,
-      muteOnJoin: true, requireApproval: false, recordingEnabled: true,
-      autoAttendance: true, language: 'en',
-    }, ...data
-  };
-  rooms.push(c); set(KEYS.classrooms, rooms); return c;
-}
 
 export function getNotifications(): Notification[] { return get(KEYS.notifications, []); }
 export function addNotification(n: Partial<Notification>): Notification {
@@ -204,26 +174,6 @@ export function addActivity(data: Partial<ActivityEntry>): ActivityEntry {
   activities.unshift(a); if (activities.length > 100) activities.pop(); set(KEYS.activities, activities); return a;
 }
 
-export function getGestureMappings(): GestureMapping[] {
-  return get(KEYS.gestureMappings, [
-    { id: 'g1', gesture: 'index_point', action: 'draw', isActive: true, sensitivity: 75 },
-    { id: 'g2', gesture: 'two_fingers', action: 'pan', isActive: true, sensitivity: 70 },
-    { id: 'g3', gesture: 'fist', action: 'erase', isActive: true, sensitivity: 80 },
-    { id: 'g4', gesture: 'open_palm', action: 'clear', isActive: true, sensitivity: 85 },
-    { id: 'g5', gesture: 'pinch', action: 'zoom', isActive: true, sensitivity: 65 },
-    { id: 'g6', gesture: 'swipe_left', action: 'undo', isActive: true, sensitivity: 60 },
-    { id: 'g7', gesture: 'swipe_right', action: 'redo', isActive: true, sensitivity: 60 },
-    { id: 'g8', gesture: 'ok_sign', action: 'select', isActive: true, sensitivity: 90 },
-    { id: 'g9', gesture: 'thumbs_up', action: 'confirm', isActive: false, sensitivity: 50 },
-    { id: 'g10', gesture: 'peace', action: 'tool_menu', isActive: false, sensitivity: 50 },
-  ]);
-}
-export function updateGestureMapping(id: string, data: Partial<GestureMapping>): GestureMapping[] {
-  const mappings = getGestureMappings(); const idx = mappings.findIndex(m => m.id === id);
-  if (idx !== -1) { mappings[idx] = { ...mappings[idx], ...data }; set(KEYS.gestureMappings, mappings); }
-  return mappings;
-}
-
 export function getVoiceCommands(): VoiceCommand[] {
   return get(KEYS.voiceCommands, [
     { id: 'v1', command: 'start drawing', action: 'activate_pen', language: 'en', isActive: true },
@@ -238,36 +188,6 @@ export function getVoiceCommands(): VoiceCommand[] {
     { id: 'v10', command: 'decrease size', action: 'decrease_size', language: 'en', isActive: true },
   ]);
 }
-
-export function getCloudFiles(): CloudFile[] { return get(KEYS.cloudFiles, []); }
-export function addCloudFile(data: Partial<CloudFile>): CloudFile {
-  const files = getCloudFiles();
-  const f: CloudFile = { id: genId(), name: 'Untitled', type: 'board', mimeType: 'application/json', size: 0, url: '', createdBy: 'u1', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), isStarred: false, isSynced: true, ...data };
-  files.unshift(f); set(KEYS.cloudFiles, files); return f;
-}
-
-export function getLectures(): Lecture[] { return get(KEYS.lectures, []); }
-export function addLecture(data: Partial<Lecture>): Lecture {
-  const lectures = getLectures();
-  const l: Lecture = { id: genId(), classroomId: '', title: 'New Lecture', teacherId: 'u1', teacherName: 'Rajesh Kumar', startedAt: new Date().toISOString(), duration: 0, attendance: [], ...data };
-  lectures.unshift(l); set(KEYS.lectures, lectures); return l;
-}
-
-export function getAttendance(): AttendanceRecord[] { return get(KEYS.attendance, []); }
-export function getAISummaries(): AISummary[] { return get(KEYS.aiSummaries, []); }
-export function getAIInsights(): AIInsight[] { return get(KEYS.aiInsights, []); }
-export function getPolls(classroomId: string): Poll[] {
-  const all = get<Record<string, Poll[]>>(KEYS.polls, {}); return all[classroomId] || [];
-}
-export function createPoll(classroomId: string, data: Partial<Poll>): Poll {
-  const all = get<Record<string, Poll[]>>(KEYS.polls, {});
-  if (!all[classroomId]) all[classroomId] = [];
-  const p: Poll = { id: genId(), classroomId, question: '', options: [], createdAt: new Date().toISOString(), isActive: true, isAnonymous: false, type: 'single', ...data };
-  all[classroomId].push(p); set(KEYS.polls, all); return p;
-}
-
-export function incrementGestureCount(amount?: number) {}
-export function addCorrectionEntry(correction: any) {}
 
 /* ── Logo / Branding ── */
 

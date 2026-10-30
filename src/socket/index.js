@@ -5,14 +5,20 @@ const connectedUsers = new Map();
 const roomSessions = new Map();
 
 function initializeSocket(io) {
-  io.use((socket, next) => {
+  io.use(async (socket, next) => {
     const token = socket.handshake.auth?.token || socket.handshake.query?.token;
     if (token) {
-      const decoded = verifyToken(token);
-      if (decoded) {
-        socket.userId = decoded.id;
-        socket.userRole = decoded.role;
-        socket.userEmail = decoded.email;
+      try {
+        // verifyToken is async (JWT first, Firebase ID second) — a missing
+        // await silently produced `Promise` websocket identities.
+        const decoded = await verifyToken(token);
+        if (decoded && decoded.id) {
+          socket.userId = decoded.id;
+          socket.userRole = decoded.role;
+          socket.userEmail = decoded.email;
+        }
+      } catch (err) {
+        console.warn('[Socket] Token verification failed:', err?.message);
       }
     }
     next();
@@ -30,14 +36,14 @@ function initializeSocket(io) {
       socket.join(`board:${boardId}`);
       socket.currentBoard = boardId;
 
-      if (socket.userId) {
+      if (socket.userId && db.db) {
         try {
-          await db.query(
-            `INSERT INTO whiteboard_collaborators (id, whiteboard_id, user_id, permission, is_online) 
-             VALUES (UUID(), ?, ?, 'edit', TRUE)
-             ON DUPLICATE KEY UPDATE is_online = TRUE, last_active_at = NOW()`,
-            [boardId, socket.userId]
-          );
+          db.db.collection('whiteboards').doc(boardId).collection('collaborators').doc(socket.userId).set({
+            user_id: socket.userId,
+            permission: 'edit',
+            is_online: true,
+            last_active_at: new Date().toISOString()
+          }, { merge: true });
         } catch {}
       }
 
@@ -249,9 +255,12 @@ function initializeSocket(io) {
       const { boardId } = data;
       socket.leave(`board:${boardId}`);
 
-      if (socket.userId) {
+      if (socket.userId && db.db) {
         try {
-          db.query('UPDATE whiteboard_collaborators SET is_online = FALSE WHERE whiteboard_id = ? AND user_id = ?', [boardId, socket.userId]);
+          db.db.collection('whiteboards').doc(boardId).collection('collaborators').doc(socket.userId).set({
+            is_online: false,
+            last_active_at: new Date().toISOString()
+          }, { merge: true });
         } catch {}
       }
 
@@ -296,24 +305,18 @@ function initializeSocket(io) {
       });
     });
 
-    socket.on('signal', (data) => {
-      const { to, signal } = data;
-      io.to(to).emit('signal', {
-        signal,
-        from: socket.id,
-        userId: socket.userId
-      });
-    });
-
     socket.on('disconnect', async () => {
       console.log(`Socket disconnected: ${socket.id}`);
 
       if (socket.userId) {
         connectedUsers.delete(socket.userId);
         const boardId = socket.currentBoard;
-        if (boardId) {
+        if (boardId && db.db) {
           try {
-            db.query('UPDATE whiteboard_collaborators SET is_online = FALSE WHERE whiteboard_id = ? AND user_id = ?', [boardId, socket.userId]);
+            db.db.collection('whiteboards').doc(boardId).collection('collaborators').doc(socket.userId).set({
+              is_online: false,
+              last_active_at: new Date().toISOString()
+            }, { merge: true });
           } catch {}
           io.to(`board:${boardId}`).emit('user-left', {
             userId: socket.userId,

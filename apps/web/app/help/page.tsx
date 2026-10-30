@@ -17,17 +17,17 @@ const FAQS: FAQItem[] = [
   { id: '2', category: 'Dashboard & History', q: 'How do I access and resume past saved sessions?', a: 'Click "Saved History" or "Boards" in the main menu to view all your saved sessions. You can resume editing, export to PDF/PNG, or share any past session with students.' },
   { id: '3', category: 'Smart Board', q: 'What tools are available in Smart Board (DrawSpace)?', a: 'Smart Board includes freehand Pen, Eraser, Vanishing Laser Pointer, Focus Spotlight, Color Swatches, Text Typing, Grid Background styles, Progressive Reveal steps, 30/70 Reference Drawer, and Export options.' },
   { id: '4', category: 'Smart Board', q: 'How do I open and use the Reference Drawer?', a: 'Click the small "Reference" button in the board header to slide open a 30/70 side-by-side drawer. You can load lesson notes or reference materials on the left while keeping your main canvas active on the right.' },
-  { id: '5', category: 'Gesture Control', q: 'How does Gesture Controlled Smart Board work?', a: 'Launch Gesture Board from the main menu. Using MediaPipe & TensorFlow webcam tracking, you can draw with your index finger, pan with an open palm, erase with a pinch gesture, clear with a fist, or select text with a peace sign.' },
+  { id: '5', category: 'DocCanvas Studio', q: 'What is DocCanvas Document Annotator?', a: 'DocCanvas allows you to import and annotate PDF and Word documents directly on canvas with pen, highlighter, text typing, focus magnifier, vanishing laser pointer, and vector replay player.' },
   { id: '6', category: 'Voice & AI', q: 'How does Voice Board speech transcription work?', a: 'Click the "Voice ON" button (or press Alt+V) and speak into your microphone. Your spoken words are automatically transcribed into canvas text elements with real-time sentence deduplication.' },
-  { id: '7', category: 'Classrooms', q: 'How do I host or join a live classroom session?', a: 'Navigate to "Classrooms" in the main menu to create or join a session. Features include real-time stroke synchronization, student chat, hand raising, live poll voting, and attendance tracking.' },
-  { id: '8', category: 'Settings & Mobile', q: 'How do I connect my mobile phone to my laptop app?', a: 'Connect both your mobile phone and laptop to the same Wi-Fi network. Open Chrome/Safari on your phone or launch the EduBoard Android App and navigate to http://<laptop-ip>:3000 (e.g. http://10.101.120.243:3000).' },
+  { id: '7', category: 'Collaboration', q: 'How do I share and collaborate on whiteboards?', a: 'Open any board and click "Share" to invite collaborators by email with Viewer or Editor permissions, or broadcast your canvas in real time.' },
+  { id: '8', category: 'Settings & Mobile', q: 'How do I connect another device on my local network?', a: 'Connect both devices to the same Wi-Fi network. Open Chrome or Safari on your phone or tablet and navigate to http://<laptop-ip>:3000 to access the whiteboard.' },
 ];
 
 const CATEGORIES = [
   { icon: Cpu, label: 'Smart Board', color: 'text-purple-500 bg-purple-500/10' },
-  { icon: FileText, label: 'Gesture Control', color: 'text-blue-500 bg-blue-500/10' },
+  { icon: FileText, label: 'DocCanvas Studio', color: 'text-blue-500 bg-blue-500/10' },
   { icon: Mic, label: 'Voice & AI', color: 'text-amber-500 bg-amber-500/10' },
-  { icon: Save, label: 'Classrooms', color: 'text-indigo-500 bg-indigo-500/10' },
+  { icon: Save, label: 'Collaboration', color: 'text-indigo-500 bg-indigo-500/10' },
   { icon: Settings, label: 'Settings & Mobile', color: 'text-emerald-500 bg-emerald-500/10' },
 ];
 

@@ -1,7 +1,7 @@
 {
   "name": "EduBoard",
   "short_name": "EduBoard",
-  "description": "AI-powered smart classroom platform for gesture-driven interactive learning",
+  "description": "AI-powered smart teaching whiteboard, voice transcription, and document annotation platform",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0f",
@@ -15,8 +15,8 @@
   "related_applications": [
     {
       "platform": "play",
-      "url": "https://play.google.com/store/apps/details?id=app.eduboard.gestureai",
-      "id": "app.eduboard.gestureai"
+      "url": "https://play.google.com/store/apps/details?id=app.eduboard.web",
+      "id": "app.eduboard.web"
     },
     {
       "platform": "windows",
@@ -86,14 +86,14 @@
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "EduBoard main interface with gesture controls"
+      "label": "EduBoard main interface with smart tools"
     },
     {
       "src": "/screenshots/desktop-classroom.png",
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Classroom management dashboard"
+      "label": "Document annotation studio"
     },
     {
       "src": "/screenshots/mobile-board.png",
@@ -107,15 +107,15 @@
       "sizes": "720x1280",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Active lecture view on mobile"
+      "label": "Active board view on mobile"
     }
   ],
   "shortcuts": [
     {
-      "name": "New Board",
-      "short_name": "New Board",
-      "description": "Create a new board",
-      "url": "/boards/new",
+      "name": "DrawSpace Canvas",
+      "short_name": "DrawSpace",
+      "description": "Open DrawSpace smart canvas",
+      "url": "/normal-board",
       "icons": [
         {
           "src": "/icons/icon-96x96.png",
@@ -125,10 +125,10 @@
       ]
     },
     {
-      "name": "Classrooms",
-      "short_name": "Classes",
-      "description": "View your classrooms",
-      "url": "/classrooms",
+      "name": "DocCanvas Studio",
+      "short_name": "DocCanvas",
+      "description": "Annotate documents and PDFs",
+      "url": "/gesture-board",
       "icons": [
         {
           "src": "/icons/icon-96x96.png",

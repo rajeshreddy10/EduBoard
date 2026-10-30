@@ -25,7 +25,7 @@ interface BoardHeaderProps {
 
 export function BoardHeader({
   title,
-  subtitle = 'Auto Sync: Active',
+  subtitle = 'Manual Save',
   version = 'v3.1',
   onAiAction,
   aiActionLabel = 'AI Action',
@@ -113,7 +113,7 @@ export function BoardHeader({
             <ArrowLeft className="w-3.5 h-3.5" />
             <span className="hidden lg:inline text-[11px] font-medium">Back</span>
           </button>
-          
+
           <div className="flex flex-col">
             <h1 className="text-xs sm:text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
               <Sparkles className="w-3.5 h-3.5 text-[var(--color-primary-500)] shrink-0" />
@@ -146,15 +146,14 @@ export function BoardHeader({
             <button
               onClick={onSave}
               disabled={saveStatus === 'saving'}
-              className={`flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-lg transition-all cursor-pointer border shrink-0 ${
-                saveStatus === 'saved'
+              className={`flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-lg transition-all cursor-pointer border shrink-0 ${saveStatus === 'saved'
                   ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 hover:bg-emerald-500/20'
                   : saveStatus === 'error'
-                  ? 'bg-red-500/10 border-red-500/30 text-red-600 hover:bg-red-500/20'
-                  : saveStatus === 'unsaved'
-                  ? 'bg-amber-500/10 border-amber-500/30 text-amber-600 hover:bg-amber-500/20'
-                  : 'bg-[var(--color-primary-500)] border-[var(--color-primary-600)] text-white hover:bg-[var(--color-primary-600)] shadow-xs'
-              }`}
+                    ? 'bg-red-500/10 border-red-500/30 text-red-600 hover:bg-red-500/20'
+                    : saveStatus === 'unsaved'
+                      ? 'bg-amber-500/10 border-amber-500/30 text-amber-600 hover:bg-amber-500/20'
+                      : 'bg-[var(--color-primary-500)] border-[var(--color-primary-600)] text-white hover:bg-[var(--color-primary-600)] shadow-xs'
+                }`}
             >
               {renderSaveButtonContent()}
             </button>

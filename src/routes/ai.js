@@ -15,9 +15,6 @@ router.post('/handwriting', asyncHandler(aiController.handwriting));
 // OCR / grammar cleanup
 router.post('/format-text', asyncHandler(aiController.formatText));
 
-// AI Quiz Generation
-router.post('/quiz', asyncHandler(aiController.quiz));
-
 // Lecture / document summarization
 router.post('/summarize', asyncHandler(aiController.summarize));
 

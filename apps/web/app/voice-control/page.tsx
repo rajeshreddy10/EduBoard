@@ -87,6 +87,18 @@ function VoiceBoardContent() {
 
   const [saveStatus, setSaveStatus] = useState<SaveStatusType>('idle');
   const [lastSavedTime, setLastSavedTime] = useState<string>('');
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const statusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Identity of the originally loaded board — preserves createdBy/createdAt on every save.
+  const originalBoardRef = useRef<Board | null>(null);
+  const boardIdRef = useRef<string>(boardId);
+  useEffect(() => { boardIdRef.current = boardId; }, [boardId]);
+
+  const showStatus = useCallback((message: string, duration = 2800) => {
+    setStatusMessage(message);
+    if (statusTimerRef.current) clearTimeout(statusTimerRef.current);
+    statusTimerRef.current = setTimeout(() => setStatusMessage(null), duration);
+  }, []);
 
   // Mode & State
   const [isVoiceActive, setIsVoiceActive] = useState(false);
@@ -137,15 +149,27 @@ function VoiceBoardContent() {
         setBoardId(b.id);
         if (b.title) setBoardTitle(b.title);
         setCurrentBoard(b);
+        originalBoardRef.current = b;
 
         let loadedStrokes: Stroke[] = [];
-        if (b.strokes && Array.isArray(b.strokes) && b.strokes.length > 0) {
-          loadedStrokes = b.strokes as any;
+        const rawStrokes = b.strokes && Array.isArray(b.strokes) ? b.strokes : null;
+        if (rawStrokes && rawStrokes.length > 0) {
+          loadedStrokes = rawStrokes.map((s: any) => ({
+            ...s,
+            width: s.width || s.strokeWidth || 3,
+            color: s.color || s.colorHex || '#ffffff',
+            tool: s.tool || s.type || 'pen',
+          })) as any;
         } else if (b.content && typeof b.content === 'string' && b.content.trim().length > 0) {
           try {
             const parsed = JSON.parse(b.content);
-            if (Array.isArray(parsed)) loadedStrokes = parsed;
-            else if (parsed && Array.isArray(parsed.strokes)) loadedStrokes = parsed.strokes;
+            const contentStrokes = Array.isArray(parsed) ? parsed : (parsed?.strokes || []);
+            loadedStrokes = contentStrokes.map((s: any) => ({
+              ...s,
+              width: s.width || s.strokeWidth || 3,
+              color: s.color || s.colorHex || '#ffffff',
+              tool: s.tool || s.type || 'pen',
+            }));
           } catch {}
         }
         if (loadedStrokes.length === 0) {
@@ -156,6 +180,25 @@ function VoiceBoardContent() {
         let loadedElements: BoardTextElement[] = [];
         if (b.elements && Array.isArray(b.elements) && b.elements.length > 0) {
           loadedElements = b.elements as any;
+        } else if ((b as any).blocks && Array.isArray((b as any).blocks)) {
+          loadedElements = (b as any).blocks.map((blk: any, i: number) => ({
+            id: blk.id || `voice_${Date.now()}_${i}`,
+            text: blk.text || '',
+            x: blk.position_x || blk.position?.dx || blk.position?.x || 60,
+            y: blk.position_y || blk.position?.dy || blk.position?.y || (180 + i * 60),
+            fontSize: 24,
+            color: '#ffffff',
+          }));
+        } else if ((b as any).transcript && typeof (b as any).transcript === 'string') {
+          const lines = ((b as any).transcript as string).split('\n').filter((l: string) => l.trim().length > 0);
+          loadedElements = lines.map((l: string, i: number) => ({
+            id: `voice_line_${i}`,
+            text: l.trim(),
+            x: 60,
+            y: 180 + i * 60,
+            fontSize: 24,
+            color: '#ffffff',
+          }));
         } else if (b.content && typeof b.content === 'string') {
           try {
             const parsed = JSON.parse(b.content);
@@ -166,44 +209,57 @@ function VoiceBoardContent() {
         setStrokes(loadedStrokes);
         setTextElements(loadedElements);
         if ((b as any).activeDocument) setActiveDocument((b as any).activeDocument);
+        if ((loadedStrokes.length > 0 || loadedElements.length > 0) && isMounted) {
+          showStatus(`Board restored — continuing "${b.title}" with ${loadedStrokes.length} strokes & ${loadedElements.length} spoken elements`, 4000);
+        }
       }
     }
     loadSavedVoiceBoard();
     return () => { isMounted = false; };
   }, [queryId, user?.id]);
 
+  /** Unified payload builder for manual + auto saves (identity preserved). */
+  const buildBoardPayload = useCallback((): Board => {
+    const loaded = originalBoardRef.current;
+    const now = new Date();
+    return {
+      id: boardIdRef.current,
+      title: activeDocument ? `Voice Board: ${activeDocument.name}` : (loaded?.title && boardTitle === 'Voice AI Interactive Board' ? loaded.title : (boardTitle || 'Voice AI Interactive Board')),
+      description: `Speech & canvas session with ${textElements.length} spoken elements and ${strokes.length} strokes.`,
+      createdBy: loaded?.createdBy && !(loaded.createdBy === 'guest' || loaded.createdBy === 'u1') ? loaded.createdBy : (user?.id || loaded?.createdBy || 'guest'),
+      createdAt: loaded?.createdAt || now.toISOString(),
+      updatedAt: now.toISOString(),
+      isShared: loaded?.isShared || false,
+      sharedWith: loaded?.sharedWith,
+      width: 1920,
+      height: 1080,
+      zoom: 100,
+      isInfiniteCanvas: true,
+      studio: 'voiceboard',
+      strokes: strokes as any,
+      elements: textElements as any,
+      ...(activeDocument ? {
+        bgFile: { url: activeDocument.dataUrl || (activeDocument as any).url, type: activeDocument.type },
+        activeDocument: activeDocument as any,
+      } : {}),
+    } as Board;
+  }, [strokes, textElements, activeDocument, boardTitle, user?.id]);
+
   const handleSave = async () => {
     setSaveStatus('saving');
     try {
       const now = new Date();
       const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const boardPayload: Board = {
-        id: boardId,
-        title: activeDocument ? `Voice Board: ${activeDocument.name}` : 'Voice AI Interactive Board',
-        description: `Speech & canvas session with ${textElements.length} spoken elements and ${strokes.length} strokes.`,
-        createdBy: user?.id || 'guest',
-        createdAt: now.toISOString(),
-        updatedAt: now.toISOString(),
-        isShared: false,
-        width: 1920,
-        height: 1080,
-        zoom: 100,
-        isInfiniteCanvas: true,
-        strokes: strokes as any,
-        elements: textElements as any,
-        ...(activeDocument ? {
-          bgFile: { url: activeDocument.dataUrl || (activeDocument as any).url, type: activeDocument.type },
-          activeDocument: activeDocument as any,
-        } : {}),
-      };
+      const boardPayload = buildBoardPayload();
 
       await saveBoard(boardPayload);
       if (user?.id) {
-        await historyService.saveBoardVersion(user.id, boardId, boardPayload);
+        await historyService.saveBoardVersion(user.id, boardIdRef.current, boardPayload);
       }
 
       setSaveStatus('saved');
       setLastSavedTime(timeStr);
+      showStatus('Board saved to cloud history successfully!');
       setTimeout(() => setSaveStatus('idle'), 4000);
     } catch (err) {
       console.error('Failed to save Voice Board:', err);
@@ -212,33 +268,11 @@ function VoiceBoardContent() {
     }
   };
 
-  // Auto-save Voice Board session state so speech and strokes are updated in History automatically
+  // Track unsaved changes for manual save (AutoSave removed — user presses Save button)
   useEffect(() => {
     if (strokes.length === 0 && textElements.length === 0 && !activeDocument) return;
-    const timer = setTimeout(() => {
-      const boardPayload: Board = {
-        id: boardId,
-        title: activeDocument ? `Voice Board: ${activeDocument.name}` : boardTitle || 'Voice AI Interactive Board',
-        description: `Speech & canvas session with ${textElements.length} spoken elements and ${strokes.length} strokes.`,
-        createdBy: user?.id || 'guest',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        isShared: false,
-        width: 1920,
-        height: 1080,
-        zoom: 100,
-        isInfiniteCanvas: true,
-        strokes: strokes as any,
-        elements: textElements as any,
-        ...(activeDocument ? {
-          bgFile: { url: activeDocument.dataUrl || (activeDocument as any).url, type: activeDocument.type },
-          activeDocument: activeDocument as any,
-        } : {}),
-      };
-      saveBoard(boardPayload);
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, [strokes, textElements, activeDocument, boardId, boardTitle, user?.id, saveBoard]);
+    setSaveStatus('unsaved');
+  }, [strokes, textElements, activeDocument]);
 
   const saveSnapshot = useCallback(() => {
     setUndoStack((prev) => [...prev, { strokes, textElements }]);

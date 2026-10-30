@@ -6,13 +6,13 @@ import { ArrowLeft, Play, Clock, BookOpen, Star, Lock } from 'lucide-react';
 
 const TUTORIALS = [
   { id: '1', title: 'Getting Started with EduBoard', duration: '4:32', category: 'Basics', thumbnail: '🚀', views: '12.4k', free: true },
-  { id: '2', title: 'DocCanvas — Document & Blank Canvas Guide', duration: '8:15', category: 'DocCanvas', thumbnail: '📄', views: '9.8k', free: true },
-  { id: '3', title: 'Setting Up Your First Classroom', duration: '6:44', category: 'Classroom', thumbnail: '🏫', views: '7.2k', free: true },
-  { id: '4', title: 'Real-Time Collaboration Explained', duration: '5:20', category: 'Collaboration', thumbnail: '👥', views: '5.9k', free: true },
-  { id: '5', title: 'Reference Drawer & Waypoint Controls', duration: '11:03', category: 'DrawSpace', thumbnail: '📍', views: '4.3k', free: true },
+  { id: '2', title: 'DocCanvas — Document & Annotation Guide', duration: '8:15', category: 'DocCanvas', thumbnail: '📄', views: '9.8k', free: true },
+  { id: '3', title: 'Sharing Boards & Inviting Collaborators', duration: '5:44', category: 'Collaboration', thumbnail: '👥', views: '7.2k', free: true },
+  { id: '4', title: 'Real-Time Collaboration Explained', duration: '5:20', category: 'Collaboration', thumbnail: '⚡', views: '5.9k', free: true },
+  { id: '5', title: 'Reference Drawer & Reveal Steps', duration: '11:03', category: 'DrawSpace', thumbnail: '📍', views: '4.3k', free: true },
   { id: '6', title: 'Voice Board Live Transcription', duration: '7:51', category: 'Voice Board', thumbnail: '🎤', views: '6.1k', free: true },
-  { id: '7', title: 'Exporting Boards in 12 Formats', duration: '3:28', category: 'Export', thumbnail: '📤', views: '3.7k', free: true },
-  { id: '8', title: 'Running Quizzes & Polls Live', duration: '9:12', category: 'Classroom', thumbnail: '📊', views: '5.5k', free: false },
+  { id: '7', title: 'Exporting Boards to PDF & PNG', duration: '3:28', category: 'Export', thumbnail: '📤', views: '3.7k', free: true },
+  { id: '8', title: 'AI Math Solver & Step Derivations', duration: '6:12', category: 'DocCanvas', thumbnail: '📐', views: '5.5k', free: true },
 ];
 
 const CATS = ['All', ...Array.from(new Set(TUTORIALS.map(t => t.category)))];

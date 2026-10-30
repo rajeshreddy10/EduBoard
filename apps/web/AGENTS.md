@@ -1,90 +1,65 @@
-<!-- BEGIN:nextjs-agent-rules -->
-# This is NOT the Next.js you know
+# EduBoard — Project Guide & Architecture
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
-<!-- END:nextjs-agent-rules -->
-
-# EduBoard — Complete Project Summary
-
-## Architecture
+## Monorepo Architecture
 ```
-smartboard_pdd/
-├── frontend/           # Next.js app (port 3000)
-│   ├── app/            # Next.js frontend (15 modules)
-│   │   ├── layout/     # AppLayout (sidebar, topbar, theme system)
-│   │   ├── dashboard/  # Overview, stats, quick actions
-│   │   ├── smart-board/# Full whiteboard canvas (existing)
-│   │   ├── ai/         # AI Teaching Assistant (chat, OCR, quiz)
-│   │   ├── collaboration/# Real-time multi-user whiteboard
-│   │   ├── analytics/  # Usage, gestures, AI performance charts
-│   │   ├── export/     # Multi-format export center (12 formats)
-│   │   ├── settings/   # All settings (appearance, gestures, voice, etc.)
-│   │   └── ...         # Auth, admin, classroom, cloud, ar (existing)
-│   ├── lib/            # Store, types, gesture engine, socket client
-│   ├── components/     # Reusable React components
-│   ├── public/         # Static assets
-│   ├── electron/       # Electron desktop shell (main.js, preload.js)
-│   ├── tests/          # Jest unit + Jest integration + Cypress E2E
-│   ├── docker/         # Docker Compose (frontend, backend, MySQL, Nginx)
-│   ├── docs/           # Documentation
-│   └── ...config files
-├── backend/            # Express.js backend (port 3001)
-│   ├── server/         # API server
-│   │   ├── config/     # Database config (MySQL + localStorage fallback)
-│   │   ├── middleware/  # JWT auth, RBAC, error handling
-│   │   ├── routes/     # 8 API route modules (auth, whiteboards, collaboration, ai, export, voice, gesture, users, analytics)
-│   │   ├── services/   # AI (OpenAI), Export (PDF/PNG/SVG/HTML/MD/JSON), Voice, Encryption
-│   │   ├── socket/     # Real-time collaboration via Socket.io
-│   │   └── scripts/    # Database init
-│   └── database/       # MySQL schema (17 tables) + migrations
+EduBoard_Web/
+├── apps/
+│   ├── web/                     # Next.js 16 Web Application (Port 3000)
+│   │   ├── app/                 # App Router (pages: dashboard, studios, profile, settings, help)
+│   │   ├── components/          # Reusable UI, layout, and studio overlays
+│   │   ├── features/gesture/    # DocCanvas Document Studio
+│   │   ├── lib/                 # Firebase, API client, Socket.io, store, and services
+│   │   ├── public/              # Static assets, PWA manifest, service worker
+│   │   └── tests/               # Jest unit/integration tests and Cypress E2E
+│   └── api/                     # Express.js REST API Server (Port 3001)
+│       └── index.js             # API entrypoint, CORS, security middleware, route mounts
+├── src/                         # Backend Services & Logic
+│   ├── config/                  # Firebase Admin SDK & Redis adapters
+│   ├── controllers/             # Business logic controllers (AI, auth, etc.)
+│   ├── routes/                  # Express API route modules (auth, whiteboards, export, voice, ai, analytics)
+│   ├── services/                # Voice, Export (PDF, PNG, SVG, JSON), and AI services
+│   └── socket/                  # Real-time board collaboration (Socket.io)
+├── DEPLOYMENT.md                # Production deployment guide
+└── README.md                    # Project overview & quickstart
 ```
 
-## Key Features Implemented
-- **Smart Whiteboard**: Full drawing canvas with shapes, text, images, sticky notes, freehand, layers, undo/redo, version control
-- **Gesture Recognition**: Camera-based hand tracking with 10 gesture mappings
-- **AI Integration**: OpenAI-powered handwriting OCR, spelling/grammar check, text completion, teaching assistant, image gen, summarization, quiz/lesson plan generation, translation
-- **Real-time Collaboration**: Socket.io-based multi-user boards with cursors, chat, presentation mode
-- **Export Center**: 12 formats (PDF, PNG, SVG, JSON, PPTX, DOCX, HTML, MD, LaTeX, CSV, GIF, MP4)
-- **Auth + RBAC**: JWT with refresh tokens, 4 roles (admin, teacher, student, viewer)
-- **Analytics**: Usage stats, gesture accuracy, AI performance, daily trends
-- **Voice Commands**: 14 intent-based voice commands
-- **Theme System**: 4 themes (dark, light, neon, educational) with CSS variables
-- **Offline Mode**: localStorage fallback when MySQL unavailable
-- **Electron Desktop**: Main process, preload, IPC handlers, auto-update ready
-- **Docker**: Full containerized deployment (nginx, frontend, backend, mysql)
+## Genuine Implemented Studios & Features
+- **DrawSpace Canvas (`/normal-board`)**: Full digital whiteboard with freehand drawing, stroke widths, color swatches, text overlays, vanishing laser, spotlight, 30/70 reference drawer, progressive reveal steps, teacher notes drawer, and multi-format export.
+- **Voice Board AI (`/voice-control`)**: Live speech-to-text transcription powered by Web Speech API with sentence deduplication, scientific formula notation parser, and voice commands.
+- **DocCanvas Studio (`/gesture-board`, `/dashboard/tools/gesture`)**: Document and PDF annotation studio with focus magnifier, vanishing laser pointer, AI Math Solver modal, vector replay scrubber, and high-resolution export.
+- **Session Export**: 4 verified, production-grade export formats:
+  - **PDF Document**
+  - **PNG Image**
+  - **SVG Vector**
+  - **JSON Canvas Data**
+- **Database & Authentication**: Firebase Firestore for cloud persistence and Firebase Authentication for user sessions, profile management, and security.
+- **Real-Time Collaboration**: Socket.io-based multi-user board state sync, live cursors, remote laser pointer trails, and chat.
 
-## Running
+## Running Locally
 ```bash
-# Development
-cd frontend && npm install
-cd ../backend/server && npm install && cd ../..
-npm run server:dev     # Start backend on :3001 (from frontend/)
-npm run dev            # Start frontend on :3000 (from frontend/)
-npm run electron:dev   # Start Electron desktop app (from frontend/)
+# Install dependencies
+npm run install:all
 
-# Database
-npm run db:init        # Create MySQL tables (from frontend/)
+# Development Mode (Runs Frontend :3000 + Backend :3001 concurrently)
+npm run dev
 
-# Tests
-npm test               # Jest unit + integration (from frontend/)
-npm run test:e2e       # Cypress E2E (from frontend/)
+# Testing
+npm test --prefix apps/web
 
-# Production
-npm run build && npm run electron:build:win  # Build Windows installer (from frontend/)
-
-# Docker
-docker-compose -f frontend/docker/docker-compose.yml up -d
+# Production Build
+npm run build --prefix apps/web
 ```
 
-## API Endpoints (30+)
+## API Endpoints
 - `POST /api/auth/register|login|refresh|logout`
 - `GET|POST /api/whiteboards`, `GET|PUT|DELETE /api/whiteboards/:id`
 - `POST /api/whiteboards/:id/shapes`, `PUT|DELETE /api/whiteboards/:id/shapes/:shapeId`
-- `POST /api/whiteboards/:id/versions`, `POST /api/whiteboards/:id/restore/:versionId`
-- `POST /api/ai/handwriting|spelling|grammar|complete|teaching|generate-image|summarize|quiz|lesson-plan|translate`
+- `POST /api/whiteboards/:id/share`
+- `POST /api/ai/solve|explain|handwriting`
 - `POST /api/collaboration/rooms|join`, `GET /api/collaboration/room/:id/participants`
+- `GET /api/exports/formats` (returns PDF, PNG, SVG, JSON)
 - `POST|GET|DELETE /api/exports`
-- `POST /api/voice/command`, `POST /api/gesture/log`
-- `GET /api/analytics/overview|boards|ai|gestures|export|collaboration`
+- `POST /api/voice/command|transcribe`
+- `GET /api/analytics/overview|boards|ai|export|collaboration`
 - `GET /api/health`
-- `WebSocket /socket.io` for real-time board collaboration
+- `WebSocket /socket.io` for real-time whiteboard collaboration

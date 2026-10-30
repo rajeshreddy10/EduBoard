@@ -9,69 +9,170 @@ const fs = require('fs');
 
 const EXPORT_DIR = path.join(__dirname, '..', '..', 'exports');
 
+/** HTTP-status-aware error (handled by errorHandler via err.status). */
+function httpError(status, message) {
+  const err = new Error(message);
+  err.status = status;
+  return err;
+}
+
+/** Access helpers (mirror of whiteboards.js policy). */
+function isOwnerBoard(boardData, userId) {
+  if (!boardData) return false;
+  return boardData.owner_id === userId || boardData.createdBy === userId;
+}
+
+function isSharedWith(boardData, userId) {
+  if (!boardData) return false;
+  if (boardData.isShared === true) return true;
+  return Array.isArray(boardData.sharedWith) && boardData.sharedWith.includes(userId);
+}
+
+/**
+ * Resolves the exported file path GUARANTEED to live inside EXPORT_DIR.
+ * Blocks `..` traversal, absolute paths and any name outside the directory.
+ */
+function resolveSafeExportPath(filename) {
+  const clean = path.basename(String(filename || ''));
+  if (!clean || clean.includes('..') || /[\\/:*?"<>|]/.test(clean)) {
+    throw httpError(400, 'Invalid filename');
+  }
+  const filePath = path.join(EXPORT_DIR, clean);
+  if (!filePath.startsWith(EXPORT_DIR + path.sep)) {
+    throw httpError(400, 'Invalid filename');
+  }
+  return { clean, filePath };
+}
+
 router.get('/formats', (req, res) => {
   res.json({
     formats: [
       { id: 'pdf', name: 'PDF Document', icon: 'file-text', mime: 'application/pdf' },
       { id: 'png', name: 'PNG Image', icon: 'image', mime: 'image/png' },
       { id: 'svg', name: 'SVG Vector', icon: 'file-image', mime: 'image/svg+xml' },
-      { id: 'json', name: 'JSON Data', icon: 'file-code', mime: 'application/json' },
-      { id: 'pptx', name: 'PowerPoint', icon: 'presentation', mime: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' },
-      { id: 'docx', name: 'Word Document', icon: 'file-text', mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' },
-      { id: 'html', name: 'HTML Page', icon: 'globe', mime: 'text/html' },
-      { id: 'markdown', name: 'Markdown', icon: 'file-code', mime: 'text/markdown' },
-      { id: 'latex', name: 'LaTeX', icon: 'file-code', mime: 'text/x-tex' },
-      { id: 'csv', name: 'CSV Spreadsheet', icon: 'table', mime: 'text/csv' },
-      { id: 'gif', name: 'GIF Animation', icon: 'film', mime: 'image/gif' },
-      { id: 'mp4', name: 'MP4 Video', icon: 'video', mime: 'video/mp4' }
+      { id: 'json', name: 'JSON Data', icon: 'file-code', mime: 'application/json' }
     ]
   });
 });
 
 router.post('/', authenticate, asyncHandler(async (req, res) => {
   const { whiteboardId, format, options } = req.body;
+
+  // Board access check: only the owner or a shared member may export it.
+  if (db.db && whiteboardId) {
+    const boardDoc = await db.db.collection('whiteboards').doc(String(whiteboardId)).get();
+    if (!boardDoc.exists) {
+      throw httpError(404, 'Whiteboard not found');
+    }
+    const boardData = boardDoc.data();
+    if (!isOwnerBoard(boardData, req.user.id) && !isSharedWith(boardData, req.user.id)) {
+      throw httpError(403, 'Access denied');
+    }
+  }
+
   if (!fs.existsSync(EXPORT_DIR)) fs.mkdirSync(EXPORT_DIR, { recursive: true });
   const id = uuidv4();
-  await db.query(
-    'INSERT INTO exports (id, whiteboard_id, user_id, format, options, status) VALUES (?, ?, ?, ?, ?, ?)',
-    [id, whiteboardId, req.user.id, format, JSON.stringify(options || {}), 'processing']
-  );
-  const whiteboard = await db.query('SELECT * FROM whiteboards WHERE id = ?', [whiteboardId]);
-  const shapes = await db.query('SELECT * FROM shapes WHERE whiteboard_id = ? ORDER BY z_index ASC', [whiteboardId]);
-  const w = whiteboard[0];
-  const filename = `${w.title.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.${format}`;
+
+  const exportDocData = {
+    id,
+    whiteboard_id: whiteboardId,
+    user_id: req.user.id,
+    format: format || 'png',
+    options: options || {},
+    status: 'processing',
+    created_at: new Date().toISOString()
+  };
+
+  if (db.db) {
+    await db.db.collection('exports').doc(id).set(exportDocData);
+  }
+
+  // Retrieve whiteboard & shapes directly from approved collections
+  let w = { title: 'Untitled Board', id: whiteboardId };
+  let shapes = [];
+
+  if (db.db && whiteboardId) {
+    const boardDoc = await db.db.collection('whiteboards').doc(whiteboardId).get();
+    if (boardDoc.exists) {
+      w = { id: boardDoc.id, ...boardDoc.data() };
+    }
+    const shapesSnap = await db.db.collection('whiteboards').doc(whiteboardId).collection('shapes').limit(600).get();
+    shapes = shapesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  }
+
+  const filename = `${(w.title || 'board').replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}.${format || 'png'}`;
   const filePath = path.join(EXPORT_DIR, filename);
   const exportService = require('../services/exportService');
+
   try {
     await exportService.export(w, shapes, format, options, filePath);
     const stats = fs.statSync(filePath);
-    await db.query(
-      "UPDATE exports SET status = 'completed', file_url = ?, file_size = ?, processing_time_ms = ? WHERE id = ?",
-      [`/exports/${filename}`, stats.size, 0, id]
-    );
-    res.json({ id, filename, url: `/api/exports/download/${filename}`, size: stats.size });
+
+    if (db.db) {
+      await db.db.collection('exports').doc(id).set({
+        status: 'completed',
+        file_url: `/exports/${filename}`,
+        file_size: stats.size,
+        processing_time_ms: 0,
+        updated_at: new Date().toISOString()
+      }, { merge: true });
+    }
+
+    res.json({ id, filename, url: `/api/export/download/${filename}`, size: stats.size });
   } catch (err) {
-    await db.query("UPDATE exports SET status = 'failed', error_message = ? WHERE id = ?", [err.message, id]);
+    if (db.db) {
+      await db.db.collection('exports').doc(id).set({
+        status: 'failed',
+        error_message: err.message,
+        updated_at: new Date().toISOString()
+      }, { merge: true });
+    }
     res.status(500).json({ error: 'Export failed', details: err.message });
   }
 }));
 
-router.get('/download/:filename', (req, res) => {
-  const filePath = path.join(EXPORT_DIR, req.params.filename);
+// Authenticated, traversal-proof download of a user's previous export files.
+router.get('/download/:filename', authenticate, (req, res) => {
+  const { filePath } = resolveSafeExportPath(req.params.filename);
   if (!fs.existsSync(filePath)) return res.status(404).json({ error: 'File not found' });
   res.download(filePath);
 });
 
 router.get('/history', authenticate, asyncHandler(async (req, res) => {
-  const exports = await db.query(
-    "SELECT e.*, w.title as whiteboard_title FROM exports e LEFT JOIN whiteboards w ON e.whiteboard_id = w.id WHERE e.user_id = ? ORDER BY e.created_at DESC LIMIT 50",
-    [req.user.id]
-  );
-  res.json(exports);
+  if (!db.db) return res.json([]);
+  const snapshot = await db.db.collection('exports').where('user_id', '==', req.user.id).limit(50).get();
+  const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  list.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+  res.json(list.slice(0, 50));
 }));
 
+// Delete OWN export record + best-effort removal of the generated file.
 router.delete('/:id', authenticate, asyncHandler(async (req, res) => {
-  await db.query('DELETE FROM exports WHERE id = ? AND user_id = ?', [req.params.id, req.user.id]);
+  if (!db.db) return res.json({ message: 'Export deleted' });
+
+  const docSnap = await db.db.collection('exports').doc(req.params.id).get();
+  if (!docSnap.exists) return res.status(404).json({ error: 'Export not found' });
+
+  const data = docSnap.data();
+  const ownedByUser = data.user_id === req.user.id
+    || data.created_by === req.user.id
+    || req.user.role === 'admin';
+  if (!ownedByUser) return res.status(403).json({ error: 'Access denied' });
+
+  await db.db.collection('exports').doc(req.params.id).delete();
+
+  // Best-effort local file cleanup (path-traversal-proof).
+  try {
+    const fileUrl = data.file_url || '';
+    const filename = path.basename(String(fileUrl));
+    if (filename && filename.includes('_')) {
+      const { filePath } = resolveSafeExportPath(filename);
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    }
+  } catch (_) {
+    /* file cleanup is best-effort */
+  }
+
   res.json({ message: 'Export deleted' });
 }));
 

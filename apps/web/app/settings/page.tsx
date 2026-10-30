@@ -318,7 +318,7 @@ function SettingsContent() {
         <Row label="Email Notifications" desc="Weekly summaries and system announcements">
           <Toggle value={s.notifEmail} onChange={() => toggle('notifEmail')} />
         </Row>
-        <Row label="Classroom Activity" desc="Student hand-raises and live updates">
+        <Row label="Board Collaboration Updates" desc="Collaborator edits and shared session updates">
           <Toggle value={s.notifClassroom} onChange={() => toggle('notifClassroom')} />
         </Row>
       </Section>

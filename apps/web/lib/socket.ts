@@ -78,30 +78,6 @@ class EduBoardSocket {
   onUserJoined(callback: (data: any) => void) { return this.on('board:user:joined', callback); }
   onUserLeft(callback: (data: any) => void) { return this.on('board:user:left', callback); }
 
-  // Classroom Realtime
-  joinClassroom(classroomId: string) { this.emit('classroom:join', { classroomId }); }
-  leaveClassroom(classroomId: string) { this.emit('classroom:leave', { classroomId }); }
-  sendChat(classroomId: string, message: string) { this.emit('classroom:chat', { classroomId, message }); }
-  raiseHand(classroomId: string) { this.emit('classroom:hand:raise', { classroomId }); }
-  lowerHand(classroomId: string) { this.emit('classroom:hand:lower', { classroomId }); }
-  sendPollVote(classroomId: string, pollId: string, optionId: string) {
-    this.emit('classroom:poll:vote', { classroomId, pollId, optionId });
-  }
-
-  onChat(callback: (data: any) => void) { return this.on('classroom:chat:received', callback); }
-  onHandRaised(callback: (data: any) => void) { return this.on('classroom:hand:raised', callback); }
-  onPollUpdate(callback: (data: any) => void) { return this.on('classroom:poll:update', callback); }
-  onStudentJoined(callback: (data: any) => void) { return this.on('classroom:student:joined', callback); }
-  onStudentLeft(callback: (data: any) => void) { return this.on('classroom:student:left', callback); }
-
-  // Gesture Streaming
-  sendGesture(data: any) { this.emit('gesture:data', data); }
-  onGesture(callback: (data: any) => void) { return this.on('gesture:data:received', callback); }
-
-  // AI
-  requestAISummary(lectureId: string) { this.emit('ai:summary:request', { lectureId }); }
-  onAISummary(callback: (data: any) => void) { return this.on('ai:summary:ready', callback); }
-
   isConnected(): boolean { return this.socket?.connected ?? false; }
 }
 

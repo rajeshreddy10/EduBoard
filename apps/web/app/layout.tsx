@@ -6,14 +6,14 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'EduBoard',
-  description: 'AI-powered smart classroom platform with gesture control, AI teaching tools, and real-time collaboration.',
+  description: 'AI-powered smart teaching whiteboard, real-time voice transcription, and document annotation platform.',
   manifest: '/manifest.json',
   applicationName: 'EduBoard',
-  keywords: ['EduBoard', 'gesture control', 'AI classroom', 'education', 'whiteboard', 'collaboration'],
+  keywords: ['EduBoard', 'smart whiteboard', 'voice transcription', 'document annotator', 'drawspace', 'education'],
   authors: [{ name: 'EduBoard' }],
   openGraph: {
     title: 'EduBoard',
-    description: 'AI-powered smart classroom platform',
+    description: 'AI-powered smart whiteboard and document annotation platform',
     type: 'website',
   },
 };

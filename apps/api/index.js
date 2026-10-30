@@ -28,14 +28,8 @@ const aiRoutes = require('../../src/routes/ai');
 const exportRoutes = require('../../src/routes/export');
 const voiceRoutes = require('../../src/routes/voice');
 const userRoutes = require('../../src/routes/users');
-const gestureRoutes = require('../../src/routes/gesture');
-const classroomRoutes = require('../../src/routes/classroom');
-const quizRoutes = require('../../src/routes/quiz');
-const pollingRoutes = require('../../src/routes/polling');
-const attendanceRoutes = require('../../src/routes/attendance');
-const adminRoutes = require('../../src/routes/admin');
-const subscriptionRoutes = require('../../src/routes/subscription');
-const opencodeRoutes = require('../../src/routes/opencode');
+const settingsRoutes = require('../../src/routes/settings');
+const notificationRoutes = require('../../src/routes/notifications');
 const { errorHandler, notFoundHandler } = require('../../src/middleware/errorHandler');
 const { setupRedisAdapter, closeRedisConnections } = require('../../src/config/redis');
 
@@ -110,14 +104,8 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/export', exportRoutes);
 app.use('/api/voice', voiceRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/gesture', gestureRoutes);
-app.use('/api/classrooms', classroomRoutes);
-app.use('/api/quiz', quizRoutes);
-app.use('/api/polling', pollingRoutes);
-app.use('/api/attendance', attendanceRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/subscription', subscriptionRoutes);
-app.use('/api/opencode', opencodeRoutes);
+app.use('/api/settings', settingsRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 
 initializeSocket(io);

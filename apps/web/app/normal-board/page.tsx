@@ -108,6 +108,10 @@ function NormalBoardContent() {
   const isMountedRef = useRef(true);
   const statusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const logicalSizeRef = useRef({ w: 0, h: 0 });
+  // Identity of the originally loaded board — preserves createdBy/createdAt on every save.
+  const originalBoardRef = useRef<Board | null>(null);
+  const boardIdRef = useRef<string>(boardId);
+  useEffect(() => { boardIdRef.current = boardId; }, [boardId]);
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -131,15 +135,27 @@ function NormalBoardContent() {
         setBoardId(b.id);
         if (b.title) setBoardTitle(b.title);
         setCurrentBoard(b);
+        originalBoardRef.current = b;
 
         let loadedStrokes: Stroke[] = [];
-        if (b.strokes && Array.isArray(b.strokes) && b.strokes.length > 0) {
-          loadedStrokes = b.strokes as any;
+        const rawStrokes = b.strokes && Array.isArray(b.strokes) ? b.strokes : null;
+        if (rawStrokes && rawStrokes.length > 0) {
+          loadedStrokes = rawStrokes.map((s: any) => ({
+            ...s,
+            width: s.width || s.strokeWidth || 3,
+            color: s.color || s.colorHex || '#ffffff',
+            tool: s.tool || s.type || 'pen',
+          })) as any;
         } else if (b.content && typeof b.content === 'string' && b.content.trim().length > 0) {
           try {
             const parsed = JSON.parse(b.content);
-            if (Array.isArray(parsed)) loadedStrokes = parsed;
-            else if (parsed && Array.isArray(parsed.strokes)) loadedStrokes = parsed.strokes;
+            const contentStrokes = Array.isArray(parsed) ? parsed : (parsed?.strokes || []);
+            loadedStrokes = contentStrokes.map((s: any) => ({
+              ...s,
+              width: s.width || s.strokeWidth || 3,
+              color: s.color || s.colorHex || '#ffffff',
+              tool: s.tool || s.type || 'pen',
+            }));
           } catch {}
         }
         if (loadedStrokes.length === 0) {
@@ -160,8 +176,27 @@ function NormalBoardContent() {
         setStrokes(loadedStrokes);
         setTextElements(loadedElements);
         if ((b as any).activeDocument) setActiveDocument((b as any).activeDocument);
-        if ((b as any).teacherNotes && Array.isArray((b as any).teacherNotes)) setTeacherNotes((b as any).teacherNotes);
+        const rawNotes = (b as any).teacherNotes || (b as any).teacher_notes;
+        if (rawNotes && Array.isArray(rawNotes)) {
+          setTeacherNotes(rawNotes.map((n: any, idx: number) => ({
+            id: n.id || `tn_${Date.now()}_${idx}`,
+            title: n.title || 'Teaching Note',
+            content: n.content || n.text || '',
+            color: n.color || '#fef08a',
+            x: typeof n.x === 'number' ? n.x : 40 + (idx % 3) * 220,
+            y: typeof n.y === 'number' ? n.y : 80 + Math.floor(idx / 3) * 160,
+            width: typeof n.width === 'number' ? n.width : 220,
+            height: typeof n.height === 'number' ? n.height : 140,
+            isCollapsed: !!n.isCollapsed,
+          })));
+        }
         console.log(`[History Resume] Board "${b.title}" resumed cleanly with ${loadedStrokes.length} strokes.`);
+        if (isMounted && (loadedStrokes.length > 0 || (b as any).teacherNotes?.length > 0)) {
+          showStatus(
+            `Board restored — continuing "${b.title}" exactly where you left off${(b as any).teacherNotes?.length ? ` (+${(b as any).teacherNotes.length} teaching notes)` : ''}`,
+            4000
+          );
+        }
       }
     }
     loadSavedDrawSpaceBoard();
@@ -221,30 +256,44 @@ function NormalBoardContent() {
     setRedoStack((prev) => prev.slice(0, -1));
   }, [redoStack, strokes, textElements]);
 
+  /** Unified payload builder for manual + auto saves (state, notes, identity preserved). */
+  const buildBoardPayload = useCallback((includeTimestamps = true): Board => {
+    const loaded = originalBoardRef.current;
+    const now = new Date();
+    return {
+      id: boardIdRef.current,
+      title: activeDocument ? `DrawSpace: ${activeDocument.name}` : (loaded?.title && boardTitle === 'DrawSpace Interactive Whiteboard' ? loaded.title : (boardTitle || 'DrawSpace Interactive Whiteboard')),
+      description: `Interactive canvas session with ${strokes.length} strokes and ${textElements.length} text elements.`,
+      createdBy: loaded?.createdBy && !(loaded.createdBy === 'guest' || loaded.createdBy === 'u1') ? loaded.createdBy : (user?.id || loaded?.createdBy || 'guest'),
+      createdAt: loaded?.createdAt || now.toISOString(),
+      updatedAt: now.toISOString(),
+      isShared: loaded?.isShared || false,
+      sharedWith: loaded?.sharedWith,
+      width: 1920,
+      height: 1080,
+      zoom: 100,
+      isInfiniteCanvas: true,
+      studio: 'drawspace',
+      strokes: strokes as any,
+      elements: textElements as any,
+      teacherNotes: teacherNotes as any,
+      ...(activeDocument ? {
+        bgFile: { url: activeDocument.dataUrl || (activeDocument as any).url, type: activeDocument.type },
+        activeDocument: activeDocument as any,
+      } : {}),
+    } as Board;
+  }, [strokes, textElements, activeDocument, teacherNotes, boardTitle, user?.id]);
+
   const handleSave = async () => {
     setSaveStatus('saving');
     try {
       const now = new Date();
       const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const boardPayload: Board = {
-        id: boardId,
-        title: activeDocument ? `DrawSpace: ${activeDocument.name}` : boardTitle || 'DrawSpace Interactive Whiteboard',
-        description: `Interactive canvas session with ${strokes.length} strokes and ${textElements.length} text elements.`,
-        createdBy: user?.id || 'guest',
-        createdAt: now.toISOString(),
-        updatedAt: now.toISOString(),
-        isShared: false,
-        width: 1920,
-        height: 1080,
-        zoom: 100,
-        isInfiniteCanvas: true,
-        strokes: strokes as any,
-        elements: textElements as any,
-      };
+      const boardPayload = buildBoardPayload();
 
       await saveBoard(boardPayload);
       if (user?.id) {
-        await historyService.saveBoardVersion(user.id, boardId, boardPayload);
+        await historyService.saveBoardVersion(user.id, boardIdRef.current, boardPayload);
       }
 
       setSaveStatus('saved');
@@ -258,33 +307,11 @@ function NormalBoardContent() {
     }
   };
 
-  // Auto-save Normal Board state so history is updated automatically as you work
+  // Track unsaved changes for manual save (AutoSave removed — user presses Save button)
   useEffect(() => {
-    if (strokes.length === 0 && textElements.length === 0 && !activeDocument) return;
-    const timer = setTimeout(() => {
-      const boardPayload: Board = {
-        id: boardId,
-        title: activeDocument ? `DrawSpace: ${activeDocument.name}` : boardTitle || 'Normal Board Interactive Whiteboard',
-        description: `Interactive canvas session with ${strokes.length} strokes and ${textElements.length} text elements.`,
-        createdBy: user?.id || 'guest',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        isShared: false,
-        width: 1920,
-        height: 1080,
-        zoom: 100,
-        isInfiniteCanvas: true,
-        strokes: strokes as any,
-        elements: textElements as any,
-        ...(activeDocument ? {
-          bgFile: { url: activeDocument.dataUrl || (activeDocument as any).url, type: activeDocument.type },
-          activeDocument: activeDocument as any,
-        } : {}),
-      };
-      saveBoard(boardPayload);
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, [strokes, textElements, activeDocument, boardId, boardTitle, user?.id, saveBoard]);
+    if (strokes.length === 0 && textElements.length === 0 && !activeDocument && teacherNotes.length === 0) return;
+    setSaveStatus('unsaved');
+  }, [strokes, textElements, activeDocument, teacherNotes]);
 
   // ── Filter Visible Items based on Progressive Reveal ─────────────────────
   const visibleStrokes = React.useMemo(() => {

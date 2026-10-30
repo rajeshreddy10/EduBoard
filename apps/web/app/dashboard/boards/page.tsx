@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { History, Plus, Search, Grid, List, Trash2 } from 'lucide-react';
+import { History, Plus, Search, Grid, List, Trash2, Copy } from 'lucide-react';
 import { useBoard } from '@/lib/BoardContext';
+import { boardHref } from '@/lib/boardRouting';
 import type { Board } from '@/lib/types';
 
 const GRADIENTS = [
@@ -27,16 +28,17 @@ function timeAgo(dateStr: string): string {
 }
 
 export default function HistoryHub() {
-  const { boards, deleteBoard } = useBoard();
+  const { boards, deleteBoard, duplicateBoard } = useBoard();
   const [view, setView] = useState<'grid' | 'list'>('grid');
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<'all' | 'shared' | 'personal'>('all');
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [duplicatingId, setDuplicatingId] = useState<string | null>(null);
 
   const handleDelete = async (e: React.MouseEvent, id: string, title: string) => {
     e.preventDefault();
     e.stopPropagation();
-    if (window.confirm(`Are you sure you want to delete "${title}" from history?`)) {
+    if (window.confirm(`Delete "${title}" permanently? This removes the board, its drawings and all version snapshots. This cannot be undone.`)) {
       try {
         setDeletingId(id);
         await deleteBoard(id);
@@ -45,6 +47,19 @@ export default function HistoryHub() {
       } finally {
         setDeletingId(null);
       }
+    }
+  };
+
+  const handleDuplicate = async (e: React.MouseEvent, board: Board) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      setDuplicatingId(board.id);
+      duplicateBoard(board);
+    } catch (err) {
+      console.error('Failed to duplicate board:', err);
+    } finally {
+      setDuplicatingId(null);
     }
   };
 
@@ -110,19 +125,29 @@ export default function HistoryHub() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {filtered.map((board, i) => (
             <div key={board.id} className="relative group h-full">
-              <Link href={`/dashboard/boards/${board.id}`} className="block h-full">
+              <Link href={boardHref(board)} className="block h-full">
                 <div className="p-4 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-primary)] shadow-sm hover:shadow-md hover:border-[var(--color-primary-500)]/40 transition-all cursor-pointer space-y-3 flex flex-col justify-between h-full">
                   <div>
                     <div style={{ background: GRADIENTS[i % GRADIENTS.length] }} className="h-24 rounded-xl relative mb-3 p-2">
                       {board.isShared && <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-500 text-white absolute top-2 right-2 shadow-sm">Shared</span>}
-                      <button
-                        onClick={(e) => handleDelete(e, board.id, board.title)}
-                        disabled={deletingId === board.id}
-                        className="absolute top-2 left-2 p-1.5 rounded-lg bg-black/40 hover:bg-red-500 text-white transition-all cursor-pointer opacity-80 hover:opacity-100 z-10"
-                        title="Delete History Record"
-                      >
-                        <Trash2 size={13} />
-                      </button>
+                      <div className="absolute top-2 left-2 flex items-center gap-1 z-10">
+                        <button
+                          onClick={(e) => handleDuplicate(e, board)}
+                          disabled={duplicatingId === board.id}
+                          className="p-1.5 rounded-lg bg-black/40 hover:bg-emerald-500 text-white transition-all cursor-pointer opacity-80 hover:opacity-100"
+                          title="Duplicate Board (creates an independent copy)"
+                        >
+                          <Copy size={13} />
+                        </button>
+                        <button
+                          onClick={(e) => handleDelete(e, board.id, board.title)}
+                          disabled={deletingId === board.id}
+                          className="p-1.5 rounded-lg bg-black/40 hover:bg-red-500 text-white transition-all cursor-pointer opacity-80 hover:opacity-100"
+                          title="Delete History Record"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
                     </div>
                     <h3 className="text-sm font-bold text-[var(--text-primary)] truncate mb-1">{board.title}</h3>
                     <p className="text-xs text-[var(--text-tertiary)] line-clamp-2 leading-relaxed">{board.description || 'Saved workspace history session.'}</p>
@@ -152,7 +177,7 @@ export default function HistoryHub() {
               {filtered.map((board, i) => (
                 <tr key={board.id} className="hover:bg-[var(--bg-tertiary)]/50 transition-colors">
                   <td className="p-3.5">
-                    <Link href={`/dashboard/boards/${board.id}`} className="flex items-center gap-3 text-[var(--text-primary)] font-bold hover:text-[var(--color-primary-500)]">
+                    <Link href={boardHref(board)} className="flex items-center gap-3 text-[var(--text-primary)] font-bold hover:text-[var(--color-primary-500)]">
                       <div style={{ background: GRADIENTS[i % GRADIENTS.length] }} className="w-8 h-8 rounded-lg shrink-0" />
                       <span className="truncate max-w-[200px]">{board.title}</span>
                     </Link>
@@ -163,14 +188,24 @@ export default function HistoryHub() {
                     {board.isShared ? <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-500">Shared</span> : <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/10 text-purple-500">Personal</span>}
                   </td>
                   <td className="p-3.5 text-right">
-                    <button
-                      onClick={(e) => handleDelete(e, board.id, board.title)}
-                      disabled={deletingId === board.id}
-                      className="p-1.5 rounded-lg text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
-                      title="Delete History Record"
-                    >
-                      <Trash2 size={15} />
-                    </button>
+                    <div className="flex items-center justify-end gap-1">
+                      <button
+                        onClick={(e) => handleDuplicate(e, board)}
+                        disabled={duplicatingId === board.id}
+                        className="p-1.5 rounded-lg text-emerald-500 hover:bg-emerald-500/10 transition-colors cursor-pointer"
+                        title="Duplicate Board"
+                      >
+                        <Copy size={15} />
+                      </button>
+                      <button
+                        onClick={(e) => handleDelete(e, board.id, board.title)}
+                        disabled={deletingId === board.id}
+                        className="p-1.5 rounded-lg text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
+                        title="Delete History Record"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

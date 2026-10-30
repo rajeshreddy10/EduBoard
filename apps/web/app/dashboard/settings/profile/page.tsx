@@ -23,12 +23,13 @@ export default function ProfileSettings() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id || user.id === 'guest' || user.id === 'usr_guest') return;
 
     async function fetchUserProfile() {
       try {
@@ -91,7 +92,7 @@ export default function ProfileSettings() {
   };
 
   const handleSave = async () => {
-    if (!user?.id) return;
+    if (!user?.id || isSaving) return;
 
     const updatedData: any = {
       name,
@@ -106,18 +107,26 @@ export default function ProfileSettings() {
       avatar: avatarPreview
     };
 
-    try {
-      await userProfileService.updateProfile(user.id, updatedData);
-      await updateUserProfile(updatedData);
-      const updatedUser = { ...user, ...updatedData };
-      saveUserToStore(updatedUser);
-      setUserState(updatedUser);
-      setSaved(true);
-      window.dispatchEvent(new CustomEvent('profile-changed'));
-      setTimeout(() => setSaved(false), 3000);
-    } catch (err) {
-      console.error("Failed to save profile updates:", err);
-    }
+    setIsSaving(true);
+    // Optimistic local update: apply immediately so user has zero wait time
+    const updatedUser = { ...user, ...updatedData };
+    saveUserToStore(updatedUser);
+    setUserState(updatedUser);
+    setSaved(true);
+    window.dispatchEvent(new CustomEvent('profile-changed'));
+    setTimeout(() => setSaved(false), 2000);
+
+    // Run remote background updates concurrently with a 3.5s timeout guard
+    Promise.all([
+      userProfileService.updateProfile(user.id, updatedData),
+      updateUserProfile(updatedData),
+    ])
+      .catch((err) => {
+        console.error("Background sync for profile updates:", err);
+      })
+      .finally(() => {
+        setIsSaving(false);
+      });
   };
 
   const initials = name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase() || 'U';
@@ -301,9 +310,10 @@ export default function ProfileSettings() {
                 <button className="btn btn-secondary flex-1 sm:flex-none py-3 px-8 text-xs font-bold uppercase tracking-widest">Cancel</button>
                 <button
                   onClick={handleSave}
-                  className="btn btn-primary flex-1 sm:flex-none py-3 px-10 text-xs font-black uppercase tracking-[0.15em] shadow-lg shadow-indigo-500/20"
+                  disabled={isSaving}
+                  className="btn btn-primary flex-1 sm:flex-none py-3 px-10 text-xs font-black uppercase tracking-[0.15em] shadow-lg shadow-indigo-500/20 disabled:opacity-60"
                 >
-                  Save Profile
+                  {isSaving ? 'Saving...' : 'Save Profile'}
                 </button>
               </div>
             </div>

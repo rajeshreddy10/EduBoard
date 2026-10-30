@@ -1,8 +1,6 @@
 export type UserRole = 'student' | 'teacher' | 'school_admin' | 'super_admin';
 export type ThemeMode = 'light' | 'dark' | 'system';
-export type GestureMode = 'minimal' | 'advanced' | 'pro';
-export type Platform = 'android' | 'windows' | 'web' | 'tablet' | 'smartboard';
-
+export type Platform = 'windows' | 'web';
 
 export interface User {
   id: string;
@@ -54,12 +52,16 @@ export interface SignupRequest {
   name: string;
   role: UserRole;
   institution?: string;
+  uid?: string;
+  firebaseUid?: string;
 }
 
 export interface OTPVerification {
   email: string;
   otp: string;
 }
+
+export type BoardStudioKind = 'drawspace' | 'voiceboard' | 'doccanvas';
 
 export interface Board {
   id: string;
@@ -83,6 +85,12 @@ export interface Board {
   elements?: any[];
   bgFile?: { url: string; type: string };
   activeDocument?: any;
+  /** Studio this board belongs to (routing + restore). Written on every save. */
+  studio?: BoardStudioKind;
+  /** Teaching notes attached by the teacher in DrawSpace. */
+  teacherNotes?: any[];
+  /** Alias kept for backend/mobile compatibility (owner. Mirrors createdBy.) */
+  owner_id?: string;
 }
 
 export type HistoryRecord = Board;
@@ -109,26 +117,6 @@ export interface DrawingStroke {
   imgHeight?: number;
 }
 
-export interface GestureData {
-  type: 'writing' | 'erase' | 'select' | 'undo' | 'clear' | 'zoom' | 'pan' | 'click' | 'drag' | 'swipe' | 'pinch' | 'rotate' | 'custom';
-  confidence: number;
-  position: { x: number; y: number };
-  landmarks?: { x: number; y: number; z: number }[];
-  timestamp: string;
-  handedness: 'left' | 'right';
-  fingers: { thumb: boolean; index: boolean; middle: boolean; ring: boolean; pinky: boolean };
-  gestureName?: string;
-}
-
-export interface GestureMapping {
-  id: string;
-  gesture: string;
-  action: string;
-  isActive: boolean;
-  sensitivity: number;
-  shortcut?: string;
-}
-
 export interface VoiceCommand {
   id: string;
   command: string;
@@ -138,214 +126,42 @@ export interface VoiceCommand {
   feedback?: string;
 }
 
-export interface Classroom {
-  id: string;
-  code: string;
-  name: string;
-  description?: string;
-  teacherId: string;
-  teacherName: string;
-  subject?: string;
-  grade?: string;
-  students: ClassroomStudent[];
-  isLive: boolean;
-  startedAt?: string;
-  endedAt?: string;
-  recording?: boolean;
-  maxStudents: number;
-  settings: ClassroomSettings;
-}
-
-export interface ClassroomStudent {
-  userId: string;
-  name: string;
-  avatar?: string;
-  joinedAt: string;
-  isPresent: boolean;
-  handRaised: boolean;
-  muted: boolean;
-  attentionScore?: number;
-}
-
-export interface ClassroomSettings {
-  allowChat: boolean;
-  allowHandRaise: boolean;
-  allowScreenShare: boolean;
-  muteOnJoin: boolean;
-  requireApproval: boolean;
-  recordingEnabled: boolean;
-  autoAttendance: boolean;
-  language: string;
-}
-
-export interface Poll {
-  id: string;
-  classroomId: string;
-  question: string;
-  options: PollOption[];
-  createdAt: string;
-  expiresAt?: string;
-  isActive: boolean;
-  isAnonymous: boolean;
-  type: 'multiple' | 'single' | 'true_false' | 'rating' | 'open';
-}
-
-export interface PollOption {
-  id: string;
-  text: string;
-  votes: number;
-  isCorrect?: boolean;
-}
-
-export interface PollVote {
-  pollId: string;
-  optionId: string;
-  userId: string;
-  votedAt: string;
-}
-
-export interface Quiz {
-  id: string;
-  classroomId: string;
-  title: string;
-  questions: QuizQuestion[];
-  timeLimit?: number;
-  createdAt: string;
-  isActive: boolean;
-  shuffleQuestions: boolean;
-}
-
-export interface QuizQuestion {
-  id: string;
-  question: string;
-  options: string[];
-  correctIndex: number;
-  points: number;
-  timeLimit?: number;
-}
-
-export interface Lecture {
-  id: string;
-  classroomId: string;
-  title: string;
-  subject?: string;
-  teacherId: string;
-  teacherName: string;
-  startedAt: string;
-  endedAt?: string;
-  duration: number;
-  recordingUrl?: string;
-  transcriptUrl?: string;
-  summary?: string;
-  aiNotes?: string;
-  slides?: string[];
-  attendance: LectureAttendance[];
-  tags?: string[];
-}
-
-export interface LectureAttendance {
-  userId: string;
-  name: string;
-  timestamp: string;
-  method: 'manual' | 'face' | 'qrcode' | 'auto';
-  status: 'present' | 'late' | 'absent' | 'excused';
-}
-
-export interface AttendanceRecord {
-  id: string;
-  classroomId: string;
-  lectureId: string;
-  date: string;
-  records: LectureAttendance[];
-  totalStudents: number;
-  presentCount: number;
-}
-
-export interface AIMessage {
-  id: string;
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-  timestamp: string;
-  metadata?: {
-    model?: string;
-    confidence?: number;
-    sources?: string[];
-    tokens?: number;
-  };
-}
-
-export interface AISummary {
-  id: string;
-  lectureId: string;
-  title: string;
-  summary: string;
-  keyPoints: string[];
-  keywords: string[];
-  actionItems: string[];
-  questionsForReview: string[];
-  generatedAt: string;
-  modelVersion: string;
-}
-
-export interface AIInsight {
-  id: string;
-  userId: string;
-  type: 'performance' | 'engagement' | 'recommendation' | 'alert' | 'trend';
-  title: string;
-  description: string;
-  value: number;
-  change: number;
-  icon: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  createdAt: string;
-  actionable: boolean;
-}
-
-export interface CloudFile {
-  id: string;
-  name: string;
-  type: 'board' | 'document' | 'recording' | 'image' | 'export' | 'other';
-  mimeType: string;
-  size: number;
-  url: string;
-  thumbnailUrl?: string;
-  folderId?: string;
-  createdBy: string;
-  createdAt: string;
-  updatedAt: string;
-  isStarred: boolean;
-  isSynced: boolean;
-  tags?: string[];
-  sharedWith?: string[];
-}
-
 export interface UserSettings {
   theme: ThemeMode;
   language: string;
   country?: string;
   timeZone?: string;
-  gestureMode: GestureMode;
-  voiceAssistance: boolean;
-  serverSTT: boolean;
-  autoCorrect: boolean;
-  spellCheck: boolean;
+  voiceAssistance?: boolean;
+  serverSTT?: boolean;
+  autoCorrect?: boolean;
+  spellCheck?: boolean;
   textSize: 'small' | 'medium' | 'large';
-  soundEnabled: boolean;
-  hapticFeedback: boolean;
-  gestureAccuracy: 'low' | 'medium' | 'high';
-  autoSave: boolean;
-  autoSync: boolean;
+  soundEnabled?: boolean;
+  hapticFeedback?: boolean;
+  autoSave?: boolean;
+  autoSync?: boolean;
   notificationsEnabled: boolean;
   emailNotifications: boolean;
-  smartSuggestions: boolean;
+  smartSuggestions?: boolean;
   reducedMotion: boolean;
   highContrast: boolean;
-  fontSize: number;
-  boardWidth: number;
-  boardHeight: number;
-  defaultTool: string;
-  defaultColor: string;
-  defaultStrokeWidth: number;
+  fontSize?: number;
+  boardWidth?: number;
+  boardHeight?: number;
+  defaultTool?: string;
+  defaultColor?: string;
+  defaultStrokeWidth?: number;
+  [key: string]: any;
+}
+
+export interface UsageStats {
+  totalBoards: number;
+  totalWriteTime: number;
+  averageAccuracy?: number;
+  mostUsedTool?: string;
+  totalCollaborations: number;
+  storageUsed: number;
+  lastUsed: string;
 }
 
 export interface UserProfile {
@@ -374,25 +190,9 @@ export interface UserProfile {
   interests?: string[];
   joinDate: string;
   settings: UserSettings;
-  stats: UsageStats;
+  stats?: UsageStats;
   isVerified: boolean;
   createdAt: string;
-}
-
-export interface AdminMetrics {
-  totalUsers: number;
-  activeUsers: number;
-  totalSchools: number;
-  growth: number;
-  usersByRole: Record<UserRole, number>;
-  dailyActiveUsers: AnalyticsData[];
-  systemHealth: {
-    uptime: number;
-    responseTime: number;
-    errorRate: number;
-    storageUsed: number;
-    activeConnections: number;
-  };
 }
 
 export interface CollaborationSession {
@@ -417,25 +217,6 @@ export interface CollaborationParticipant {
   cursor?: { x: number; y: number };
 }
 
-export interface AR3DObject {
-  id: string;
-  name: string;
-  category: 'science' | 'math' | 'geography' | 'history' | 'anatomy' | 'chemistry' | 'physics' | 'engineering';
-  modelUrl: string;
-  thumbnailUrl?: string;
-  description?: string;
-  isInteractive: boolean;
-  scale: number;
-  rotation: { x: number; y: number; z: number };
-}
-
-export interface ErrorResponse {
-  message: string;
-  code?: string;
-  details?: any;
-  timestamp?: string;
-}
-
 export interface SharedBoard {
   id: string;
   boardId: string;
@@ -448,28 +229,6 @@ export interface AnalyticsData {
   value: number;
   label?: string;
   metadata?: Record<string, any>;
-}
-
-export interface PerformanceReport {
-  id: string;
-  userId: string;
-  period: 'daily' | 'weekly' | 'monthly' | 'yearly';
-  startDate: string;
-  endDate: string;
-  metrics: {
-    boardsCreated: number;
-    gesturesPerMinute: number;
-    accuracy: number;
-    writingSpeed: number;
-    collaborationCount: number;
-    classroomHours: number;
-    attendanceRate: number;
-    engagementScore: number;
-    completionRate: number;
-  };
-  trends: AnalyticsData[];
-  recommendations: string[];
-  insights: AIInsight[];
 }
 
 export interface Notification {
@@ -489,200 +248,11 @@ export interface Notification {
 export interface ActivityEntry {
   id: string;
   userId: string;
-  type: 'board_created' | 'board_edited' | 'board_shared' | 'board_deleted' | 'classroom_joined' | 'classroom_created' | 'lecture_recorded' | 'ai_summary' | 'export' | 'collaboration' | 'achievement' | 'login' | 'settings_change';
+  type: 'board_created' | 'board_edited' | 'board_shared' | 'board_deleted' | 'export' | 'collaboration' | 'achievement' | 'login' | 'settings_change';
   description: string;
   timestamp: string;
   metadata?: Record<string, any>;
   icon?: string;
-}
-
-export interface CloudFile {
-  id: string;
-  name: string;
-  type: 'board' | 'document' | 'recording' | 'image' | 'export' | 'other';
-  mimeType: string;
-  size: number;
-  url: string;
-  thumbnailUrl?: string;
-  folderId?: string;
-  createdBy: string;
-  createdAt: string;
-  updatedAt: string;
-  isStarred: boolean;
-  isSynced: boolean;
-  tags?: string[];
-  sharedWith?: string[];
-}
-
-export interface Classroom {
-  id: string;
-  code: string;
-  name: string;
-  description?: string;
-  teacherId: string;
-  teacherName: string;
-  subject?: string;
-  grade?: string;
-  students: ClassroomStudent[];
-  isLive: boolean;
-  startedAt?: string;
-  endedAt?: string;
-  recording?: boolean;
-  maxStudents: number;
-  settings: ClassroomSettings;
-}
-
-export interface ClassroomStudent {
-  userId: string;
-  name: string;
-  avatar?: string;
-  joinedAt: string;
-  isPresent: boolean;
-  handRaised: boolean;
-  muted: boolean;
-  attentionScore?: number;
-}
-
-export interface ClassroomSettings {
-  allowChat: boolean;
-  allowHandRaise: boolean;
-  allowScreenShare: boolean;
-  muteOnJoin: boolean;
-  requireApproval: boolean;
-  recordingEnabled: boolean;
-  autoAttendance: boolean;
-  language: string;
-}
-
-export interface Poll {
-  id: string;
-  classroomId: string;
-  question: string;
-  options: PollOption[];
-  createdAt: string;
-  expiresAt?: string;
-  isActive: boolean;
-  isAnonymous: boolean;
-  type: 'multiple' | 'single' | 'true_false' | 'rating' | 'open';
-}
-
-export interface PollOption {
-  id: string;
-  text: string;
-  votes: number;
-  isCorrect?: boolean;
-}
-
-export interface Quiz {
-  id: string;
-  classroomId: string;
-  title: string;
-  questions: QuizQuestion[];
-  timeLimit?: number;
-  createdAt: string;
-  isActive: boolean;
-  shuffleQuestions: boolean;
-}
-
-export interface QuizQuestion {
-  id: string;
-  question: string;
-  options: string[];
-  correctIndex: number;
-  points: number;
-  timeLimit?: number;
-}
-
-export interface Lecture {
-  id: string;
-  classroomId: string;
-  title: string;
-  subject?: string;
-  teacherId: string;
-  teacherName: string;
-  startedAt: string;
-  endedAt?: string;
-  duration: number;
-  recordingUrl?: string;
-  transcriptUrl?: string;
-  summary?: string;
-  aiNotes?: string;
-  slides?: string[];
-  attendance: LectureAttendance[];
-  tags?: string[];
-}
-
-export interface LectureAttendance {
-  userId: string;
-  name: string;
-  timestamp: string;
-  method: 'manual' | 'face' | 'qrcode' | 'auto';
-  status: 'present' | 'late' | 'absent' | 'excused';
-}
-
-export interface AttendanceRecord {
-  id: string;
-  classroomId: string;
-  lectureId: string;
-  date: string;
-  records: LectureAttendance[];
-  totalStudents: number;
-  presentCount: number;
-}
-
-export interface AIMessage {
-  id: string;
-  role: 'user' | 'assistant' | 'system';
-  content: string;
-  timestamp: string;
-  metadata?: {
-    model?: string;
-    confidence?: number;
-    sources?: string[];
-    tokens?: number;
-  };
-}
-
-export interface AISummary {
-  id: string;
-  lectureId: string;
-  title: string;
-  summary: string;
-  keyPoints: string[];
-  keywords: string[];
-  actionItems: string[];
-  questionsForReview: string[];
-  generatedAt: string;
-  modelVersion: string;
-}
-
-export interface AIInsight {
-  id: string;
-  userId: string;
-  type: 'performance' | 'engagement' | 'recommendation' | 'alert' | 'trend';
-  title: string;
-  description: string;
-  value: number;
-  change: number;
-  icon: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  createdAt: string;
-  actionable: boolean;
-}
-
-export interface UsageStats {
-  totalBoards: number;
-  totalGestures: number;
-  totalWriteTime: number;
-  averageAccuracy: number;
-  mostUsedGesture: string;
-  mostUsedTool: string;
-  totalClassrooms: number;
-  totalLectures: number;
-  totalStudents: number;
-  totalCollaborations: number;
-  storageUsed: number;
-  lastUsed: string;
 }
 
 export interface BoardActivity {
@@ -690,4 +260,11 @@ export interface BoardActivity {
   userId: string;
   action: string;
   timestamp: string;
+}
+
+export interface ErrorResponse {
+  message: string;
+  code?: string;
+  details?: any;
+  timestamp?: string;
 }

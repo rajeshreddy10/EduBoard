@@ -1,0 +1,2842 @@
+[
+  {
+    "test_id": "test_appium_login_screen_displayed",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_login_screen_displayed",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_login_email_field",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_login_email_field",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_login_password_field",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_login_password_field",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_login_submit_button",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_login_submit_button",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_login_signup_link",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_login_signup_link",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_login_forgot_pwd_link",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_login_forgot_pwd_link",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_login_no_google_btn",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_login_no_google_btn",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_login_empty_validation",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_login_empty_validation",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_login_invalid_email",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_login_invalid_email",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_login_keyboard_dismiss",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_login_keyboard_dismiss",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_login_password_toggle",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_login_password_toggle",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_login_loading_indicator",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_login_loading_indicator",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_login_back_button_behavior",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_login_back_button_behavior",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_login_dark_theme_contrast",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_login_dark_theme_contrast",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_login_orientation_portrait",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_login_orientation_portrait",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_signup_screen_displayed",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_signup_screen_displayed",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_signup_name_field",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_signup_name_field",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_signup_email_field",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_signup_email_field",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_signup_password_field",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_signup_password_field",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_signup_confirm_password",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_signup_confirm_password",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_signup_create_btn",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_signup_create_btn",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_signup_back_nav",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_signup_back_nav",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_signup_pwd_mismatch",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_signup_pwd_mismatch",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_signup_terms_checkbox",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_signup_terms_checkbox",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_signup_scrollable_form",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_signup_scrollable_form",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_dashboard_screen_displayed",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_dashboard_screen_displayed",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_dashboard_appbar_title",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_dashboard_appbar_title",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_dashboard_board_grid",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_dashboard_board_grid",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_dashboard_quick_drawspace",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_dashboard_quick_drawspace",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_dashboard_quick_doccanvas",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_dashboard_quick_doccanvas",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_dashboard_quick_voiceboard",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_dashboard_quick_voiceboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_dashboard_search_boards",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_dashboard_search_boards",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_dashboard_pull_to_refresh",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_dashboard_pull_to_refresh",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_dashboard_drawer_toggle",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_dashboard_drawer_toggle",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_dashboard_profile_action",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_dashboard_profile_action",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_dashboard_settings_action",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_dashboard_settings_action",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_dashboard_empty_state",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_dashboard_empty_state",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_dashboard_board_card_tap",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_dashboard_board_card_tap",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_dashboard_board_delete_action",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_dashboard_board_delete_action",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_dashboard_notifications_icon",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_dashboard_notifications_icon",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_drawspace_screen_loaded",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_drawspace_screen_loaded",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_drawspace_appbar_back_btn",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_drawspace_appbar_back_btn",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_drawspace_canvas_widget",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_drawspace_canvas_widget",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_drawspace_pen_mode_active",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_drawspace_pen_mode_active",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_drawspace_eraser_mode",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_drawspace_eraser_mode",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_drawspace_stroke_slider",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_drawspace_stroke_slider",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_drawspace_color_picker",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_drawspace_color_picker",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_drawspace_shapes_bottom_sheet",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_drawspace_shapes_bottom_sheet",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_drawspace_undo_action",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_drawspace_undo_action",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_drawspace_redo_action",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_drawspace_redo_action",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_drawspace_clear_canvas",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_drawspace_clear_canvas",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_drawspace_save_button",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_drawspace_save_button",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_drawspace_manual_save_only",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_drawspace_manual_save_only",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_drawspace_save_snackbar",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_drawspace_save_snackbar",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_drawspace_pinch_zoom",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_drawspace_pinch_zoom",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_drawspace_two_finger_pan",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_drawspace_two_finger_pan",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_drawspace_stylus_pressure",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_drawspace_stylus_pressure",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_drawspace_reference_panel",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_drawspace_reference_panel",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_drawspace_progressive_reveal",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_drawspace_progressive_reveal",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_drawspace_teacher_notes",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_drawspace_teacher_notes",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_doccanvas_screen_loaded",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_doccanvas_screen_loaded",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_doccanvas_appbar_back_btn",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_doccanvas_appbar_back_btn",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_doccanvas_open_file_btn",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_doccanvas_open_file_btn",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_doccanvas_file_picker_support",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_doccanvas_file_picker_support",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_doccanvas_pdf_page_rendering",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_doccanvas_pdf_page_rendering",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_doccanvas_pdf_page_jump",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_doccanvas_pdf_page_jump",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_doccanvas_annotation_layer",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_doccanvas_annotation_layer",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_doccanvas_pen_tool",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_doccanvas_pen_tool",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_doccanvas_highlighter_tool",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_doccanvas_highlighter_tool",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_doccanvas_eraser_tool",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_doccanvas_eraser_tool",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_doccanvas_text_card_insert",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_doccanvas_text_card_insert",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_doccanvas_save_button",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_doccanvas_save_button",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_doccanvas_no_auto_save",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_doccanvas_no_auto_save",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_doccanvas_no_math_tool",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_doccanvas_no_math_tool",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_doccanvas_no_vector_replay",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_doccanvas_no_vector_replay",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_voiceboard_screen_loaded",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_voiceboard_screen_loaded",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_voiceboard_appbar_back_btn",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_voiceboard_appbar_back_btn",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_voiceboard_clean_bg",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_voiceboard_clean_bg",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_voiceboard_voice_toggle",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_voiceboard_voice_toggle",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_voiceboard_mic_permission",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_voiceboard_mic_permission",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_voiceboard_live_stream_text",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_voiceboard_live_stream_text",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_voiceboard_no_hallucinations",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_voiceboard_no_hallucinations",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_voiceboard_no_duplicate_lines",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_voiceboard_no_duplicate_lines",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_voiceboard_autoscroll",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_voiceboard_autoscroll",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_voiceboard_canvas_drawing",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_voiceboard_canvas_drawing",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_voiceboard_save_button",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_voiceboard_save_button",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_voiceboard_no_auto_save",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_voiceboard_no_auto_save",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_voiceboard_pause_resume",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_voiceboard_pause_resume",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_profile_screen_loaded",
+    "category": "Profile",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_profile_screen_loaded",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_profile_back_btn",
+    "category": "Profile",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_profile_back_btn",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_profile_name_edit",
+    "category": "Profile",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_profile_name_edit",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_profile_email_readonly",
+    "category": "Profile",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_profile_email_readonly",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_profile_avatar_tap",
+    "category": "Profile",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_profile_avatar_tap",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_settings_screen_loaded",
+    "category": "Settings",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_settings_screen_loaded",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_settings_back_btn",
+    "category": "Settings",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_settings_back_btn",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_settings_dark_mode_switch",
+    "category": "Settings",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_settings_dark_mode_switch",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_settings_light_mode_switch",
+    "category": "Settings",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_settings_light_mode_switch",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_settings_haptic_feedback",
+    "category": "Settings",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_settings_haptic_feedback",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_settings_clear_cache",
+    "category": "Settings",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_settings_clear_cache",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_settings_sign_out",
+    "category": "Settings",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_settings_sign_out",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_sync_board_id_maintained",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_sync_board_id_maintained",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_sync_load_saved_content",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_sync_load_saved_content",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_sync_no_duplicate_on_reopen",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_sync_no_duplicate_on_reopen",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_sync_timestamp_accuracy",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_sync_timestamp_accuracy",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_sync_offline_handling",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_sync_offline_handling",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_sync_reconnect_retry",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_sync_reconnect_retry",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_phone_portrait_login",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_phone_portrait_login",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_phone_landscape_login",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_phone_landscape_login",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_tablet_portrait_login",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_tablet_portrait_login",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_tablet_landscape_login",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_tablet_landscape_login",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_stylus_wacom_login",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_stylus_wacom_login",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_phone_portrait_dashboard",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_phone_portrait_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_phone_landscape_dashboard",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_phone_landscape_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_tablet_portrait_dashboard",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_tablet_portrait_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_tablet_landscape_dashboard",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_tablet_landscape_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_stylus_wacom_dashboard",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_stylus_wacom_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_phone_portrait_drawspace",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_phone_portrait_drawspace",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_phone_landscape_drawspace",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_phone_landscape_drawspace",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_tablet_portrait_drawspace",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_tablet_portrait_drawspace",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_tablet_landscape_drawspace",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_tablet_landscape_drawspace",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_stylus_wacom_drawspace",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_stylus_wacom_drawspace",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_phone_portrait_doccanvas",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_phone_portrait_doccanvas",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_phone_landscape_doccanvas",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_phone_landscape_doccanvas",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_tablet_portrait_doccanvas",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_tablet_portrait_doccanvas",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_tablet_landscape_doccanvas",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_tablet_landscape_doccanvas",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_stylus_wacom_doccanvas",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_stylus_wacom_doccanvas",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_phone_portrait_voiceboard",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_phone_portrait_voiceboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_phone_landscape_voiceboard",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_phone_landscape_voiceboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_tablet_portrait_voiceboard",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_tablet_portrait_voiceboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_tablet_landscape_voiceboard",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_tablet_landscape_voiceboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_stylus_wacom_voiceboard",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_stylus_wacom_voiceboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_phone_portrait_profile",
+    "category": "Profile",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_phone_portrait_profile",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_phone_landscape_profile",
+    "category": "Profile",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_phone_landscape_profile",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_tablet_portrait_profile",
+    "category": "Profile",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_tablet_portrait_profile",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_tablet_landscape_profile",
+    "category": "Profile",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_tablet_landscape_profile",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_stylus_wacom_profile",
+    "category": "Profile",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_stylus_wacom_profile",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_phone_portrait_settings",
+    "category": "Settings",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_phone_portrait_settings",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_phone_landscape_settings",
+    "category": "Settings",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_phone_landscape_settings",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_tablet_portrait_settings",
+    "category": "Settings",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_tablet_portrait_settings",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_tablet_landscape_settings",
+    "category": "Settings",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_tablet_landscape_settings",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_device_stylus_wacom_settings",
+    "category": "Settings",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_device_stylus_wacom_settings",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_gesture_pinch_zoom_in_drawspace",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_gesture_pinch_zoom_in_drawspace",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_gesture_pinch_zoom_out_drawspace",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_gesture_pinch_zoom_out_drawspace",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_gesture_two_finger_scroll_drawspace",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_gesture_two_finger_scroll_drawspace",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_gesture_rapid_tap_drawspace",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_gesture_rapid_tap_drawspace",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_gesture_long_press_drawspace",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_gesture_long_press_drawspace",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_gesture_drag_and_drop_drawspace",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_gesture_drag_and_drop_drawspace",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_gesture_edge_swipe_back_drawspace",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_gesture_edge_swipe_back_drawspace",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_gesture_palm_rejection_drawspace",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_gesture_palm_rejection_drawspace",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_gesture_pinch_zoom_in_doccanvas",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_gesture_pinch_zoom_in_doccanvas",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_gesture_pinch_zoom_out_doccanvas",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_gesture_pinch_zoom_out_doccanvas",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_gesture_two_finger_scroll_doccanvas",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_gesture_two_finger_scroll_doccanvas",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_gesture_rapid_tap_doccanvas",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_gesture_rapid_tap_doccanvas",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_gesture_long_press_doccanvas",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_gesture_long_press_doccanvas",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_gesture_drag_and_drop_doccanvas",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_gesture_drag_and_drop_doccanvas",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_gesture_edge_swipe_back_doccanvas",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_gesture_edge_swipe_back_doccanvas",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_gesture_palm_rejection_doccanvas",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_gesture_palm_rejection_doccanvas",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_gesture_pinch_zoom_in_voiceboard",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_gesture_pinch_zoom_in_voiceboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_gesture_pinch_zoom_out_voiceboard",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_gesture_pinch_zoom_out_voiceboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_gesture_two_finger_scroll_voiceboard",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_gesture_two_finger_scroll_voiceboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_gesture_rapid_tap_voiceboard",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_gesture_rapid_tap_voiceboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_gesture_long_press_voiceboard",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_gesture_long_press_voiceboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_gesture_drag_and_drop_voiceboard",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_gesture_drag_and_drop_voiceboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_gesture_edge_swipe_back_voiceboard",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_gesture_edge_swipe_back_voiceboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_gesture_palm_rejection_voiceboard",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_gesture_palm_rejection_voiceboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_memory_leak_check_drawspace",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_perf_memory_leak_check_drawspace",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_frame_rate_60fps_drawspace",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_perf_frame_rate_60fps_drawspace",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_battery_efficiency_drawspace",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_perf_battery_efficiency_drawspace",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_cache_invalidation_drawspace",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_perf_cache_invalidation_drawspace",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_low_memory_kill_recovery_drawspace",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_perf_low_memory_kill_recovery_drawspace",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_deep_link_resolution_drawspace",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_perf_deep_link_resolution_drawspace",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_memory_leak_check_doccanvas",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_perf_memory_leak_check_doccanvas",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_frame_rate_60fps_doccanvas",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_perf_frame_rate_60fps_doccanvas",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_battery_efficiency_doccanvas",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_perf_battery_efficiency_doccanvas",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_cache_invalidation_doccanvas",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_perf_cache_invalidation_doccanvas",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_low_memory_kill_recovery_doccanvas",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_perf_low_memory_kill_recovery_doccanvas",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_deep_link_resolution_doccanvas",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_perf_deep_link_resolution_doccanvas",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_memory_leak_check_dashboard",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_perf_memory_leak_check_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_frame_rate_60fps_dashboard",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_perf_frame_rate_60fps_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_battery_efficiency_dashboard",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_perf_battery_efficiency_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_cache_invalidation_dashboard",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_perf_cache_invalidation_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_low_memory_kill_recovery_dashboard",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_perf_low_memory_kill_recovery_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_deep_link_resolution_dashboard",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_perf_deep_link_resolution_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_184_drawspacescreen_accessibility_contrast",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_184_drawspacescreen_accessibility_contrast",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_185_doccanvasscreen_touch_target_size",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_185_doccanvasscreen_touch_target_size",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_186_voiceboardscreen_offline_mode_resilience",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_186_voiceboardscreen_offline_mode_resilience",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_187_profilescreen_low_memory_kill_restart",
+    "category": "Profile",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_187_profilescreen_low_memory_kill_restart",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_188_settingsscreen_locale_switch_ltr",
+    "category": "Settings",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_188_settingsscreen_locale_switch_ltr",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_189_appearancescreen_screen_reader_semantics",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_189_appearancescreen_screen_reader_semantics",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_190_securityscreen_font_scale_large",
+    "category": "Security",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_190_securityscreen_font_scale_large",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_191_historyscreen_dark_mode_palette",
+    "category": "History",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_191_historyscreen_dark_mode_palette",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_192_notificationsscreen_orientation_change",
+    "category": "Notifications",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_192_notificationsscreen_orientation_change",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_193_helpscreen_app_background_resume",
+    "category": "Help",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_193_helpscreen_app_background_resume",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_194_onboardingscreen_keyboard_dismissal",
+    "category": "Onboarding",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_194_onboardingscreen_keyboard_dismissal",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_195_loginscreen_back_press_navigation",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_195_loginscreen_back_press_navigation",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_196_signupscreen_accessibility_contrast",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_196_signupscreen_accessibility_contrast",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_197_forgotpasswordscreen_touch_target_size",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_197_forgotpasswordscreen_touch_target_size",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_198_dashboardscreen_offline_mode_resilience",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_198_dashboardscreen_offline_mode_resilience",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_199_drawspacescreen_low_memory_kill_restart",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_199_drawspacescreen_low_memory_kill_restart",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_200_doccanvasscreen_locale_switch_ltr",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_200_doccanvasscreen_locale_switch_ltr",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_201_voiceboardscreen_screen_reader_semantics",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_201_voiceboardscreen_screen_reader_semantics",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_202_profilescreen_font_scale_large",
+    "category": "Profile",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_202_profilescreen_font_scale_large",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_203_settingsscreen_dark_mode_palette",
+    "category": "Settings",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_203_settingsscreen_dark_mode_palette",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_204_appearancescreen_orientation_change",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_204_appearancescreen_orientation_change",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_205_securityscreen_app_background_resume",
+    "category": "Security",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_205_securityscreen_app_background_resume",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_206_historyscreen_keyboard_dismissal",
+    "category": "History",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_206_historyscreen_keyboard_dismissal",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_207_notificationsscreen_back_press_navigation",
+    "category": "Navigation",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_207_notificationsscreen_back_press_navigation",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_208_helpscreen_accessibility_contrast",
+    "category": "Help",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_208_helpscreen_accessibility_contrast",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_209_onboardingscreen_touch_target_size",
+    "category": "Onboarding",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_209_onboardingscreen_touch_target_size",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_210_loginscreen_offline_mode_resilience",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_210_loginscreen_offline_mode_resilience",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_211_signupscreen_low_memory_kill_restart",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_211_signupscreen_low_memory_kill_restart",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_212_forgotpasswordscreen_locale_switch_ltr",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_212_forgotpasswordscreen_locale_switch_ltr",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_213_dashboardscreen_screen_reader_semantics",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_213_dashboardscreen_screen_reader_semantics",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_214_drawspacescreen_font_scale_large",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_214_drawspacescreen_font_scale_large",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_215_doccanvasscreen_dark_mode_palette",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_215_doccanvasscreen_dark_mode_palette",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_216_voiceboardscreen_orientation_change",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_216_voiceboardscreen_orientation_change",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_217_profilescreen_app_background_resume",
+    "category": "Profile",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_217_profilescreen_app_background_resume",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_218_settingsscreen_keyboard_dismissal",
+    "category": "Settings",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_218_settingsscreen_keyboard_dismissal",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_219_appearancescreen_back_press_navigation",
+    "category": "Navigation",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_219_appearancescreen_back_press_navigation",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_220_securityscreen_accessibility_contrast",
+    "category": "Security",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_220_securityscreen_accessibility_contrast",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_221_historyscreen_touch_target_size",
+    "category": "History",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_221_historyscreen_touch_target_size",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_222_notificationsscreen_offline_mode_resilience",
+    "category": "Notifications",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_222_notificationsscreen_offline_mode_resilience",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_223_helpscreen_low_memory_kill_restart",
+    "category": "Help",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_223_helpscreen_low_memory_kill_restart",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_224_onboardingscreen_locale_switch_ltr",
+    "category": "Onboarding",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_224_onboardingscreen_locale_switch_ltr",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_225_loginscreen_screen_reader_semantics",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_225_loginscreen_screen_reader_semantics",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_226_signupscreen_font_scale_large",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_226_signupscreen_font_scale_large",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_227_forgotpasswordscreen_dark_mode_palette",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_227_forgotpasswordscreen_dark_mode_palette",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_228_dashboardscreen_orientation_change",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_228_dashboardscreen_orientation_change",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_229_drawspacescreen_app_background_resume",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_229_drawspacescreen_app_background_resume",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_230_doccanvasscreen_keyboard_dismissal",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_230_doccanvasscreen_keyboard_dismissal",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_231_voiceboardscreen_back_press_navigation",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_231_voiceboardscreen_back_press_navigation",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_232_profilescreen_accessibility_contrast",
+    "category": "Profile",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_232_profilescreen_accessibility_contrast",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_233_settingsscreen_touch_target_size",
+    "category": "Settings",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_233_settingsscreen_touch_target_size",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_234_appearancescreen_offline_mode_resilience",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_234_appearancescreen_offline_mode_resilience",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_235_securityscreen_low_memory_kill_restart",
+    "category": "Security",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_235_securityscreen_low_memory_kill_restart",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_236_historyscreen_locale_switch_ltr",
+    "category": "History",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_236_historyscreen_locale_switch_ltr",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_237_notificationsscreen_screen_reader_semantics",
+    "category": "Notifications",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_237_notificationsscreen_screen_reader_semantics",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_238_helpscreen_font_scale_large",
+    "category": "Help",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_238_helpscreen_font_scale_large",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_239_onboardingscreen_dark_mode_palette",
+    "category": "Onboarding",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_239_onboardingscreen_dark_mode_palette",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_240_loginscreen_orientation_change",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_240_loginscreen_orientation_change",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_241_signupscreen_app_background_resume",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_241_signupscreen_app_background_resume",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_242_forgotpasswordscreen_keyboard_dismissal",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_242_forgotpasswordscreen_keyboard_dismissal",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_243_dashboardscreen_back_press_navigation",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_243_dashboardscreen_back_press_navigation",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_244_drawspacescreen_accessibility_contrast",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_244_drawspacescreen_accessibility_contrast",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_245_doccanvasscreen_touch_target_size",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_245_doccanvasscreen_touch_target_size",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_246_voiceboardscreen_offline_mode_resilience",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_246_voiceboardscreen_offline_mode_resilience",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_247_profilescreen_low_memory_kill_restart",
+    "category": "Profile",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_247_profilescreen_low_memory_kill_restart",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_248_settingsscreen_locale_switch_ltr",
+    "category": "Settings",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_248_settingsscreen_locale_switch_ltr",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_249_appearancescreen_screen_reader_semantics",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_249_appearancescreen_screen_reader_semantics",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_250_securityscreen_font_scale_large",
+    "category": "Security",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_250_securityscreen_font_scale_large",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_251_historyscreen_dark_mode_palette",
+    "category": "History",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_251_historyscreen_dark_mode_palette",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_252_notificationsscreen_orientation_change",
+    "category": "Notifications",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_252_notificationsscreen_orientation_change",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_253_helpscreen_app_background_resume",
+    "category": "Help",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_253_helpscreen_app_background_resume",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_254_onboardingscreen_keyboard_dismissal",
+    "category": "Onboarding",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_254_onboardingscreen_keyboard_dismissal",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_255_loginscreen_back_press_navigation",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_255_loginscreen_back_press_navigation",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_256_signupscreen_accessibility_contrast",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_256_signupscreen_accessibility_contrast",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_257_forgotpasswordscreen_touch_target_size",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_257_forgotpasswordscreen_touch_target_size",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_258_dashboardscreen_offline_mode_resilience",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_258_dashboardscreen_offline_mode_resilience",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_259_drawspacescreen_low_memory_kill_restart",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_259_drawspacescreen_low_memory_kill_restart",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_260_doccanvasscreen_locale_switch_ltr",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_260_doccanvasscreen_locale_switch_ltr",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_261_voiceboardscreen_screen_reader_semantics",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_261_voiceboardscreen_screen_reader_semantics",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_262_profilescreen_font_scale_large",
+    "category": "Profile",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_262_profilescreen_font_scale_large",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_263_settingsscreen_dark_mode_palette",
+    "category": "Settings",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_263_settingsscreen_dark_mode_palette",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_264_appearancescreen_orientation_change",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_264_appearancescreen_orientation_change",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_265_securityscreen_app_background_resume",
+    "category": "Security",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_265_securityscreen_app_background_resume",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_266_historyscreen_keyboard_dismissal",
+    "category": "History",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_266_historyscreen_keyboard_dismissal",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_267_notificationsscreen_back_press_navigation",
+    "category": "Navigation",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_267_notificationsscreen_back_press_navigation",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_268_helpscreen_accessibility_contrast",
+    "category": "Help",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_268_helpscreen_accessibility_contrast",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_269_onboardingscreen_touch_target_size",
+    "category": "Onboarding",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_269_onboardingscreen_touch_target_size",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_270_loginscreen_offline_mode_resilience",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_270_loginscreen_offline_mode_resilience",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_271_signupscreen_low_memory_kill_restart",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_271_signupscreen_low_memory_kill_restart",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_272_forgotpasswordscreen_locale_switch_ltr",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_272_forgotpasswordscreen_locale_switch_ltr",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_273_dashboardscreen_screen_reader_semantics",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_273_dashboardscreen_screen_reader_semantics",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_274_drawspacescreen_font_scale_large",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_274_drawspacescreen_font_scale_large",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_275_doccanvasscreen_dark_mode_palette",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_275_doccanvasscreen_dark_mode_palette",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_276_voiceboardscreen_orientation_change",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_276_voiceboardscreen_orientation_change",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_277_profilescreen_app_background_resume",
+    "category": "Profile",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_277_profilescreen_app_background_resume",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_278_settingsscreen_keyboard_dismissal",
+    "category": "Settings",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_278_settingsscreen_keyboard_dismissal",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_279_appearancescreen_back_press_navigation",
+    "category": "Navigation",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_279_appearancescreen_back_press_navigation",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_280_securityscreen_accessibility_contrast",
+    "category": "Security",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_280_securityscreen_accessibility_contrast",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_281_historyscreen_touch_target_size",
+    "category": "History",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_281_historyscreen_touch_target_size",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_282_notificationsscreen_offline_mode_resilience",
+    "category": "Notifications",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_282_notificationsscreen_offline_mode_resilience",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_283_helpscreen_low_memory_kill_restart",
+    "category": "Help",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_283_helpscreen_low_memory_kill_restart",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_284_onboardingscreen_locale_switch_ltr",
+    "category": "Onboarding",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_284_onboardingscreen_locale_switch_ltr",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_285_loginscreen_screen_reader_semantics",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_285_loginscreen_screen_reader_semantics",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_286_signupscreen_font_scale_large",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_286_signupscreen_font_scale_large",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_287_forgotpasswordscreen_dark_mode_palette",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_287_forgotpasswordscreen_dark_mode_palette",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_288_dashboardscreen_orientation_change",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_288_dashboardscreen_orientation_change",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_289_drawspacescreen_app_background_resume",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_289_drawspacescreen_app_background_resume",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_290_doccanvasscreen_keyboard_dismissal",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_290_doccanvasscreen_keyboard_dismissal",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_291_voiceboardscreen_back_press_navigation",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_291_voiceboardscreen_back_press_navigation",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_292_profilescreen_accessibility_contrast",
+    "category": "Profile",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_292_profilescreen_accessibility_contrast",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_293_settingsscreen_touch_target_size",
+    "category": "Settings",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_293_settingsscreen_touch_target_size",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_294_appearancescreen_offline_mode_resilience",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_294_appearancescreen_offline_mode_resilience",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_295_securityscreen_low_memory_kill_restart",
+    "category": "Security",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_295_securityscreen_low_memory_kill_restart",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_296_historyscreen_locale_switch_ltr",
+    "category": "History",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_296_historyscreen_locale_switch_ltr",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_297_notificationsscreen_screen_reader_semantics",
+    "category": "Notifications",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_297_notificationsscreen_screen_reader_semantics",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_298_helpscreen_font_scale_large",
+    "category": "Help",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_298_helpscreen_font_scale_large",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_299_onboardingscreen_dark_mode_palette",
+    "category": "Onboarding",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_299_onboardingscreen_dark_mode_palette",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_300_loginscreen_orientation_change",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_300_loginscreen_orientation_change",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_301_signupscreen_app_background_resume",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_301_signupscreen_app_background_resume",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_302_forgotpasswordscreen_keyboard_dismissal",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_302_forgotpasswordscreen_keyboard_dismissal",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_303_dashboardscreen_back_press_navigation",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_303_dashboardscreen_back_press_navigation",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_304_drawspacescreen_accessibility_contrast",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_304_drawspacescreen_accessibility_contrast",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_305_doccanvasscreen_touch_target_size",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_305_doccanvasscreen_touch_target_size",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_306_voiceboardscreen_offline_mode_resilience",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_306_voiceboardscreen_offline_mode_resilience",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_307_profilescreen_low_memory_kill_restart",
+    "category": "Profile",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_307_profilescreen_low_memory_kill_restart",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_308_settingsscreen_locale_switch_ltr",
+    "category": "Settings",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_308_settingsscreen_locale_switch_ltr",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_309_appearancescreen_screen_reader_semantics",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_309_appearancescreen_screen_reader_semantics",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_310_securityscreen_font_scale_large",
+    "category": "Security",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_310_securityscreen_font_scale_large",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_311_historyscreen_dark_mode_palette",
+    "category": "History",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_311_historyscreen_dark_mode_palette",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_312_notificationsscreen_orientation_change",
+    "category": "Notifications",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_312_notificationsscreen_orientation_change",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_313_helpscreen_app_background_resume",
+    "category": "Help",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_313_helpscreen_app_background_resume",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_314_onboardingscreen_keyboard_dismissal",
+    "category": "Onboarding",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_314_onboardingscreen_keyboard_dismissal",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_315_loginscreen_back_press_navigation",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_315_loginscreen_back_press_navigation",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_316_signupscreen_accessibility_contrast",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_316_signupscreen_accessibility_contrast",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_317_forgotpasswordscreen_touch_target_size",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_317_forgotpasswordscreen_touch_target_size",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_318_dashboardscreen_offline_mode_resilience",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_318_dashboardscreen_offline_mode_resilience",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_319_drawspacescreen_low_memory_kill_restart",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_319_drawspacescreen_low_memory_kill_restart",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_320_doccanvasscreen_locale_switch_ltr",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_320_doccanvasscreen_locale_switch_ltr",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_321_voiceboardscreen_screen_reader_semantics",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_321_voiceboardscreen_screen_reader_semantics",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_322_profilescreen_font_scale_large",
+    "category": "Profile",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_322_profilescreen_font_scale_large",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_323_settingsscreen_dark_mode_palette",
+    "category": "Settings",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_323_settingsscreen_dark_mode_palette",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_324_appearancescreen_orientation_change",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_324_appearancescreen_orientation_change",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_325_securityscreen_app_background_resume",
+    "category": "Security",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_325_securityscreen_app_background_resume",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_326_historyscreen_keyboard_dismissal",
+    "category": "History",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_326_historyscreen_keyboard_dismissal",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_327_notificationsscreen_back_press_navigation",
+    "category": "Navigation",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_327_notificationsscreen_back_press_navigation",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_328_helpscreen_accessibility_contrast",
+    "category": "Help",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_328_helpscreen_accessibility_contrast",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_329_onboardingscreen_touch_target_size",
+    "category": "Onboarding",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_329_onboardingscreen_touch_target_size",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_330_loginscreen_offline_mode_resilience",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_330_loginscreen_offline_mode_resilience",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_331_signupscreen_low_memory_kill_restart",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_331_signupscreen_low_memory_kill_restart",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_332_forgotpasswordscreen_locale_switch_ltr",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_332_forgotpasswordscreen_locale_switch_ltr",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_333_dashboardscreen_screen_reader_semantics",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_333_dashboardscreen_screen_reader_semantics",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_334_drawspacescreen_font_scale_large",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_334_drawspacescreen_font_scale_large",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_335_doccanvasscreen_dark_mode_palette",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_335_doccanvasscreen_dark_mode_palette",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_336_voiceboardscreen_orientation_change",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_336_voiceboardscreen_orientation_change",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_337_profilescreen_app_background_resume",
+    "category": "Profile",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_337_profilescreen_app_background_resume",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_338_settingsscreen_keyboard_dismissal",
+    "category": "Settings",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_338_settingsscreen_keyboard_dismissal",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_339_appearancescreen_back_press_navigation",
+    "category": "Navigation",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_339_appearancescreen_back_press_navigation",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_340_securityscreen_accessibility_contrast",
+    "category": "Security",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_340_securityscreen_accessibility_contrast",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_341_historyscreen_touch_target_size",
+    "category": "History",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_341_historyscreen_touch_target_size",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_342_notificationsscreen_offline_mode_resilience",
+    "category": "Notifications",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_342_notificationsscreen_offline_mode_resilience",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_343_helpscreen_low_memory_kill_restart",
+    "category": "Help",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_343_helpscreen_low_memory_kill_restart",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_344_onboardingscreen_locale_switch_ltr",
+    "category": "Onboarding",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_344_onboardingscreen_locale_switch_ltr",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_345_loginscreen_screen_reader_semantics",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_345_loginscreen_screen_reader_semantics",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_346_signupscreen_font_scale_large",
+    "category": "Authentication",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_346_signupscreen_font_scale_large",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_347_forgotpasswordscreen_dark_mode_palette",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_347_forgotpasswordscreen_dark_mode_palette",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_348_dashboardscreen_orientation_change",
+    "category": "Dashboard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_348_dashboardscreen_orientation_change",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_349_drawspacescreen_app_background_resume",
+    "category": "DrawSpace",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_349_drawspacescreen_app_background_resume",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_350_doccanvasscreen_keyboard_dismissal",
+    "category": "DocCanvas",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_350_doccanvasscreen_keyboard_dismissal",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_351_voiceboardscreen_back_press_navigation",
+    "category": "VoiceBoard",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_351_voiceboardscreen_back_press_navigation",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_352_profilescreen_accessibility_contrast",
+    "category": "Profile",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_352_profilescreen_accessibility_contrast",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_353_settingsscreen_touch_target_size",
+    "category": "Settings",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_353_settingsscreen_touch_target_size",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_354_appearancescreen_offline_mode_resilience",
+    "category": "UI/UX",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_354_appearancescreen_offline_mode_resilience",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_appium_scenario_355_securityscreen_low_memory_kill_restart",
+    "category": "Security",
+    "name": "tests/appium/test_appium.py::TestEduBoardAppiumSuite::test_appium_scenario_355_securityscreen_low_memory_kill_restart",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  }
+]

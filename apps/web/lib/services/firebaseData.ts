@@ -6,6 +6,7 @@ import {
   setDoc,
   updateDoc,
   deleteDoc,
+  writeBatch,
   query,
   where,
   orderBy,
@@ -14,8 +15,10 @@ import {
   Unsubscribe
 } from 'firebase/firestore';
 import { ref, uploadString, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '../firebase';
+import { auth, db, storage } from '../firebase';
 import { Board, Notification, User } from '../types';
+import { api } from '../api';
+import * as store from '../store';
 
 function sanitizePayload(obj: any): any {
   if (obj === null || obj === undefined) return null;
@@ -36,181 +39,267 @@ function sanitizePayload(obj: any): any {
 }
 
 /**
- * History & Saved History Service (Firebase Firestore)
+ * Whiteboards / History Service (Approved Collection: "whiteboards")
+ *
+ * Every operation targets an EXISTING board document id — saves update the
+ * same record (merge), deletions remove the board AND its version snapshots
+ * in one batch, and ownership metadata is preserved so opening a board from
+ * History / Recent / Search restores the original record instead of forking it.
  */
-export const historyService = {
-  async getHistory(userId: string): Promise<Board[]> {
-    if (!userId) return [];
-    try {
-      console.log('[Firebase Firestore] [Menu Option: Saved History] Fetching board history for user:', userId);
-      const historyRef = collection(db, 'users', userId, 'history');
-      const q = query(historyRef, orderBy('updatedAt', 'desc'));
-      const snapshot = await getDocs(q);
-      
-      if (snapshot.empty) {
-        console.log('[Firebase Firestore] [Menu Option: Saved History] User subcollection empty, falling back to top-level boards collection');
-        const boardsRef = collection(db, 'boards');
-        const legacyQuery = query(boardsRef, where('createdBy', '==', userId));
-        const legacySnap = await getDocs(legacyQuery);
-        const legacyBoards = legacySnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Board));
-        console.log(`[Firebase Firestore] [Menu Option: Saved History] Retrieved ${legacyBoards.length} legacy history boards.`);
-        return legacyBoards;
-      }
+const MAX_STROKES_PER_DOC = 2000;
+const MAX_VERSIONS_PER_BOARD = 10;
+const MAX_INLINE_ASSET_BYTES = 300 * 1024; // ~300KB base64 inline cap before Storage offload
 
-      const boards = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Board));
-      console.log(`[Firebase Firestore] [Menu Option: Saved History] Retrieved ${boards.length} history boards.`);
-      return boards;
-    } catch (error) {
-      console.error('[Firebase Firestore] [Menu Option: Saved History] Error fetching user history:', error);
-      return [];
+async function compressOversizedContent(board: Board & Record<string, any>): Promise<Board> {
+  let strokesList = Array.isArray(board.strokes) ? board.strokes : [];
+
+  // Round coordinate precision to keep typical boards in the 1MB doc budget.
+  strokesList = strokesList.map((s: any) => {
+    if (s && Array.isArray(s.points)) {
+      return {
+        ...s,
+        points: s.points.map((p: any) => ({
+          x: Math.round((p.x || 0) * 10) / 10,
+          y: Math.round((p.y || 0) * 10) / 10,
+          ...(p.pressure !== undefined ? { pressure: Math.round(p.pressure * 100) / 100 } : {}),
+        })),
+      };
     }
-  },
+    return s;
+  });
 
+  let size = JSON.stringify(strokesList || []).length;
+  while (size > 900_000 && strokesList.length > MAX_STROKES_PER_DOC / 2) {
+    strokesList = strokesList.slice(0, Math.floor(strokesList.length * 0.8));
+    size = JSON.stringify(strokesList).length;
+  }
+  return { ...board, strokes: strokesList.slice(0, MAX_STROKES_PER_DOC) };
+}
+
+/** Move huge inline base64 documents to Firebase Storage so Firestore writes stay under the 1MB doc limit. */
+async function offloadLargeAssets(userId: string, board: Board & Record<string, any>): Promise<Board> {
+  try {
+    const out = { ...board } as Record<string, any>;
+    const swapToStorage = async (key: 'bgFile' | 'activeDocument', dataUrl: string, nameHint: string) => {
+      if (typeof dataUrl !== 'string' || !dataUrl.startsWith('data:') || dataUrl.length < MAX_INLINE_ASSET_BYTES) return;
+      const ext = (dataUrl.match(/^data:[^;]+/) || [''])[0].split('/')[1] || 'bin';
+      const path = `documents/${userId}/${board.id}/${(nameHint || 'document').replace(/[^\w.-]+/g, '_')}.${ext}`;
+      const storageRef = ref(storage, path);
+      await uploadString(storageRef, dataUrl, 'data_url');
+      const url = await getDownloadURL(storageRef);
+      if (key === 'bgFile') {
+        out[key] = { url, type: (board.bgFile as any)?.type || 'doc' };
+      } else {
+        out[key] = { ...(board.activeDocument as any), dataUrl: undefined, url, offloadedToStorage: true };
+      }
+      console.log(`[Firebase Storage] Offloaded large asset for board ${board.id} (${(dataUrl.length / 1024).toFixed(0)}KB) → ${path}`);
+    };
+
+    if (board.bgFile?.url) await swapToStorage('bgFile', board.bgFile.url, board.title || 'bg');
+    const docDataUrl = (board.activeDocument as any)?.dataUrl || (board.activeDocument as any)?.url;
+    if (docDataUrl) await swapToStorage('activeDocument', docDataUrl, (board.activeDocument as any)?.name || board.title || 'doc');
+    return out as Board;
+  } catch (err) {
+    console.warn('[Firebase Storage] Asset offload skipped:', err);
+    return board;
+  }
+}
+
+export const historyService = {
   subscribeToHistory(userId: string, callback: (items: Board[]) => void): Unsubscribe | null {
     if (!userId) return null;
     try {
-      console.log('[Firebase Firestore] [Menu Option: Saved History] Subscribing to live history updates for user:', userId);
-      const historyRef = collection(db, 'users', userId, 'history');
-      const q = query(historyRef, orderBy('updatedAt', 'desc'));
-      
+      const whiteboardsRef = collection(db, 'whiteboards');
+      const q = query(whiteboardsRef, where('owner_id', '==', userId));
+
       return onSnapshot(q, (snapshot) => {
-        const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Board));
-        console.log(`[Firebase Firestore] [Menu Option: Saved History] Live update: ${items.length} boards loaded`);
-        callback(items);
+        callback(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Board)));
       }, (error) => {
-        console.warn('[Firebase Firestore] [Menu Option: Saved History] History subscription error:', error);
+        console.warn('[Firebase Firestore] [whiteboards] Subscription notice:', error);
       });
     } catch (error) {
-      console.error('[Firebase Firestore] [Menu Option: Saved History] Failed to setup history listener:', error);
+      console.warn('[Firebase Firestore] [whiteboards] Failed to setup listener:', error);
       return null;
     }
   },
 
+  /** Fetch a single EXISTING board by id (used by board deep links / restore). */
   async getHistoryItem(userId: string, historyId: string): Promise<Board | null> {
-    if (!userId || !historyId) return null;
+    if (!historyId) return null;
     try {
-      console.log(`[Firebase Firestore] [Menu Option: Saved History] Fetching board item ${historyId} for user ${userId}`);
-      const itemRef = doc(db, 'users', userId, 'history', historyId);
+      const itemRef = doc(db, 'whiteboards', historyId);
       const docSnap = await getDoc(itemRef);
       if (docSnap.exists()) {
-        console.log(`[Firebase Firestore] [Menu Option: Saved History] Found board item ${historyId}`);
         return { id: docSnap.id, ...docSnap.data() } as Board;
       }
       return null;
     } catch (error) {
-      console.error('[Firebase Firestore] [Menu Option: Saved History] Error fetching history item:', error);
+      console.warn('[Firebase Firestore] [whiteboards] Error fetching board:', error);
       return null;
     }
   },
 
-  async saveHistoryItem(userId: string, item: Board): Promise<void> {
-    if (!userId || !item.id) return;
+  /**
+   * Save a board. Operates on the SAME document id with {merge:true}.
+   * Preserves `createdBy`/`owner_id`/`createdAt` already stored on the payload
+   * (ownership & timeline integrity) — only supplies them when missing.
+   */
+  async saveHistoryItem(userId: string, boardInput: Board): Promise<void> {
+    if (!boardInput?.id) return;
     try {
-      console.log(`[Firebase Firestore] [Menu Option: Saved History] Saving board item ${item.id} ("${item.title}") to Firestore for user ${userId}`);
-      const historyDocRef = doc(db, 'users', userId, 'history', item.id);
+      const withAssets = await offloadLargeAssets(userId, boardInput as Board);
+      const compressed = await compressOversizedContent(withAssets);
       const payload = sanitizePayload({
-        ...item,
-        createdBy: userId,
-        updatedAt: item.updatedAt || new Date().toISOString(),
+        ...compressed,
+        // Never clobber an existing owner/creator: keeps History opens continuing the SAME board.
+        owner_id: (boardInput as any).owner_id || userId,
+        createdBy: boardInput.createdBy || userId,
+        createdAt: boardInput.createdAt || new Date().toISOString(),
       });
-      await setDoc(historyDocRef, payload, { merge: true });
-
-      const topLevelRef = doc(db, 'boards', item.id);
-      await setDoc(topLevelRef, payload, { merge: true });
-      console.log(`[Firebase Firestore] [Menu Option: Saved History] Saved board item ${item.id} successfully.`);
+      await setDoc(doc(db, 'whiteboards', boardInput.id), payload, { merge: true });
     } catch (error) {
-      console.error('[Firebase Firestore] [Menu Option: Saved History] Error saving history item:', error);
+      console.error('[Firebase Firestore] [whiteboards] Error saving board:', error);
       throw error;
     }
   },
 
-  async updateHistoryItem(userId: string, historyId: string, updates: Partial<Board>): Promise<void> {
-    if (!userId || !historyId) return;
-    try {
-      console.log(`[Firebase Firestore] [Menu Option: Saved History] Updating board ${historyId} in Firestore`);
-      const payload = sanitizePayload({
-        ...updates,
-        updatedAt: new Date().toISOString(),
-      });
-      const historyDocRef = doc(db, 'users', userId, 'history', historyId);
-      await updateDoc(historyDocRef, payload);
-
-      try {
-        const topLevelRef = doc(db, 'boards', historyId);
-        await updateDoc(topLevelRef, payload);
-      } catch {
-        // Ignore top-level sync error
-      }
-      console.log(`[Firebase Firestore] [Menu Option: Saved History] Updated board ${historyId} successfully.`);
-    } catch (error) {
-      console.error('[Firebase Firestore] [Menu Option: Saved History] Error updating history item:', error);
-      throw error;
-    }
-  },
-
+  /**
+   * Delete a board plus every dependent record (version snapshots) in a
+   * single Firestore WriteBatch — no orphan data, no broken references.
+   */
   async deleteHistoryItem(userId: string, historyId: string): Promise<void> {
-    if (!userId || !historyId) return;
+    if (!historyId) return;
     try {
-      console.log(`[Firebase Firestore] [Menu Option: Saved History] Deleting history item ${historyId} for user ${userId}`);
-      const historyDocRef = doc(db, 'users', userId, 'history', historyId);
-      await deleteDoc(historyDocRef);
+      const versionsRef = collection(db, 'whiteboard_versions');
+      const versionQuery = query(versionsRef, where('whiteboard_id', '==', historyId));
+      const versionsSnap = await getDocs(versionQuery);
 
-      try {
-        const topLevelRef = doc(db, 'boards', historyId);
-        await deleteDoc(topLevelRef);
-      } catch {
-        // Ignore top-level deletion error
-      }
-      console.log(`[Firebase Firestore] [Menu Option: Saved History] Deleted history item ${historyId} successfully.`);
+      const batch = writeBatch(db);
+      versionsSnap.forEach(v => batch.delete(v.ref));
+      batch.delete(doc(db, 'whiteboards', historyId));
+      await batch.commit();
     } catch (error) {
-      console.error('[Firebase Firestore] [Menu Option: Saved History] Error deleting history item:', error);
+      console.error('[Firebase Firestore] [whiteboards] Error deleting board:', error);
       throw error;
     }
   },
 
+  /**
+   * Version snapshots (Approved Collection: "whiteboard_versions").
+   * Reads/writes are keyed by `whiteboard_id`; older snapshots beyond
+   * MAX_VERSIONS_PER_BOARD are pruned with a batch write on every save.
+   */
   async saveBoardVersion(userId: string, boardId: string, versionData: Partial<Board>): Promise<string> {
-    if (!userId || !boardId) return '';
+    if (!boardId) return '';
     try {
       const versionId = `v_${Date.now()}`;
-      console.log(`[Firebase Firestore] [Menu Option: Saved History] Saving version snapshot ${versionId} for board ${boardId}`);
       const payload = sanitizePayload({
-        ...versionData,
+        strokes: versionData.strokes || [],
+        elements: versionData.elements || [],
+        title: versionData.title || '',
+        description: versionData.description || '',
         id: versionId,
+        whiteboard_id: boardId,
         boardId,
+        owner_id: userId,
+        created_by: userId,
         createdBy: userId,
+        created_at: new Date().toISOString(),
         createdAt: new Date().toISOString(),
       });
 
-      const userVersionRef = doc(db, 'users', userId, 'history', boardId, 'versions', versionId);
-      await setDoc(userVersionRef, payload);
+      const batch = writeBatch(db);
+      batch.set(doc(db, 'whiteboard_versions', versionId), payload);
 
-      const topVersionRef = doc(db, 'boards', boardId, 'versions', versionId);
-      await setDoc(topVersionRef, payload);
+      // Prune older versions beyond the cap (batch delete same commit).
+      const versionsSnap = await getDocs(query(collection(db, 'whiteboard_versions'), where('whiteboard_id', '==', boardId)));
+      const older = versionsSnap.docs
+        .sort((a, b) => String(b.data().created_at || '').localeCompare(String(a.data().created_at || '')))
+        .slice(MAX_VERSIONS_PER_BOARD - 1);
+      older.forEach(v => batch.delete(v.ref));
 
+      await batch.commit();
       return versionId;
     } catch (error) {
-      console.warn('[Firebase Firestore] [Menu Option: Saved History] Error saving board version snapshot:', error);
+      console.warn('[Firebase Firestore] [whiteboard_versions] Error saving version:', error);
       return '';
+    }
+  },
+
+  /** List version snapshots for a board (newest first). */
+  async getBoardVersions(boardId: string, limitTo: number = 20): Promise<Partial<Board>[] & { id?: string; createdAt?: string;
+    createdBy?: string }[]> {
+    if (!boardId) return [];
+    try {
+      const snap = await getDocs(query(
+        collection(db, 'whiteboard_versions'),
+        where('whiteboard_id', '==', boardId)
+      ));
+      const versions = snap.docs
+        .map(documentSnapshot => ({ id: documentSnapshot.id, ...documentSnapshot.data() }))
+        .sort((a: any, b: any) => String(b.created_at || b.createdAt || '').localeCompare(String(a.created_at || a.createdAt || '')))
+        .slice(0, limitTo);
+      return versions as any;
+    } catch (error) {
+      console.warn('[Firebase Firestore] [whiteboard_versions] Error listing versions:', error);
+      return [];
+    }
+  },
+
+  /**
+   * Restore a board from a version snapshot — same board record, same id.
+   * Preserves ownership/created timestamps; the restore itself is not
+   * versioned again to avoid recursive snapshot growth.
+   */
+  async restoreBoardVersion(boardId: string, versionId: string): Promise<Board | null> {
+    if (!boardId || !versionId) return null;
+    try {
+      const boardSnap = await getDoc(doc(db, 'whiteboards', boardId));
+      const versionSnap = await getDoc(doc(db, 'whiteboard_versions', versionId));
+      if (!boardSnap.exists() || !versionSnap.exists()) return null;
+
+      const current = { id: boardSnap.id, ...boardSnap.data() } as Board;
+      const version = versionSnap.data() as any;
+
+      const restored: Board = {
+        ...current,
+        title: version.title || current.title,
+        description: version.description || current.description,
+        strokes: Array.isArray(version.strokes) ? version.strokes : [],
+        elements: Array.isArray(version.elements) ? version.elements : [],
+        updatedAt: new Date().toISOString(),
+        // Keep ownership + createdAt so the board identity stays intact.
+        createdBy: current.createdBy,
+        createdAt: current.createdAt,
+      };
+      (restored as any).owner_id = (current as any).owner_id;
+
+      await this.saveHistoryItem((current as any).owner_id || current.createdBy, restored);
+      return restored;
+    } catch (error) {
+      console.warn('[Firebase Firestore] [whiteboard_versions] Error restoring version:', error);
+      return null;
     }
   }
 };
 
+
 /**
- * Notifications Service (Firebase Firestore)
+ * Notifications Service (Approved Collection: "notifications")
  */
 export const notificationService = {
   async getNotifications(userId: string): Promise<Notification[]> {
     if (!userId) return [];
     try {
-      console.log('[Firebase Firestore] [Menu Option: Notifications] Fetching user notifications for user:', userId);
-      const notifRef = collection(db, 'users', userId, 'notifications');
-      const q = query(notifRef, orderBy('timestamp', 'desc'));
+      console.log('[Firebase Firestore] [notifications] Fetching notifications for user:', userId);
+      const notifRef = collection(db, 'notifications');
+      const q = query(notifRef, where('userId', '==', userId));
       const snapshot = await getDocs(q);
       const notifications = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Notification));
-      console.log(`[Firebase Firestore] [Menu Option: Notifications] Fetched ${notifications.length} notifications.`);
+      notifications.sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
       return notifications;
     } catch (error) {
-      console.error('[Firebase Firestore] [Menu Option: Notifications] Error fetching notifications:', error);
+      console.error('[Firebase Firestore] [notifications] Error fetching notifications:', error);
       return [];
     }
   },
@@ -218,31 +307,30 @@ export const notificationService = {
   subscribeToNotifications(userId: string, callback: (notifications: Notification[]) => void): Unsubscribe | null {
     if (!userId) return null;
     try {
-      console.log('[Firebase Firestore] [Menu Option: Notifications] Subscribing to live notifications for user:', userId);
-      const notifRef = collection(db, 'users', userId, 'notifications');
-      const q = query(notifRef, orderBy('timestamp', 'desc'));
-      
+      console.log('[Firebase Firestore] [notifications] Subscribing to live notifications for user:', userId);
+      const notifRef = collection(db, 'notifications');
+      const q = query(notifRef, where('userId', '==', userId));
+
       return onSnapshot(q, (snapshot) => {
         const notifs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Notification));
-        console.log(`[Firebase Firestore] [Menu Option: Notifications] Live update: ${notifs.length} notifications loaded`);
+        notifs.sort((a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime());
         callback(notifs);
       }, (error) => {
-        console.warn('[Firebase Firestore] [Menu Option: Notifications] Notifications subscription warning:', error);
+        console.warn('[Firebase Firestore] [notifications] Notifications subscription warning:', error);
       });
     } catch (error) {
-      console.error('[Firebase Firestore] [Menu Option: Notifications] Error subscribing to notifications:', error);
+      console.error('[Firebase Firestore] [notifications] Error subscribing to notifications:', error);
       return null;
     }
   },
 
   async markAsRead(userId: string, notificationId: string): Promise<void> {
-    if (!userId || !notificationId) return;
+    if (!notificationId) return;
     try {
-      console.log(`[Firebase Firestore] [Menu Option: Notifications] Marking notification ${notificationId} as read`);
-      const notifRef = doc(db, 'users', userId, 'notifications', notificationId);
+      const notifRef = doc(db, 'notifications', notificationId);
       await updateDoc(notifRef, { read: true });
     } catch (error) {
-      console.error('[Firebase Firestore] [Menu Option: Notifications] Error marking notification read:', error);
+      console.error('[Firebase Firestore] [notifications] Error marking notification read:', error);
       throw error;
     }
   },
@@ -250,30 +338,27 @@ export const notificationService = {
   async markAllAsRead(userId: string): Promise<void> {
     if (!userId) return;
     try {
-      console.log(`[Firebase Firestore] [Menu Option: Notifications] Marking all notifications as read for user ${userId}`);
-      const notifRef = collection(db, 'users', userId, 'notifications');
-      const q = query(notifRef, where('read', '==', false));
+      const notifRef = collection(db, 'notifications');
+      const q = query(notifRef, where('userId', '==', userId), where('read', '==', false));
       const snapshot = await getDocs(q);
-      
-      const updatePromises = snapshot.docs.map(d => 
-        updateDoc(doc(db, 'users', userId, 'notifications', d.id), { read: true })
+
+      const updatePromises = snapshot.docs.map(d =>
+        updateDoc(doc(db, 'notifications', d.id), { read: true })
       );
       await Promise.all(updatePromises);
-      console.log(`[Firebase Firestore] [Menu Option: Notifications] Marked ${snapshot.docs.length} notifications as read.`);
     } catch (error) {
-      console.error('[Firebase Firestore] [Menu Option: Notifications] Error marking all notifications read:', error);
+      console.error('[Firebase Firestore] [notifications] Error marking all notifications read:', error);
       throw error;
     }
   },
 
   async deleteNotification(userId: string, notificationId: string): Promise<void> {
-    if (!userId || !notificationId) return;
+    if (!notificationId) return;
     try {
-      console.log(`[Firebase Firestore] [Menu Option: Notifications] Deleting notification ${notificationId}`);
-      const notifRef = doc(db, 'users', userId, 'notifications', notificationId);
+      const notifRef = doc(db, 'notifications', notificationId);
       await deleteDoc(notifRef);
     } catch (error) {
-      console.error('[Firebase Firestore] [Menu Option: Notifications] Error deleting notification:', error);
+      console.error('[Firebase Firestore] [notifications] Error deleting notification:', error);
       throw error;
     }
   },
@@ -293,11 +378,10 @@ export const notificationService = {
 
     if (userId) {
       try {
-        console.log(`[Firebase Firestore] [Menu Option: Notifications] Adding notification ${id} ("${newNotif.title}") for user ${userId}`);
-        const notifRef = doc(db, 'users', userId, 'notifications', id);
-        await setDoc(notifRef, newNotif);
+        const notifRef = doc(db, 'notifications', id);
+        await setDoc(notifRef, { ...newNotif, userId, user_id: userId });
       } catch (error) {
-        console.error('[Firebase Firestore] [Menu Option: Notifications] Error saving notification to Firestore:', error);
+        console.error('[Firebase Firestore] [notifications] Error saving notification:', error);
       }
     }
 
@@ -306,7 +390,7 @@ export const notificationService = {
 };
 
 /**
- * User Profile & Avatar Service (Firebase Firestore & Storage)
+ * User Profile & Avatar Service (Approved Collection: "users")
  */
 export const userProfileService = {
   async uploadAvatar(userId: string, dataUrl: string): Promise<string> {
@@ -314,31 +398,87 @@ export const userProfileService = {
     if (!dataUrl.startsWith('data:')) return dataUrl;
 
     try {
-      console.log(`[Firebase Storage] [Menu Option: User Profile] Uploading avatar image for user ${userId}`);
       const avatarRef = ref(storage, `users/${userId}/avatar`);
       await uploadString(avatarRef, dataUrl, 'data_url');
       const downloadUrl = await getDownloadURL(avatarRef);
-      console.log(`[Firebase Storage] [Menu Option: User Profile] Avatar uploaded successfully: ${downloadUrl}`);
       return downloadUrl;
     } catch (error) {
-      console.warn('[Firebase Storage] [Menu Option: User Profile] Avatar upload fallback to data URL:', error);
+      console.warn('[Firebase Storage] Avatar upload fallback to data URL:', error);
       return dataUrl;
     }
   },
 
   async getProfile(userId: string): Promise<User | null> {
-    if (!userId) return null;
+    if (!userId || userId === 'guest' || userId === 'usr_guest') return null;
     try {
-      console.log(`[Firebase Firestore] [Menu Option: User Profile / Theme] Fetching user profile document for ${userId}`);
       const userRef = doc(db, 'users', userId);
       const snap = await getDoc(userRef);
       if (snap.exists()) {
-        console.log(`[Firebase Firestore] [Menu Option: User Profile / Theme] User profile found for ${userId}`);
         return { id: snap.id, ...snap.data() } as User;
       }
       return null;
-    } catch (error) {
-      console.error('[Firebase Firestore] [Menu Option: User Profile] Error fetching profile:', error);
+    } catch (error: any) {
+      const isPermissionError = error?.code === 'permission-denied' ||
+        (typeof error?.message === 'string' && error.message.includes('Missing or insufficient permissions'));
+
+      if (isPermissionError) {
+        console.warn('[Firebase Firestore] [users] Insufficient permissions for Firestore read; attempting API profile fallback.');
+        try {
+          const apiProfile = await api.getProfile();
+          if (apiProfile) {
+            return {
+              id: (apiProfile as any).id || userId,
+              email: apiProfile.email || '',
+              name: apiProfile.name || (apiProfile as any).fullName || 'EduBoard User',
+              role: (apiProfile.role as any) || 'teacher',
+              username: (apiProfile as any).username || apiProfile.email?.split('@')[0] || 'user',
+              avatar: apiProfile.avatar || (apiProfile as any).avatarUrl || '',
+              isVerified: true,
+              isBiometricEnabled: false,
+              createdAt: (apiProfile as any).createdAt || new Date().toISOString(),
+              lastLoginAt: new Date().toISOString(),
+            };
+          }
+        } catch {
+          const localUser = store.getUser();
+          if (localUser && localUser.id && localUser.id !== 'guest') return localUser;
+        }
+        return null;
+      }
+
+      console.warn('[Firebase Firestore] [users] Profile fetch notice:', error?.message || error);
+      return null;
+    }
+  },
+
+  subscribeToProfile(userId: string, callback: (user: User | null) => void): Unsubscribe | null {
+    if (!userId || userId === 'guest' || userId === 'usr_guest') return null;
+    try {
+      const userRef = doc(db, 'users', userId);
+      return onSnapshot(userRef, (snap) => {
+        if (snap.exists()) {
+          const data = snap.data();
+          const profile: User = {
+            id: snap.id,
+            email: data.email || '',
+            name: data.full_name || data.name || 'EduBoard User',
+            role: data.role || 'teacher',
+            username: data.username || data.email?.split('@')[0] || 'user',
+            avatar: data.avatar || '',
+            isVerified: data.isVerified ?? true,
+            isBiometricEnabled: data.isBiometricEnabled || false,
+            createdAt: data.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+            lastLoginAt: data.lastLoginAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+          };
+          callback(profile);
+        } else {
+          callback(null);
+        }
+      }, (error: any) => {
+        console.warn(`[Firebase Firestore] [users] Profile subscription notice:`, error?.message || error);
+      });
+    } catch (error: any) {
+      console.warn(`[Firebase Firestore] [users] Profile listener setup note:`, error?.message || error);
       return null;
     }
   },
@@ -346,7 +486,6 @@ export const userProfileService = {
   async updateProfile(userId: string, data: Partial<User>): Promise<void> {
     if (!userId) return;
     try {
-      console.log(`[Firebase Firestore] [Menu Option: User Profile / Theme] Updating profile in Firestore for user ${userId}`, data);
       const payload = { ...data };
       if (payload.avatar && payload.avatar.startsWith('data:')) {
         payload.avatar = await this.uploadAvatar(userId, payload.avatar);
@@ -354,36 +493,41 @@ export const userProfileService = {
 
       const cleanPayload = sanitizePayload({
         ...payload,
+        full_name: payload.name || (payload as any).full_name,
         updatedAt: serverTimestamp()
       });
 
+      // Write strictly to users/{userId}
       const userRef = doc(db, 'users', userId);
       await setDoc(userRef, cleanPayload, { merge: true });
-      console.log(`[Firebase Firestore] [Menu Option: User Profile / Theme] Profile updated successfully for ${userId}`);
+
+      if (auth.currentUser?.uid && auth.currentUser.uid !== userId) {
+        const authUidRef = doc(db, 'users', auth.currentUser.uid);
+        await setDoc(authUidRef, cleanPayload, { merge: true });
+      }
     } catch (error) {
-      console.error('[Firebase Firestore] [Menu Option: User Profile] Error updating profile:', error);
+      console.error('[Firebase Firestore] [users] Error updating profile:', error);
       throw error;
     }
   }
 };
 
 /**
- * Theme & System Settings Service (Firebase Firestore)
+ * Theme & User Settings Service (Approved Collection: "userSettings")
  */
 export const userSettingsService = {
   async getSettings(userId: string): Promise<any | null> {
     if (!userId) return null;
     try {
-      console.log(`[Firebase Firestore] [Menu Option: System Settings] Fetching system settings preferences for user ${userId}`);
-      const settingsRef = doc(db, 'users', userId, 'settings', 'preferences');
+      console.log(`[Firebase Firestore] [userSettings] Fetching settings for user ${userId}`);
+      const settingsRef = doc(db, 'userSettings', userId);
       const snap = await getDoc(settingsRef);
       if (snap.exists()) {
-        console.log(`[Firebase Firestore] [Menu Option: System Settings] System settings loaded for ${userId}`);
         return snap.data();
       }
       return null;
     } catch (error) {
-      console.warn('[Firebase Firestore] [Menu Option: System Settings] Error fetching user settings:', error);
+      console.warn('[Firebase Firestore] [userSettings] Error fetching user settings:', error);
       return null;
     }
   },
@@ -391,18 +535,17 @@ export const userSettingsService = {
   async saveSettings(userId: string, settingsData: any): Promise<void> {
     if (!userId) return;
     try {
-      console.log(`[Firebase Firestore] [Menu Option: System Settings] Saving system settings preferences for user ${userId}`, settingsData);
+      console.log(`[Firebase Firestore] [userSettings] Saving settings for user ${userId}`);
       const payload = sanitizePayload({
         ...settingsData,
         updatedAt: new Date().toISOString(),
       });
-      const settingsRef = doc(db, 'users', userId, 'settings', 'preferences');
+      const settingsRef = doc(db, 'userSettings', userId);
       await setDoc(settingsRef, payload, { merge: true });
-      console.log(`[Firebase Firestore] [Menu Option: System Settings] System settings saved successfully for ${userId}`);
+      console.log(`[Firebase Firestore] [userSettings] Settings saved successfully for ${userId}`);
     } catch (error) {
-      console.error('[Firebase Firestore] [Menu Option: System Settings] Error saving user settings:', error);
+      console.error('[Firebase Firestore] [userSettings] Error saving user settings:', error);
       throw error;
     }
   }
 };
-

@@ -1,50 +1,159 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper functions
-    function isSignedIn() {
-      return request.auth != null;
-    }
-    function isOwner(userId) {
-      return request.auth.uid == userId;
-    }
 
-    // User profiles
+    // -------------------------------------------------------------------------
+    // EduBoard — hardened security rules
+    //
+    // APPROVED COLLECTIONS: users, whiteboards (+ shapes, collaborators),
+    // whiteboard_versions, voice_transcriptions, notifications, userSettings,
+    // exports and the legacy users/{uid}/history sub-collection.
+    //
+    // Principles:
+    //   • Deny-by-default — any unlisted path is rejected.
+    //   • Owner-scoped reads and writes (client-side); the Express backend uses
+    //     the Admin SDK, which bypasses these rules for verified server flows.
+    //   • Shared boards: owner + isShared/sharedWith members can read;
+    //     only the owner can mutate.
+    //   • Anonymous clients can read nothing, write nothing.
+    // -------------------------------------------------------------------------
+
+    // 1. users/ — authenticated users may read profiles; only the profile
+    //    owner (or server admin) may write. NOTE: `password_hash` on these
+    //    docs is managed exclusively by the backend (Admin SDK); clients can
+    //    only ever touch their OWN document.
     match /users/{userId} {
-      allow read, write: if isSignedIn() && isOwner(userId);
+      allow read: if request.auth != null;
+      allow create, update, delete: if request.auth != null && request.auth.uid == userId;
 
-      // Sub-collections (notifications, settings, history)
-      match /notifications/{notifId} {
-        allow read, write: if isOwner(userId);
+      // Legacy per-user history sub-collection (owner-only).
+      match /history/{itemId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
       }
-      match /history/{boardId} {
-        allow read, write: if isOwner(userId);
+    }
 
-        // Versions within history
-        match /versions/{versionId} {
-          allow read, write: if isOwner(userId);
+    // 2. whiteboards/ — board metadata, strokes, teacher notes, sharing.
+    match /whiteboards/{boardId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+      function parentDoc() {
+        return get(/databases/$(database)/documents/whiteboards/$(boardId)).data;
+      }
+      function isOwnerDoc() {
+        return request.auth.uid == resource.data.get('owner_id', '').toString();
+      }
+      function ownerOnCreate() {
+        return request.resource.data.get('owner_id', '') == request.auth.uid
+          || request.resource.data.get('owner_id', '') == ''
+      }
+      function isSharedWithMe() {
+        return resource.data.get('isShared', false) == true
+          || resource.data.get('sharedWith', []) is list
+             && request.auth.uid in resource.data.get('sharedWith', []);
+      }
+      function parentIsSharedWithMe() {
+        return parentDoc().get('isShared', false) == true
+          || parentDoc().get('sharedWith', []) is list
+             && request.auth.uid in parentDoc().get('sharedWith', []);
+      }
+
+      allow read: if isSignedIn() && (isOwnerDoc() || isSharedWithMe());
+      // Only owners can mutate a board — saves with {merge:true} update the
+      // SAME board record; other users can never replace someone's board.
+      allow create: if isSignedIn() && ownerOnCreate();
+      allow update, delete: if isSignedIn() && isOwnerDoc();
+
+      // 2a. shapes/ — vector shapes and drawing objects (per-stroke storage).
+      match /shapes/{shapeId} {
+        function canBoardAccess() {
+          return parentDoc().get('owner_id', '').toString() == request.auth.uid || parentIsSharedWithMe();
         }
+        allow read: if isSignedIn() && canBoardAccess();
+        // Owner may write everything; a signed-in shared member may add
+        // shapes of their own (collaborative drawing).
+        allow create: if isSignedIn() && canBoardAccess();
+        allow update, delete: if isSignedIn() && parentDoc().get('owner_id', '').toString() == request.auth.uid;
+      }
+
+      // 2b. collaborators/ — online user statuses and permissions.
+      match /collaborators/{collaboratorId} {
+        function canBoardAccess() {
+          return parentDoc().get('owner_id', '').toString() == request.auth.uid || parentIsSharedWithMe();
+        }
+        // A collaborator can manage their own presence doc; the board owner
+        // and shared members can see/manage all of them.
+        function canBoardWrite() {
+          return isSignedIn()
+            && (parentDoc().get('owner_id', '').toString() == request.auth.uid || collaboratorId == request.auth.uid);
+        }
+        allow read: if isSignedIn() && (canBoardAccess() || collaboratorId == request.auth.uid);
+        allow create: if isSignedIn() && canBoardAccess();
+        allow update, delete: if canBoardWrite();
       }
     }
 
-    // Global boards collection (for collaboration and public access)
-    match /boards/{boardId} {
-      allow read: if resource.data.is_public == true || resource.data.owner_id == request.auth.uid;
-      allow write: if isSignedIn() && (
-        !exists(/databases/$(database)/documents/boards/$(boardId)) ||
-        resource.data.owner_id == request.auth.uid
-      );
-
-      match /versions/{versionId} {
-        allow read: if get(/databases/$(database)/documents/boards/$(boardId)).data.owner_id == request.auth.uid;
-        allow write: if get(/databases/$(database)/documents/boards/$(boardId)).data.owner_id == request.auth.uid;
+    // 3. whiteboard_versions/ — restore snapshots, owner-scoped via owner_id.
+    match /whiteboard_versions/{versionId} {
+      function versionOwner() {
+        return resource.data.get('owner_id', '').toString() == request.auth.uid;
       }
+      function versionOwnerOnCreate() {
+        return request.resource.data.get('owner_id', '').toString() == request.auth.uid;
+      }
+      allow read: if request.auth != null && versionOwner();
+      allow create: if request.auth != null && versionOwnerOnCreate();
+      allow update, delete: if request.auth != null && versionOwner();
     }
 
-    // Support and Feedback
-    match /support_tickets/{ticketId} {
-      allow create: if isSignedIn();
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+    // 4. voice_transcriptions/ — speech-to-text sessions, owner-scoped.
+    match /voice_transcriptions/{transcriptionId} {
+      function voiceOwner() {
+        return resource.data.get('user_id', '').toString() == request.auth.uid;
+      }
+      allow read: if request.auth != null && voiceOwner();
+      allow create: if request.auth != null && request.resource.data.get('user_id', '').toString() == request.auth.uid;
+      allow update, delete: if request.auth != null && voiceOwner();
+    }
+
+    // 5. notifications/ — per-user alerts (userId / user_id conventions).
+    match /notifications/{notificationId} {
+      function notifOwner() {
+        return resource.data.get('userId', '').toString() == request.auth.uid
+          || resource.data.get('user_id', '').toString() == request.auth.uid;
+      }
+      function notifOwnerOnCreate() {
+        return request.resource.data.get('userId', '').toString() == request.auth.uid
+          || request.resource.data.get('user_id', '').toString() == request.auth.uid;
+      }
+      allow read: if request.auth != null && notifOwner();
+      allow create: if request.auth != null && notifOwnerOnCreate();
+      allow update, delete: if request.auth != null && notifOwner();
+    }
+
+    // 6. userSettings/ — theme, accent, accessibility prefs (doc id == uid).
+    match /userSettings/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create, update, delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // 7. exports/ — PDF/PNG/SVG/JSON export job logs written by the backend
+    //    (Admin SDK). Clients may read their own exports only.
+    match /exports/{exportId} {
+      function exportOwner() {
+        return resource.data.get('user_id', '').toString() == request.auth.uid
+          || resource.data.get('userId', '').toString() == request.auth.uid
+          || resource.data.get('created_by', '').toString() == request.auth.uid;
+      }
+      allow read: if request.auth != null && exportOwner();
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null && exportOwner();
+    }
+
+    // Explicitly reject every unapproved collection, sub-collection and path.
+    match /{unapprovedPath=**} {
+      allow read, write: if false;
     }
   }
 }

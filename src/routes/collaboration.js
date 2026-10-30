@@ -3,49 +3,76 @@ const router = express.Router();
 const { authenticate } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
 const db = require('../config/db');
-const { v4: uuidv4 } = require('uuid');
 
+// GET /rooms - Active whiteboard collaboration rooms for the user
 router.get('/rooms', authenticate, asyncHandler(async (req, res) => {
-  const rooms = await db.query(
-    `SELECT cr.*, w.title as whiteboard_title FROM collaboration_rooms cr
-     LEFT JOIN whiteboards w ON cr.whiteboard_id = w.id
-     WHERE cr.is_active = TRUE ORDER BY cr.created_at DESC`
-  );
+  if (!db.db) return res.json([]);
+  const snap = await db.db.collection('whiteboards').where('owner_id', '==', req.user.id).get();
+  const rooms = snap.docs.map(doc => {
+    const data = doc.data();
+    return {
+      id: doc.id,
+      whiteboard_id: doc.id,
+      name: data.title || 'Collaboration Room',
+      room_code: data.room_code || data.access_code || doc.id.slice(0, 6).toUpperCase(),
+      whiteboard_title: data.title || 'Untitled Board',
+      created_at: data.created_at || new Date().toISOString()
+    };
+  });
   res.json(rooms);
 }));
 
+// POST /rooms - Assign or generate a collaboration room code for a whiteboard
 router.post('/rooms', authenticate, asyncHandler(async (req, res) => {
   const { whiteboardId, name } = req.body;
   const roomCode = Math.random().toString(36).slice(2, 8).toUpperCase();
-  const id = uuidv4();
-  await db.query(
-    'INSERT INTO collaboration_rooms (id, whiteboard_id, name, room_code) VALUES (?, ?, ?, ?)',
-    [id, whiteboardId, name || 'Collaboration Room', roomCode]
-  );
-  res.status(201).json({ id, roomCode });
+  const targetId = whiteboardId || require('uuid').v4();
+
+  if (db.db) {
+    await db.db.collection('whiteboards').doc(targetId).set({
+      id: targetId,
+      room_code: roomCode,
+      title: name || 'Collaboration Room',
+      owner_id: req.user.id,
+      updated_at: new Date().toISOString()
+    }, { merge: true });
+  }
+
+  res.status(201).json({ id: targetId, roomCode, whiteboardId: targetId });
 }));
 
-// POST /rooms/join (Native Firestore SDK)
+// POST /rooms/join (Strictly resolves against whiteboards and saves collaborator subcollection)
 router.post('/rooms/join', authenticate, asyncHandler(async (req, res) => {
   const { roomCode } = req.body;
   if (!roomCode) return res.status(400).json({ error: 'Room code required' });
 
-  const snapshot = await db.db.collection('classrooms').where('code', '==', roomCode.toUpperCase().trim()).get();
-  let room = null;
-  if (!snapshot.empty) {
-    const doc = snapshot.docs[0];
-    room = { id: doc.id, ...doc.data(), whiteboard_id: doc.id };
-  } else {
-    // Check collaboration_rooms collection fallback
-    const colSnap = await db.db.collection('collaboration_rooms').where('room_code', '==', roomCode.toUpperCase().trim()).get();
-    if (colSnap.empty) {
-      return res.status(404).json({ error: 'Room not found or inactive' });
+  const code = roomCode.toUpperCase().trim();
+  let boardDoc = null;
+
+  if (db.db) {
+    // 1. Query whiteboards by room_code
+    const snapCode = await db.db.collection('whiteboards').where('room_code', '==', code).get();
+    if (!snapCode.empty) {
+      boardDoc = snapCode.docs[0];
+    } else {
+      // 2. Query whiteboards by access_code
+      const snapAccess = await db.db.collection('whiteboards').where('access_code', '==', code).get();
+      if (!snapAccess.empty) {
+        boardDoc = snapAccess.docs[0];
+      } else {
+        // 3. Fallback direct whiteboard ID
+        const docDirect = await db.db.collection('whiteboards').doc(roomCode.trim()).get();
+        if (docDirect.exists) boardDoc = docDirect;
+      }
     }
-    const doc = colSnap.docs[0];
-    room = { id: doc.id, ...doc.data() };
   }
 
-  const collabRef = db.db.collection('whiteboards').doc(room.whiteboard_id || room.id).collection('collaborators').doc(req.user.id);
+  if (!boardDoc) {
+    return res.status(404).json({ error: 'Whiteboard session not found or inactive' });
+  }
+
+  // Register in whiteboards/{boardId}/collaborators/{userId} sub-collection
+  const collabRef = db.db.collection('whiteboards').doc(boardDoc.id).collection('collaborators').doc(req.user.id);
   await collabRef.set({
     user_id: req.user.id,
     permission: 'edit',
@@ -53,52 +80,15 @@ router.post('/rooms/join', authenticate, asyncHandler(async (req, res) => {
     last_active_at: new Date().toISOString()
   }, { merge: true });
 
-  res.json({ roomId: room.id, whiteboardId: room.whiteboard_id || room.id });
+  res.json({ roomId: boardDoc.id, whiteboardId: boardDoc.id });
 }));
 
-// GET /room/:id/participants (Native Firestore SDK)
+// GET /room/:id/participants (Reads from whiteboards/{id}/collaborators sub-collection)
 router.get('/room/:id/participants', authenticate, asyncHandler(async (req, res) => {
+  if (!db.db) return res.json([]);
   const collabSnap = await db.db.collection('whiteboards').doc(req.params.id).collection('collaborators').get();
   const participants = collabSnap.docs.map(d => ({ id: d.id, ...d.data() }));
   res.json(participants);
-}));
-
-router.get('/:whiteboardId/comments', authenticate, asyncHandler(async (req, res) => {
-  const comments = await db.query(
-    `SELECT c.*, u.full_name, u.avatar_url FROM comments c
-     LEFT JOIN users u ON c.user_id = u.id
-     WHERE c.whiteboard_id = ? ORDER BY c.created_at ASC`,
-    [req.params.whiteboardId]
-  );
-  res.json(comments);
-}));
-
-router.post('/:whiteboardId/comments', authenticate, asyncHandler(async (req, res) => {
-  const { content, shapeId, parentId } = req.body;
-  const id = uuidv4();
-  await db.query(
-    'INSERT INTO comments (id, whiteboard_id, user_id, shape_id, parent_id, content) VALUES (?, ?, ?, ?, ?, ?)',
-    [id, req.params.whiteboardId, req.user.id, shapeId || null, parentId || null, content]
-  );
-  const comment = await db.query(
-    `SELECT c.*, u.full_name, u.avatar_url FROM comments c
-     LEFT JOIN users u ON c.user_id = u.id WHERE c.id = ?`,
-    [id]
-  );
-  res.status(201).json(comment[0]);
-}));
-
-router.put('/comments/:id/resolve', authenticate, asyncHandler(async (req, res) => {
-  await db.query('UPDATE comments SET resolved = TRUE, resolved_by = ? WHERE id = ?', [req.user.id, req.params.id]);
-  res.json({ message: 'Comment resolved' });
-}));
-
-router.put('/comments/:id/pin', authenticate, asyncHandler(async (req, res) => {
-  const comment = await db.query('SELECT pinned FROM comments WHERE id = ?', [req.params.id]);
-  if (comment.length > 0) {
-    await db.query('UPDATE comments SET pinned = ? WHERE id = ?', [!comment[0].pinned, req.params.id]);
-  }
-  res.json({ message: 'Comment pinned status toggled' });
 }));
 
 module.exports = router;

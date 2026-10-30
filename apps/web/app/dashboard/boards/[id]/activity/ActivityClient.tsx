@@ -1,14 +1,14 @@
 "use client";
 import React from "react";
-import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { History, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import { useBoard } from "@/lib/BoardContext";
 
-export default function BoardActivity() {
+export default function BoardActivity({ boardId: boardIdProp }: { boardId?: string }) {
   const params = useParams();
-  const boardId = (params?.id as string) || '';
+  const router = useRouter();
+  const boardId = boardIdProp || ((params?.id as string) || '');
   const { user } = useAuth();
   const { boards } = useBoard();
 
@@ -32,10 +32,13 @@ export default function BoardActivity() {
           </div>
           <p className="text-xs text-[var(--text-tertiary)] font-semibold">{title}</p>
         </div>
-        <Link href={`/dashboard/boards/${boardId}`} className="px-4 py-2 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-xs font-bold text-[var(--text-primary)] hover:border-[var(--color-primary-500)] flex items-center gap-2 transition-all">
+        <button
+          onClick={() => router.back()}
+          className="px-4 py-2 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-xs font-bold text-[var(--text-primary)] hover:border-[var(--color-primary-500)] flex items-center gap-2 transition-all cursor-pointer"
+        >
           <ArrowLeft size={14} />
           <span>Back to Editor</span>
-        </Link>
+        </button>
       </div>
 
       <div className="rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-primary)] overflow-hidden shadow-sm">

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Clock, BookOpen, Pencil, Users, Award, Trash2, LogOut, Settings } from 'lucide-react';
 
-type ActivityType = 'board_created' | 'board_edited' | 'classroom_joined' | 'quiz_taken' | 'badge_earned' | 'export' | 'login' | 'settings_changed';
+type ActivityType = 'board_created' | 'board_edited' | 'board_shared' | 'export' | 'login' | 'settings_changed';
 
 interface Activity {
   id: string; type: ActivityType; title: string; detail: string;
@@ -12,31 +12,26 @@ interface Activity {
 }
 
 const TYPE_COLORS: Record<ActivityType, string> = {
-  board_created: '#6366f1', board_edited: '#8b5cf6', classroom_joined: '#10b981',
-  quiz_taken: '#f59e0b', badge_earned: '#f59e0b', export: '#06b6d4',
-  login: '#6b7280', settings_changed: '#6b7280'
+  board_created: '#6366f1', board_edited: '#8b5cf6', board_shared: '#10b981',
+  export: '#06b6d4', login: '#6b7280', settings_changed: '#6b7280'
 };
 
 const DEMO: Activity[] = [
   { id: '1', type: 'board_created', title: 'Created new board', detail: '"Calculus Chapter 6 — Integration"', time: '10 min ago', icon: '📋' },
-  { id: '2', type: 'classroom_joined', title: 'Session started', detail: 'Advanced Mathematics · 28 students', time: '1 hour ago', icon: '🏫' },
-  { id: '3', type: 'quiz_taken', title: 'Quiz launched', detail: '"Chapter 5 Review" · 18/28 submitted', time: '2 hours ago', icon: '🏆' },
-  { id: '4', type: 'board_edited', title: 'Board updated', detail: '"Physics Lab Diagrams" · 14 shapes added', time: '3 hours ago', icon: '✏️' },
-  { id: '5', type: 'export', title: 'Exported board', detail: '"Math Chapter 5" as PDF (2.4MB)', time: '5 hours ago', icon: '📤' },
-  { id: '6', type: 'badge_earned', title: 'Badge earned', detail: '"Collaboration Expert" unlocked!', time: '1 day ago', icon: '🏅' },
-  { id: '7', type: 'board_created', title: 'Created new board', detail: '"Statistics — Normal Distribution"', time: '1 day ago', icon: '📋' },
-  { id: '8', type: 'login', title: 'Signed in', detail: 'Chrome on Windows 11 · Boston, MA', time: '2 days ago', icon: '🔐' },
-  { id: '9', type: 'settings_changed', title: 'Settings updated', detail: 'Switched to Dark theme', time: '3 days ago', icon: '⚙️' },
-  { id: '10', type: 'classroom_joined', title: 'Created classroom', detail: '"Physics Lab 2026"', time: '3 days ago', icon: '🏫' },
+  { id: '2', type: 'board_shared', title: 'Board shared', detail: '"Advanced Mathematics" with 3 team members', time: '1 hour ago', icon: '👥' },
+  { id: '3', type: 'board_edited', title: 'Board updated', detail: '"Physics Lab Diagrams" · Annotations added', time: '3 hours ago', icon: '✏️' },
+  { id: '4', type: 'export', title: 'Exported board', detail: '"Math Chapter 5" as PDF', time: '5 hours ago', icon: '📤' },
+  { id: '5', type: 'board_created', title: 'Created new board', detail: '"Statistics — Normal Distribution"', time: '1 day ago', icon: '📋' },
+  { id: '6', type: 'login', title: 'Signed in', detail: 'EduBoard Web Client · Active session', time: '2 days ago', icon: '🔐' },
+  { id: '7', type: 'settings_changed', title: 'Settings updated', detail: 'Switched to Dark theme', time: '3 days ago', icon: '⚙️' },
 ];
 
 const FILTERS: { key: ActivityType | 'all'; label: string }[] = [
   { key: 'all', label: 'All' },
   { key: 'board_created', label: 'Boards' },
-  { key: 'classroom_joined', label: 'Classrooms' },
-  { key: 'quiz_taken', label: 'Quizzes' },
+  { key: 'board_shared', label: 'Shared' },
   { key: 'export', label: 'Exports' },
-  { key: 'badge_earned', label: 'Badges' },
+  { key: 'settings_changed', label: 'Settings' },
 ];
 
 export default function ActivityPage() {

@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Pen, Eraser, Type, Highlighter, Zap, ZoomIn, Upload, Undo2, Redo2,
   RotateCcw, PanelLeft, FileText, Check, Save,
-  X, MousePointer2, Eye
+  X, MousePointer2, Eye, Film
 } from 'lucide-react';
 import { BoardHeader, SaveStatusType } from '@/components/layout/BoardHeader';
 import { TextElementOverlay, BoardTextElement } from '@/components/board/TextElementOverlay';
@@ -13,6 +13,7 @@ import { DocumentViewer } from '@/components/board/DocumentViewer';
 import { VanishingLaserOverlay } from '@/components/board/VanishingLaserOverlay';
 import { FocusMagnifierOverlay } from '@/components/board/FocusMagnifierOverlay';
 import { ReferenceDrawer } from '@/components/board/ReferenceDrawer';
+import VectorReplayPlayer from '@/components/board/VectorReplayPlayer';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 import { LASER_COLOR_MAP, LaserColorMode } from '@/components/board/PresentationPointerOverlay';
 
@@ -85,6 +86,7 @@ function DocCanvasContent() {
   // Core Features State
   const [isReferenceDrawerOpen, setIsReferenceDrawerOpen] = useState(false);
   const [referenceDocument, setReferenceDocument] = useState<ImportedFileData | null>(null);
+  const [isReplayPlayerOpen, setIsReplayPlayerOpen] = useState(false);
 
   // Overlays State
   const [laserColorMode, setLaserColorMode] = useState<LaserColorMode>('red');
@@ -104,6 +106,10 @@ function DocCanvasContent() {
   const isMountedRef = useRef(true);
   const statusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const logicalSizeRef = useRef({ w: 0, h: 0 });
+  // Identity of the originally loaded board — preserves createdBy/createdAt on every save.
+  const originalBoardRef = useRef<Board | null>(null);
+  const boardIdRef = useRef<string>(boardId);
+  useEffect(() => { boardIdRef.current = boardId; }, [boardId]);
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -127,15 +133,35 @@ function DocCanvasContent() {
         setBoardId(b.id);
         if (b.title) setBoardTitle(b.title);
         setCurrentBoard(b);
+        originalBoardRef.current = b;
 
         let loadedStrokes: Stroke[] = [];
-        if (b.strokes && Array.isArray(b.strokes) && b.strokes.length > 0) {
-          loadedStrokes = b.strokes as any;
+        const rawStrokes = b.strokes && Array.isArray(b.strokes) ? b.strokes : null;
+        if (rawStrokes && rawStrokes.length > 0) {
+          loadedStrokes = rawStrokes.map((s: any) => ({
+            ...s,
+            width: s.width || s.strokeWidth || 3,
+            color: s.color || s.colorHex || '#ffffff',
+            tool: s.tool || s.type || 'pen',
+          })) as any;
+        } else if ((b as any).annotations && Array.isArray((b as any).annotations)) {
+          loadedStrokes = (b as any).annotations.map((a: any) => ({
+            id: a.id || `ann_${Date.now()}`,
+            tool: a.type === 'highlight' ? 'highlighter' : 'pen',
+            width: a.strokeWidth || 3,
+            color: a.color ? (typeof a.color === 'string' ? a.color : `#${(a.color & 0xFFFFFF).toString(16)}`) : '#ffd54f',
+            points: (a.points || []).map((p: any) => ({ x: p.x || p.dx || 0, y: p.y || p.dy || 0 })),
+          }));
         } else if (b.content && typeof b.content === 'string' && b.content.trim().length > 0) {
           try {
             const parsed = JSON.parse(b.content);
-            if (Array.isArray(parsed)) loadedStrokes = parsed;
-            else if (parsed && Array.isArray(parsed.strokes)) loadedStrokes = parsed.strokes;
+            const contentStrokes = Array.isArray(parsed) ? parsed : (parsed?.strokes || parsed?.annotations || []);
+            loadedStrokes = contentStrokes.map((s: any) => ({
+              ...s,
+              width: s.width || s.strokeWidth || 3,
+              color: s.color || s.colorHex || '#ffffff',
+              tool: s.tool || s.type || 'pen',
+            }));
           } catch {}
         }
         if (loadedStrokes.length === 0) {
@@ -155,8 +181,12 @@ function DocCanvasContent() {
 
         setStrokes(loadedStrokes);
         setTextElements(loadedElements);
-        if ((b as any).activeDocument) setDoc((b as any).activeDocument);
+        const docObj = (b as any).activeDocument || ((b as any).bgFile ? { name: b.title, url: (b as any).bgFile.url, type: (b as any).bgFile.type } : null);
+        if (docObj) setDoc(docObj);
         console.log(`[History Resume: DocCanvas] Loaded "${b.title}" with ${loadedStrokes.length} strokes.`);
+        if (isMounted) {
+          showStatus(`Board restored — continuing "${b.title}" with ${loadedStrokes.length} strokes & ${loadedElements.length} annotations`, 4000);
+        }
       }
     }
     loadSavedDocCanvasBoard();
@@ -209,34 +239,43 @@ function DocCanvasContent() {
     }
   };
 
+  /** Unified payload builder for manual + auto saves (identity preserved). */
+  const buildBoardPayload = useCallback((): Board => {
+    const loaded = originalBoardRef.current;
+    const now = new Date();
+    return {
+      id: boardIdRef.current,
+      title: doc ? `DocCanvas: ${doc.name}` : (loaded?.title && boardTitle === 'DocCanvas Annotator' ? loaded.title : (boardTitle || 'DocCanvas Annotator')),
+      description: `Document annotation session with ${strokes.length} strokes and ${textElements.length} text annotations.`,
+      createdBy: loaded?.createdBy && !(loaded.createdBy === 'guest' || loaded.createdBy === 'u1') ? loaded.createdBy : (user?.id || loaded?.createdBy || 'guest'),
+      createdAt: loaded?.createdAt || now.toISOString(),
+      updatedAt: now.toISOString(),
+      isShared: loaded?.isShared || false,
+      sharedWith: loaded?.sharedWith,
+      width: 1920,
+      height: 1080,
+      zoom: 100,
+      isInfiniteCanvas: true,
+      studio: 'doccanvas',
+      strokes: strokes as any,
+      elements: textElements as any,
+      ...(doc ? {
+        bgFile: { url: doc.dataUrl || (doc as any).url, type: doc.type },
+        activeDocument: doc as any,
+      } : {}),
+    } as Board;
+  }, [strokes, textElements, doc, boardTitle, user?.id]);
+
   const handleSave = async () => {
     setSaveStatus('saving');
     try {
       const now = new Date();
       const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const boardPayload: Board = {
-        id: boardId,
-        title: doc ? `DocCanvas: ${doc.name}` : 'DocCanvas Document Annotation Studio',
-        description: `Document annotation session with ${strokes.length} strokes and ${textElements.length} text annotations.`,
-        createdBy: user?.id || 'guest',
-        createdAt: now.toISOString(),
-        updatedAt: now.toISOString(),
-        isShared: false,
-        width: 1920,
-        height: 1080,
-        zoom: 100,
-        isInfiniteCanvas: true,
-        strokes: strokes as any,
-        elements: textElements as any,
-        ...(doc ? {
-          bgFile: { url: doc.dataUrl || (doc as any).url, type: doc.type },
-          activeDocument: doc as any,
-        } : {}),
-      };
+      const boardPayload = buildBoardPayload();
 
       await saveBoard(boardPayload);
       if (user?.id) {
-        await historyService.saveBoardVersion(user.id, boardId, boardPayload);
+        await historyService.saveBoardVersion(user.id, boardIdRef.current, boardPayload);
       }
 
       setSaveStatus('saved');
@@ -250,33 +289,11 @@ function DocCanvasContent() {
     }
   };
 
-  // Auto-save DocCanvas session state so annotations, text, and opened files update in History automatically
+  // Track unsaved changes for manual save (AutoSave removed — user presses Save button)
   useEffect(() => {
     if (strokes.length === 0 && textElements.length === 0 && !doc) return;
-    const timer = setTimeout(() => {
-      const boardPayload: Board = {
-        id: boardId,
-        title: doc ? `DocCanvas: ${doc.name}` : boardTitle || 'DocCanvas Studio',
-        description: `Document annotation session with ${strokes.length} strokes and ${textElements.length} text annotations.`,
-        createdBy: user?.id || 'guest',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        isShared: false,
-        width: 1920,
-        height: 1080,
-        zoom: 100,
-        isInfiniteCanvas: true,
-        strokes: strokes as any,
-        elements: textElements as any,
-        ...(doc ? {
-          bgFile: { url: doc.dataUrl || (doc as any).url, type: doc.type },
-          activeDocument: doc as any,
-        } : {}),
-      };
-      saveBoard(boardPayload);
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, [strokes, textElements, doc, boardId, boardTitle, user?.id, saveBoard]);
+    setSaveStatus('unsaved');
+  }, [strokes, textElements, doc]);
 
   // Redraw Canvas
   const redrawCanvas = useCallback(() => {
@@ -477,6 +494,16 @@ function DocCanvasContent() {
         >
           <PanelLeft className="w-3 h-3" />
           <span>Reference</span>
+        </button>
+
+        {/* Session Replay Button */}
+        <button
+          onClick={() => setIsReplayPlayerOpen(true)}
+          className="flex items-center gap-1 px-2.5 py-1 bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 hover:text-white text-[11px] font-bold rounded-lg cursor-pointer transition-all shadow-xs"
+          title="Vector Session Replay"
+        >
+          <Film className="w-3 h-3 text-indigo-400" />
+          <span>Replay</span>
         </button>
 
         {/* Open Document File Action */}
@@ -699,6 +726,14 @@ function DocCanvasContent() {
           </div>
         </div>
       </div>
+
+      {/* Phase 2: Vector Session Replay Scrubber */}
+      <VectorReplayPlayer
+        isOpen={isReplayPlayerOpen}
+        onClose={() => setIsReplayPlayerOpen(false)}
+        shapes={strokes}
+        onApplyShapeSnapshot={(snap) => setStrokes(snap)}
+      />
     </div>
   );
 }

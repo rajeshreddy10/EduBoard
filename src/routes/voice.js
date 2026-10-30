@@ -17,24 +17,22 @@ const upload = multer({
 
 async function saveTranscription(userId, data) {
   try {
-    await db.query(
-      `INSERT INTO voice_transcriptions
-       (user_id, transcript, raw_transcript, confidence, language, duration_ms, audio_format, source, word_count, formatting_applied, metadata)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        userId || null,
-        data.processed || data.transcript || '',
-        data.transcript || '',
-        data.confidence || 0,
-        data.language || 'en',
-        data.durationMs || 0,
-        data.audioFormat || 'webm',
-        data.source || 'whisper',
-        data.wordCount || 0,
-        data.formattingApplied || false,
-        JSON.stringify({ processingTime: data.processingTime })
-      ]
-    );
+    if (db.db) {
+      await db.db.collection('voice_transcriptions').add({
+        user_id: userId || null,
+        transcript: data.processed || data.transcript || '',
+        raw_transcript: data.transcript || '',
+        confidence: data.confidence || 0,
+        language: data.language || 'en',
+        duration_ms: data.durationMs || 0,
+        audio_format: data.audioFormat || 'webm',
+        source: data.source || 'whisper',
+        word_count: data.wordCount || 0,
+        formatting_applied: data.formattingApplied || false,
+        metadata: { processingTime: data.processingTime || 0 },
+        created_at: new Date().toISOString()
+      });
+    }
   } catch (err) {
     console.warn('[voice] Failed to save transcription:', err.message);
   }
@@ -55,14 +53,6 @@ const handleVoiceCommand = asyncHandler(async (req, res) => {
     message = 'Canvas cleared';
   }
 
-  try {
-    if (req.user?.id) {
-      await db.query(
-        'INSERT INTO voice_commands (user_id, command_text, intent, confidence, raw_transcript, executed, execution_result) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [req.user.id, input, intent, 1.0, transcript || command || '', executed, JSON.stringify({ intent, message })]
-      );
-    }
-  } catch { /* non-blocking */ }
 
   res.json({
     success: true,
@@ -169,11 +159,11 @@ router.get('/transcriptions', authenticate, asyncHandler(async (req, res) => {
 }));
 
 router.get('/history', authenticate, asyncHandler(async (req, res) => {
-  const commands = await db.query(
-    'SELECT * FROM voice_commands WHERE user_id = ? ORDER BY created_at DESC LIMIT 100',
+  const transcriptions = await db.query(
+    'SELECT id, transcript, confidence, language, duration_ms, word_count, source, formatting_applied, created_at FROM voice_transcriptions WHERE user_id = ? ORDER BY created_at DESC LIMIT 100',
     [req.user.id]
   );
-  res.json(commands);
+  res.json(transcriptions);
 }));
 
 router.get('/intents', (req, res) => {

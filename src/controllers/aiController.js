@@ -24,17 +24,6 @@ exports.handwriting = async (req, res) => {
 
   const result = await handwritingService.recognizeHandwriting(image);
 
-  if (req.user?.id && result.success) {
-    try {
-      await db.query(
-        'INSERT INTO ai_interactions (user_id, interaction_type, input_data, output_data, model_used, processing_time_ms) VALUES (?, ?, ?, ?, ?, ?)',
-        [req.user.id, 'handwriting_recognition', JSON.stringify({ imageSize: image.length }), JSON.stringify(result), result.model, result.processingTime]
-      );
-    } catch (err) {
-      console.warn('Failed to log interaction:', err.message);
-    }
-  }
-
   res.json({
     success: Boolean(result.success),
     text: result.text || '',
@@ -66,21 +55,6 @@ exports.formatText = async (req, res) => {
   });
 };
 
-// POST /api/ai/quiz
-exports.quiz = async (req, res) => {
-  const { topic, count, difficulty, type } = req.body || {};
-  if (!topic || typeof topic !== 'string' || !topic.trim()) {
-    return res.status(400).json({ error: 'Topic is required' });
-  }
-
-  const safeCount = Math.min(Math.max(parseInt(count, 10) || 5, 1), 20);
-  const safeDifficulty = ['easy', 'medium', 'hard', 'expert'].includes(difficulty) ? difficulty : 'medium';
-  const safeType = ['multiple-choice', 'short-answer', 'true-false', 'mixed'].includes(type) ? type : 'multiple-choice';
-
-  const result = await aiService.generateQuiz(topic.trim().slice(0, 500), safeCount, safeDifficulty, safeType);
-  res.json(result);
-};
-
 // POST /api/ai/summarize
 exports.summarize = async (req, res) => {
   const { text } = req.body || {};
@@ -106,10 +80,5 @@ exports.translate = async (req, res) => {
 
 // GET /api/ai/history
 exports.history = async (req, res) => {
-  const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 20, 1), 100);
-  const interactions = await db.query(
-    'SELECT id, interaction_type, input_data, output_data, model_used, processing_time_ms, created_at FROM ai_interactions WHERE user_id = ? ORDER BY created_at DESC LIMIT ?',
-    [req.user.id, limit]
-  );
-  res.json(interactions);
+  res.json([]);
 };

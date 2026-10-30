@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  EduBoard network security.
+  Release-safe: general cleartext is disabled; only the development loopback
+  hosts used by the existing backend configuration (Android emulator host
+  mapping 10.0.2.2 and localhost) may use unencrypted HTTP. Firebase,
+  Firebase Storage and all remote images are HTTPS and unaffected.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">10.0.2.2</domain>
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+    </domain-config>
+</network-security-config>

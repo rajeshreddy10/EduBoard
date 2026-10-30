@@ -1,3 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Dart & Flutter
+.dart_cache/
+*.dart_cache
+analysis_full.txt
+.flutter-plugins
+.flutter-plugins-dependencies
+
 # Monorepo Dependencies
 node_modules/
 .pnp
@@ -15,6 +29,9 @@ coverage/
 .next/
 out/
 build/
+**/build/
+.dart_tool/
+**/.dart_tool/
 dist/
 .turbo/
 

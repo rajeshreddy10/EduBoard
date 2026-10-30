@@ -53,7 +53,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   const isActive = (href: string) => pathname === href || (href !== '/dashboard' && pathname.startsWith(href + '/'));
 
-  const fullscreenRoutes = ['/smart-board', '/normal-board', '/presentation', '/gesture-board', '/dashboard/tools/gesture'];
+  const fullscreenRoutes = ['/normal-board', '/gesture-board', '/voice-control', '/dashboard/tools/gesture'];
   const isFullscreen = fullscreenRoutes.some(r => pathname === r || pathname.startsWith(r + '/'));
 
   if (isFullscreen) {

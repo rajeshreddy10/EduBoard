@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Debug-only override: while developing against a local Express backend from a
+  physical device over LAN (http://192.168.x.x:3001), cleartext must be
+  permitted broadly. Release builds keep the hardened main config.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>

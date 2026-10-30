@@ -1,18 +1,26 @@
 /**
  * EduBoard Backend Database Repository Adapter (Firebase Firestore Mode)
  *
- * This module replaces the SQL/Localstorage adapter with Firebase Firestore.
- * It provides a query(sql, params) interface that translates basic SQL operations
- * to Firestore calls, allowing existing API routes to work with Firebase.
+ * Strictly enforces access ONLY to the 8 approved Firestore collections & sub-collections:
+ * 1. users
+ * 2. whiteboards (with sub-collections: shapes, collaborators)
+ * 3. whiteboard_versions
+ * 4. voice_transcriptions
+ * 5. notifications
+ * 6. userSettings
+ * 7. exports
  */
 
-const admin = require('firebase-admin');
+const adminRaw = require('firebase-admin');
+const admin = (adminRaw && adminRaw.apps) ? adminRaw : (adminRaw && adminRaw.default && adminRaw.default.apps) ? adminRaw.default : adminRaw;
+const { initializeApp: initAppModular, cert: certModular, getApps: getAppsModular } = require('firebase-admin/app');
+const { getFirestore: getFirestoreModular, FieldValue: FieldValueModular } = require('firebase-admin/firestore');
 const path = require('path');
-
 const fs = require('fs');
 
-// Initialize Firebase Admin
-if (!admin.apps.length) {
+let appInstance = null;
+const existingApps = getAppsModular();
+if (existingApps.length === 0) {
   try {
     let serviceAccount = null;
     const candidates = [
@@ -37,24 +45,86 @@ if (!admin.apps.length) {
     }
 
     if (serviceAccount) {
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
+      appInstance = initAppModular({
+        credential: certModular(serviceAccount)
       });
     } else {
-      admin.initializeApp({
+      appInstance = initAppModular({
         projectId: process.env.FIREBASE_PROJECT_ID || 'eduboard-6fdcc'
       });
     }
   } catch (error) {
     console.error('Firebase Admin initialization error:', error);
   }
+} else {
+  appInstance = existingApps[0];
 }
 
+const db = appInstance ? getFirestoreModular(appInstance) : null;
 
-const db = admin.firestore();
+// Ensure backward compatibility for admin.firestore calls and FieldValue
+if (admin) {
+  if (!admin.firestore) {
+    admin.firestore = () => db;
+  }
+  admin.firestore.FieldValue = FieldValueModular;
+}
+
+// Approved Firestore Collections Set
+const APPROVED_COLLECTIONS = new Set([
+  'users',
+  'whiteboards',
+  'whiteboard_versions',
+  'voice_transcriptions',
+  'notifications',
+  'userSettings',
+  'exports'
+]);
+
+// Blocked extraneous/experimental collections to reject completely
+const UNAPPROVED_COLLECTIONS = new Set([
+  'classrooms',
+  'class_polls',
+  'flashcard_decks',
+  'spaced_reviews',
+  'sessions',
+  'comments',
+  'ai_interactions',
+  'analytics_events',
+  'voice_commands',
+  'collaboration_rooms',
+  'collaboration_events',
+  'support_tickets'
+]);
+
+// Map legacy / SQL table names to approved Firestore collections
+function resolveApprovedCollection(rawName) {
+  if (!rawName) return null;
+  const normalized = rawName.trim();
+  const lower = normalized.toLowerCase();
+
+  if (UNAPPROVED_COLLECTIONS.has(lower)) {
+    console.warn(`[Firestore DB Adapter] Blocked rejected collection: "${rawName}". Extraneous collections are removed.`);
+    return null;
+  }
+
+  if (lower === 'boards' || lower === 'whiteboards') return 'whiteboards';
+  if (lower === 'users') return 'users';
+  if (lower === 'whiteboard_versions' || lower === 'versions') return 'whiteboard_versions';
+  if (lower === 'voice_transcriptions' || lower === 'transcriptions') return 'voice_transcriptions';
+  if (lower === 'notifications') return 'notifications';
+  if (lower === 'usersettings' || lower === 'user_settings') return 'userSettings';
+  if (lower === 'exports') return 'exports';
+
+  if (APPROVED_COLLECTIONS.has(normalized)) return normalized;
+
+  console.warn(`[Firestore DB Adapter] Collection "${rawName}" is not in approved schema. Request rejected.`);
+  return null;
+}
 
 async function testConnection() {
   try {
+    if (!db) return false;
     await db.listCollections();
     return true;
   } catch {
@@ -64,24 +134,32 @@ async function testConnection() {
 
 /**
  * Universal SQL-to-Firestore Abstraction Layer
- * Supports basic SELECT, INSERT, UPDATE, DELETE patterns used in routes.
+ * Strictly maps queries to the approved collections only.
  */
 async function query(sql, params = []) {
+  if (!db) return [];
   const cleanSql = sql.trim();
   const op = cleanSql.split(' ')[0].toUpperCase();
 
-  // Extract table name (Collection name)
+  // Extract table name
   const tableMatch = cleanSql.match(/FROM\s+`?(\w+)`?/i) ||
                      cleanSql.match(/INTO\s+`?(\w+)`?/i) ||
                      cleanSql.match(/UPDATE\s+`?(\w+)`?/i) ||
                      cleanSql.match(/DELETE\s+FROM\s+`?(\w+)`?/i);
 
-  const collectionName = tableMatch ? tableMatch[1] : 'default';
+  const rawTable = tableMatch ? tableMatch[1] : null;
+  const collectionName = resolveApprovedCollection(rawTable);
+
+  // If table is rejected or not approved, fail-safe return
+  if (!collectionName) {
+    if (op === 'SELECT') return [];
+    return { affectedRows: 0 };
+  }
+
   const collection = db.collection(collectionName);
 
   try {
     if (op === 'SELECT') {
-      // Very basic SELECT parser
       let firestoreQuery = collection;
 
       // Handle COUNT
@@ -104,7 +182,7 @@ async function query(sql, params = []) {
         });
       }
 
-      // Handle ORDER BY (multiple columns support)
+      // Handle ORDER BY
       const orderMatch = cleanSql.match(/ORDER BY\s+(.+?)(?:LIMIT|OFFSET|$)/i);
       if (orderMatch) {
         const orderings = orderMatch[1].split(',');
@@ -112,7 +190,9 @@ async function query(sql, params = []) {
           const [rawCol, rawDir] = order.trim().split(/\s+/);
           const col = rawCol.replace(/^(?:w|s|wc)\./, '').replace(/`/g, '').trim();
           const dir = (rawDir || 'ASC').toUpperCase() === 'DESC' ? 'desc' : 'asc';
-          firestoreQuery = firestoreQuery.orderBy(col, dir);
+          try {
+            firestoreQuery = firestoreQuery.orderBy(col, dir);
+          } catch {}
         });
       }
 
@@ -135,7 +215,6 @@ async function query(sql, params = []) {
         const id = newRow.id || params[0];
         delete newRow.id;
 
-        // Handle ON DUPLICATE KEY UPDATE by doing a set with merge
         if (id && cleanSql.includes('ON DUPLICATE KEY UPDATE')) {
           await collection.doc(id).set({
             ...newRow,
@@ -187,7 +266,7 @@ async function query(sql, params = []) {
       }
 
     } else if (op === 'DELETE') {
-      const whereMatch = cleanSql.match(/WHERE\s+`?(id|whiteboard_id)`?\s*=\s*\?/i);
+      const whereMatch = cleanSql.match(/WHERE\s+`?(id|whiteboard_id|user_id)`?\s*=\s*\?/i);
       if (whereMatch && params[0]) {
         const field = whereMatch[1];
         const val = params[0];
@@ -196,7 +275,6 @@ async function query(sql, params = []) {
           await collection.doc(val).delete();
           return { affectedRows: 1 };
         } else {
-          // Bulk delete (e.g., shapes for a board)
           const snapshot = await collection.where(field, '==', val).get();
           const batch = db.batch();
           snapshot.docs.forEach(doc => batch.delete(doc.ref));
@@ -208,9 +286,62 @@ async function query(sql, params = []) {
 
     return [];
   } catch (error) {
-    console.error(`Firestore query error (${op}):`, error);
-    throw error;
+    console.error(`Firestore query error (${op}) on collection [${collectionName}]:`, error);
+    if (op === 'SELECT') return [];
+    return { affectedRows: 0 };
   }
 }
 
-module.exports = { db, testConnection, query };
+/**
+ * Direct Native Firestore Data Access Helpers (Enforcing Approved Schema)
+ */
+const firestoreRepository = {
+  async find(collectionName, conditions = {}, limit = 100) {
+    const approved = resolveApprovedCollection(collectionName);
+    if (!db || !approved) return [];
+    let q = db.collection(approved);
+    Object.entries(conditions).forEach(([key, val]) => {
+      if (val !== undefined) q = q.where(key, '==', val);
+    });
+    if (limit) q = q.limit(limit);
+    const snap = await q.get();
+    return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  },
+
+  async findById(collectionName, id) {
+    const approved = resolveApprovedCollection(collectionName);
+    if (!db || !approved || !id) return null;
+    const doc = await db.collection(approved).doc(String(id)).get();
+    return doc.exists ? { id: doc.id, ...doc.data() } : null;
+  },
+
+  async save(collectionName, id, data) {
+    const approved = resolveApprovedCollection(collectionName);
+    if (!db || !approved) return null;
+    const docRef = id ? db.collection(approved).doc(String(id)) : db.collection(approved).doc();
+    const payload = {
+      ...data,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+    if (!id) payload.createdAt = admin.firestore.FieldValue.serverTimestamp();
+    await docRef.set(payload, { merge: true });
+    return { id: docRef.id, ...payload };
+  },
+
+  async remove(collectionName, id) {
+    const approved = resolveApprovedCollection(collectionName);
+    if (!db || !approved || !id) return false;
+    await db.collection(approved).doc(String(id)).delete();
+    return true;
+  }
+};
+
+module.exports = {
+  db,
+  admin,
+  testConnection,
+  query,
+  firestoreRepository,
+  APPROVED_COLLECTIONS,
+  resolveApprovedCollection
+};

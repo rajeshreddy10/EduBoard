@@ -1,0 +1,2842 @@
+[
+  {
+    "test_id": "test_login_page_renders",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_page_renders",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_login_title_verified",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_title_verified",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_login_email_input_visible",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_email_input_visible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_login_password_input_visible",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_password_input_visible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_login_submit_btn_visible",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_submit_btn_visible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_login_signup_link_visible",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_signup_link_visible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_login_forgot_password_link",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_forgot_password_link",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_login_email_placeholder",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_email_placeholder",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_login_password_masking",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_password_masking",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_login_empty_form_submission",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_empty_form_submission",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_login_invalid_email_format",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_invalid_email_format",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_login_missing_password_error",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_missing_password_error",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_login_short_password_handling",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_short_password_handling",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_login_sql_injection_attempt",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_sql_injection_attempt",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_login_xss_payload_in_email",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_xss_payload_in_email",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_login_whitespace_email_trimmed",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_whitespace_email_trimmed",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_login_special_characters_email",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_special_characters_email",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_login_brand_logo_present",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_brand_logo_present",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_login_tab_key_navigation",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_tab_key_navigation",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_login_enter_key_submits_form",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_enter_key_submits_form",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_login_responsive_mobile_viewport",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_responsive_mobile_viewport",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_login_responsive_tablet_viewport",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_responsive_tablet_viewport",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_login_responsive_desktop_viewport",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_responsive_desktop_viewport",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_login_auth_error_banner_close",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_auth_error_banner_close",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_login_remember_state_verification",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_login_remember_state_verification",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_signup_page_renders",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_signup_page_renders",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_signup_name_field_visible",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_signup_name_field_visible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_signup_email_field_visible",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_signup_email_field_visible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_signup_password_field_visible",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_signup_password_field_visible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_signup_confirm_password_field",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_signup_confirm_password_field",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_signup_submit_btn_visible",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_signup_submit_btn_visible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_signup_already_have_account_link",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_signup_already_have_account_link",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_signup_empty_form_validation",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_signup_empty_form_validation",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_signup_password_mismatch",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_signup_password_mismatch",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_signup_weak_password_notice",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_signup_weak_password_notice",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_signup_invalid_email_error",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_signup_invalid_email_error",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_signup_xss_in_name_sanitized",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_signup_xss_in_name_sanitized",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_signup_long_input_overflow",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_signup_long_input_overflow",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_signup_button_disabled_state",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_signup_button_disabled_state",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_signup_responsive_layout",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_signup_responsive_layout",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_signup_dark_mode_contrast",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_signup_dark_mode_contrast",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_signup_auto_trim_fields",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_signup_auto_trim_fields",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_signup_tab_order_logical",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_signup_tab_order_logical",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_signup_form_accessible_roles",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_signup_form_accessible_roles",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_signup_navigates_to_login",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_signup_navigates_to_login",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_forgot_pwd_page_renders",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_forgot_pwd_page_renders",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_forgot_pwd_email_input",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_forgot_pwd_email_input",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_forgot_pwd_submit_btn",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_forgot_pwd_submit_btn",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_forgot_pwd_empty_email",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_forgot_pwd_empty_email",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_forgot_pwd_invalid_email",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_forgot_pwd_invalid_email",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_forgot_pwd_back_to_login",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_forgot_pwd_back_to_login",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_forgot_pwd_xss_prevention",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_forgot_pwd_xss_prevention",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_forgot_pwd_instructions_visible",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_forgot_pwd_instructions_visible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_forgot_pwd_responsive_view",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_forgot_pwd_responsive_view",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_forgot_pwd_status_banner",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_forgot_pwd_status_banner",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_dashboard_route_guarded",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_dashboard_route_guarded",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_dashboard_page_structure",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_dashboard_page_structure",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_dashboard_boards_page_renders",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_dashboard_boards_page_renders",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_dashboard_create_board_btn",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_dashboard_create_board_btn",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_dashboard_board_cards_render",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_dashboard_board_cards_render",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_dashboard_search_input_present",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_dashboard_search_input_present",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_dashboard_filter_tabs_visible",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_dashboard_filter_tabs_visible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_dashboard_empty_state_display",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_dashboard_empty_state_display",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_dashboard_nav_to_normal_board",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_dashboard_nav_to_normal_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_dashboard_nav_to_doccanvas",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_dashboard_nav_to_doccanvas",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_dashboard_nav_to_voiceboard",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_dashboard_nav_to_voiceboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_dashboard_user_profile_badge",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_dashboard_user_profile_badge",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_dashboard_logout_button",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_dashboard_logout_button",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_dashboard_sidebar_collapse",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_dashboard_sidebar_collapse",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_dashboard_activity_history_link",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_dashboard_activity_history_link",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_dashboard_share_dialog_trigger",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_dashboard_share_dialog_trigger",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_dashboard_board_card_hover_fx",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_dashboard_board_card_hover_fx",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_dashboard_grid_reflow",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_dashboard_grid_reflow",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_dashboard_theme_toggle_visible",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_dashboard_theme_toggle_visible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_dashboard_notification_bell_icon",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_dashboard_notification_bell_icon",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_page_renders",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_page_renders",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_header_bar_present",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_header_bar_present",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_title_displays",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_title_displays",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_canvas_element_present",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_canvas_element_present",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_bottom_toolbar_present",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_bottom_toolbar_present",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_pen_tool_available",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_pen_tool_available",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_eraser_tool_available",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_eraser_tool_available",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_shapes_menu_available",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_shapes_menu_available",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_color_palette_ink",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_color_palette_ink",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_color_palette_ruby",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_color_palette_ruby",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_color_palette_amber",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_color_palette_amber",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_color_palette_emerald",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_color_palette_emerald",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_color_palette_azure",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_color_palette_azure",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_color_palette_violet",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_color_palette_violet",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_stroke_width_selector",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_stroke_width_selector",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_undo_button_visible",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_undo_button_visible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_redo_button_visible",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_redo_button_visible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_clear_canvas_button",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_clear_canvas_button",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_save_button_present",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_save_button_present",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_save_button_clickable",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_save_button_clickable",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_manual_save_status",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_manual_save_status",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_reference_drawer_toggle",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_reference_drawer_toggle",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_reference_drawer_open",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_reference_drawer_open",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_reveal_bar_toggle",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_reveal_bar_toggle",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_teacher_notes_button",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_teacher_notes_button",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_present_mode_toggle",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_present_mode_toggle",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_laser_pointer_mode",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_laser_pointer_mode",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_zoom_pan_controls",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_zoom_pan_controls",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_back_button_navigation",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_back_button_navigation",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_drawspace_nav_drawer_menu_toggle",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_drawspace_nav_drawer_menu_toggle",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_page_renders",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_page_renders",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_header_present",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_header_present",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_viewport_present",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_viewport_present",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_open_document_btn",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_open_document_btn",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_accepted_file_types",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_accepted_file_types",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_blank_canvas_banner",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_blank_canvas_banner",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_reference_button",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_reference_button",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_replay_button",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_replay_button",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_save_button_present",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_save_button_present",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_bottom_toolbar",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_bottom_toolbar",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_pen_tool",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_pen_tool",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_highlighter_tool",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_highlighter_tool",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_text_annotation_tool",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_text_annotation_tool",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_eraser_tool",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_eraser_tool",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_laser_tool",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_laser_tool",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_zoom_tool",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_zoom_tool",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_color_swatches",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_color_swatches",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_undo_action",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_undo_action",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_redo_action",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_redo_action",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_reset_view_action",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_reset_view_action",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_back_navigation",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_back_navigation",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_menu_drawer_open",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_menu_drawer_open",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_error_boundary_guard",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_error_boundary_guard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_no_auto_save_banner",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_no_auto_save_banner",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_doccanvas_responsive_view",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_doccanvas_responsive_view",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_voiceboard_page_renders",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_voiceboard_page_renders",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_voiceboard_header_present",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_voiceboard_header_present",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_voiceboard_clean_bg_verified",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_voiceboard_clean_bg_verified",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_voiceboard_voice_toggle_on",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_voiceboard_voice_toggle_on",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_voiceboard_voice_toggle_off",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_voiceboard_voice_toggle_off",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_voiceboard_ready_badge_visible",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_voiceboard_ready_badge_visible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_voiceboard_canvas_area_present",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_voiceboard_canvas_area_present",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_voiceboard_save_button_present",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_voiceboard_save_button_present",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_voiceboard_bottom_toolbar_present",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_voiceboard_bottom_toolbar_present",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_voiceboard_pen_tool_present",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_voiceboard_pen_tool_present",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_voiceboard_eraser_tool_present",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_voiceboard_eraser_tool_present",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_voiceboard_color_dots_present",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_voiceboard_color_dots_present",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_voiceboard_undo_redo_present",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_voiceboard_undo_redo_present",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_voiceboard_stroke_width_badge",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_voiceboard_stroke_width_badge",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_voiceboard_back_navigation",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_voiceboard_back_navigation",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_voiceboard_drawer_menu",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_voiceboard_drawer_menu",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_voiceboard_realtime_container",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_voiceboard_realtime_container",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_voiceboard_no_hallucinations",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_voiceboard_no_hallucinations",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_voiceboard_keyboard_shortcut_hint",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_voiceboard_keyboard_shortcut_hint",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_voiceboard_responsive_layout",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_voiceboard_responsive_layout",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_profile_page_renders",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_profile_page_renders",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_profile_heading_visible",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_profile_heading_visible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_profile_name_field_present",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_profile_name_field_present",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_profile_email_field_readonly",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_profile_email_field_readonly",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_profile_avatar_selector",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_profile_avatar_selector",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_profile_save_changes_btn",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_profile_save_changes_btn",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_profile_back_navigation",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_profile_back_navigation",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_settings_page_renders",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_settings_page_renders",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_settings_theme_section",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_settings_theme_section",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_settings_theme_dark_option",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_settings_theme_dark_option",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_settings_theme_light_option",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_settings_theme_light_option",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_settings_theme_system_option",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_settings_theme_system_option",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_settings_notifications_toggle",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_settings_notifications_toggle",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_settings_save_settings_btn",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_settings_save_settings_btn",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_settings_back_navigation",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_settings_back_navigation",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_help_page_renders",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_help_page_renders",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_help_faq_tab_navigates",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_help_faq_tab_navigates",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_help_contact_tab_navigates",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_help_contact_tab_navigates",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_help_tutorials_tab_navigates",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_help_tutorials_tab_navigates",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_help_feedback_tab_navigates",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_help_feedback_tab_navigates",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_help_search_bar_present",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_help_search_bar_present",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_help_back_button_works",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_help_back_button_works",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_notifications_page_renders",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_notifications_page_renders",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_notifications_list_container",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_notifications_list_container",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_notifications_mark_all_read",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_notifications_mark_all_read",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_notifications_filter_by_type",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_notifications_filter_by_type",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_notifications_back_button",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_notifications_back_button",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_static_root_index_accessible",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_static_root_index_accessible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_static_login_html_accessible",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_static_login_html_accessible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_static_signup_html_accessible",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_static_signup_html_accessible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_static_dashboard_html_accessible",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_static_dashboard_html_accessible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_static_normal_board_accessible",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_static_normal_board_accessible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_static_gesture_board_accessible",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_static_gesture_board_accessible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_static_voice_control_accessible",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_static_voice_control_accessible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_static_help_html_accessible",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_static_help_html_accessible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_static_settings_html_accessible",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_static_settings_html_accessible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_static_profile_html_accessible",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_static_profile_html_accessible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_static_notifications_accessible",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_static_notifications_accessible",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_static_404_html_fallback",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_static_404_html_fallback",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_static_css_assets_load_200",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_static_css_assets_load_200",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_static_js_chunks_load_200",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_static_js_chunks_load_200",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_static_favicon_present",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_static_favicon_present",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_static_manifest_json_present",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_static_manifest_json_present",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_static_no_server_side_crash",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_static_no_server_side_crash",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_static_html_doctype_declared",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_static_html_doctype_declared",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_static_viewport_meta_present",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_static_viewport_meta_present",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_static_charset_utf8_declared",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_static_charset_utf8_declared",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_static_csp_meta_tag_present",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_static_csp_meta_tag_present",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_desktop_1920x1080_login",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_desktop_1920x1080_login",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_laptop_1366x768_login",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_laptop_1366x768_login",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_tablet_768x1024_login",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_tablet_768x1024_login",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_mobile_390x844_login",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_mobile_390x844_login",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_mobile_360x800_login",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_mobile_360x800_login",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_desktop_1920x1080_signup",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_desktop_1920x1080_signup",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_laptop_1366x768_signup",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_laptop_1366x768_signup",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_tablet_768x1024_signup",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_tablet_768x1024_signup",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_mobile_390x844_signup",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_mobile_390x844_signup",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_mobile_360x800_signup",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_mobile_360x800_signup",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_desktop_1920x1080_dashboard",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_desktop_1920x1080_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_laptop_1366x768_dashboard",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_laptop_1366x768_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_tablet_768x1024_dashboard",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_tablet_768x1024_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_mobile_390x844_dashboard",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_mobile_390x844_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_mobile_360x800_dashboard",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_mobile_360x800_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_desktop_1920x1080_normal_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_desktop_1920x1080_normal_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_laptop_1366x768_normal_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_laptop_1366x768_normal_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_tablet_768x1024_normal_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_tablet_768x1024_normal_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_mobile_390x844_normal_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_mobile_390x844_normal_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_mobile_360x800_normal_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_mobile_360x800_normal_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_desktop_1920x1080_gesture_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_desktop_1920x1080_gesture_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_laptop_1366x768_gesture_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_laptop_1366x768_gesture_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_tablet_768x1024_gesture_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_tablet_768x1024_gesture_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_mobile_390x844_gesture_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_mobile_390x844_gesture_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_mobile_360x800_gesture_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_mobile_360x800_gesture_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_desktop_1920x1080_voice_control",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_desktop_1920x1080_voice_control",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_laptop_1366x768_voice_control",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_laptop_1366x768_voice_control",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_tablet_768x1024_voice_control",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_tablet_768x1024_voice_control",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_mobile_390x844_voice_control",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_mobile_390x844_voice_control",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_mobile_360x800_voice_control",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_mobile_360x800_voice_control",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_desktop_1920x1080_settings",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_desktop_1920x1080_settings",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_laptop_1366x768_settings",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_laptop_1366x768_settings",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_tablet_768x1024_settings",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_tablet_768x1024_settings",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_mobile_390x844_settings",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_mobile_390x844_settings",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_mobile_360x800_settings",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_mobile_360x800_settings",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_desktop_1920x1080_profile",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_desktop_1920x1080_profile",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_laptop_1366x768_profile",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_laptop_1366x768_profile",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_tablet_768x1024_profile",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_tablet_768x1024_profile",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_mobile_390x844_profile",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_mobile_390x844_profile",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_mobile_360x800_profile",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_mobile_360x800_profile",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_desktop_1920x1080_help",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_desktop_1920x1080_help",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_laptop_1366x768_help",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_laptop_1366x768_help",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_tablet_768x1024_help",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_tablet_768x1024_help",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_mobile_390x844_help",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_mobile_390x844_help",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_viewport_mobile_360x800_help",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_viewport_mobile_360x800_help",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_ttfb_login",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_ttfb_login",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_dom_ready_login",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_dom_ready_login",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_window_load_login",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_window_load_login",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_ttfb_dashboard",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_ttfb_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_dom_ready_dashboard",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_dom_ready_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_window_load_dashboard",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_window_load_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_ttfb_normal_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_ttfb_normal_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_dom_ready_normal_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_dom_ready_normal_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_window_load_normal_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_window_load_normal_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_ttfb_gesture_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_ttfb_gesture_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_dom_ready_gesture_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_dom_ready_gesture_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_window_load_gesture_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_window_load_gesture_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_ttfb_voice_control",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_ttfb_voice_control",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_dom_ready_voice_control",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_dom_ready_voice_control",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_window_load_voice_control",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_window_load_voice_control",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_ttfb_settings",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_ttfb_settings",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_dom_ready_settings",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_dom_ready_settings",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_window_load_settings",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_window_load_settings",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_ttfb_help",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_ttfb_help",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_dom_ready_help",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_dom_ready_help",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_window_load_help",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_window_load_help",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_ttfb_notifications",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_ttfb_notifications",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_dom_ready_notifications",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_dom_ready_notifications",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_window_load_notifications",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_window_load_notifications",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_ttfb_onboarding",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_ttfb_onboarding",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_dom_ready_onboarding",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_dom_ready_onboarding",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_window_load_onboarding",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_window_load_onboarding",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_ttfb_profile",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_ttfb_profile",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_dom_ready_profile",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_dom_ready_profile",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_perf_window_load_profile",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_perf_window_load_profile",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_x_frame_options_login",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_x_frame_options_login",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_x_content_type_options_login",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_x_content_type_options_login",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_strict_transport_security_login",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_strict_transport_security_login",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_content_security_policy_login",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_content_security_policy_login",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_referrer_policy_login",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_referrer_policy_login",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_x_frame_options_dashboard",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_x_frame_options_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_x_content_type_options_dashboard",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_x_content_type_options_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_strict_transport_security_dashboard",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_strict_transport_security_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_content_security_policy_dashboard",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_content_security_policy_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_referrer_policy_dashboard",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_referrer_policy_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_x_frame_options_normal_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_x_frame_options_normal_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_x_content_type_options_normal_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_x_content_type_options_normal_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_strict_transport_security_normal_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_strict_transport_security_normal_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_content_security_policy_normal_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_content_security_policy_normal_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_referrer_policy_normal_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_referrer_policy_normal_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_x_frame_options_gesture_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_x_frame_options_gesture_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_x_content_type_options_gesture_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_x_content_type_options_gesture_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_strict_transport_security_gesture_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_strict_transport_security_gesture_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_content_security_policy_gesture_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_content_security_policy_gesture_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_referrer_policy_gesture_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_referrer_policy_gesture_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_x_frame_options_voice_control",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_x_frame_options_voice_control",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_x_content_type_options_voice_control",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_x_content_type_options_voice_control",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_strict_transport_security_voice_control",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_strict_transport_security_voice_control",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_content_security_policy_voice_control",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_content_security_policy_voice_control",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_referrer_policy_voice_control",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_referrer_policy_voice_control",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_x_frame_options_settings",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_x_frame_options_settings",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_x_content_type_options_settings",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_x_content_type_options_settings",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_strict_transport_security_settings",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_strict_transport_security_settings",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_content_security_policy_settings",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_content_security_policy_settings",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_referrer_policy_settings",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_referrer_policy_settings",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_x_frame_options_help",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_x_frame_options_help",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_x_content_type_options_help",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_x_content_type_options_help",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_strict_transport_security_help",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_strict_transport_security_help",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_content_security_policy_help",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_content_security_policy_help",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_referrer_policy_help",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_referrer_policy_help",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_x_frame_options_notifications",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_x_frame_options_notifications",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_x_content_type_options_notifications",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_x_content_type_options_notifications",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_strict_transport_security_notifications",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_strict_transport_security_notifications",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_content_security_policy_notifications",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_content_security_policy_notifications",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_referrer_policy_notifications",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_referrer_policy_notifications",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_x_frame_options_onboarding",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_x_frame_options_onboarding",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_x_content_type_options_onboarding",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_x_content_type_options_onboarding",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_strict_transport_security_onboarding",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_strict_transport_security_onboarding",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_content_security_policy_onboarding",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_content_security_policy_onboarding",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_referrer_policy_onboarding",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_referrer_policy_onboarding",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_x_frame_options_profile",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_x_frame_options_profile",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_x_content_type_options_profile",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_x_content_type_options_profile",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_strict_transport_security_profile",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_strict_transport_security_profile",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_content_security_policy_profile",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_content_security_policy_profile",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_sec_header_referrer_policy_profile",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_sec_header_referrer_policy_profile",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_324_login",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_324_login",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_325_signup",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_325_signup",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_326_dashboard",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_326_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_327_normal_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_327_normal_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_328_gesture_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_328_gesture_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_329_voice_control",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_329_voice_control",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_330_settings",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_330_settings",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_331_profile",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_331_profile",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_332_help",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_332_help",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_333_login",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_333_login",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_334_signup",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_334_signup",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_335_dashboard",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_335_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_336_normal_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_336_normal_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_337_gesture_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_337_gesture_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_338_voice_control",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_338_voice_control",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_339_settings",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_339_settings",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_340_profile",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_340_profile",
+    "status": "PASS",
+    "duration_s": 0.001,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_341_help",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_341_help",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_342_login",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_342_login",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_343_signup",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_343_signup",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_344_dashboard",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_344_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_345_normal_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_345_normal_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_346_gesture_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_346_gesture_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_347_voice_control",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_347_voice_control",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_348_settings",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_348_settings",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_349_profile",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_349_profile",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_350_help",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_350_help",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_351_login",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_351_login",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_352_signup",
+    "category": "Authentication",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_352_signup",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_353_dashboard",
+    "category": "Dashboard",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_353_dashboard",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_354_normal_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_354_normal_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  },
+  {
+    "test_id": "test_selenium_regression_case_355_gesture_board",
+    "category": "Boards",
+    "name": "tests/selenium/test_selenium.py::TestEduBoardSeleniumSuite::test_selenium_regression_case_355_gesture_board",
+    "status": "PASS",
+    "duration_s": 0.0,
+    "error": ""
+  }
+]

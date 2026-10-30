@@ -7,7 +7,7 @@ import { useAuth } from '@/lib/AuthContext';
 
 const DEVICES = [
   { id: '1', name: 'Chrome on Windows 11', location: 'Boston, MA', lastActive: 'Active now', current: true, icon: '💻' },
-  { id: '2', name: 'EduBoard Android App', location: 'Boston, MA', lastActive: '2 hours ago', current: false, icon: '📱' },
+  { id: '2', name: 'EduBoard Web Client', location: 'Boston, MA', lastActive: '2 hours ago', current: false, icon: '🌐' },
   { id: '3', name: 'Firefox on macOS', location: 'New York, NY', lastActive: '3 days ago', current: false, icon: '🖥️' },
 ];
 
