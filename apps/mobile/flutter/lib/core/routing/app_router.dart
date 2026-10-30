@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -56,7 +57,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       // Never fight the splash while it performs its own restore-wait flow.
       if (onSplash) return null;
 
-      final firebaseUser = FirebaseAuth.instance.currentUser;
+      final firebaseUser =
+          Firebase.apps.isEmpty ? null : FirebaseAuth.instance.currentUser;
       // Offline tolerance: accept the locally persisted "was signed in" flag
       // when Firebase cannot confirm right now (no connectivity).
       final persistedAuth = ref.read(authProvider).isAuthenticated;
@@ -359,7 +361,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
 /// Exposes Firebase's auth lifecycle as a plain stream for the router guard.
 Stream<void> authStateChangesStream() {
-  return FirebaseAuth.instance.authStateChanges().map<void>((_) {});
+  if (Firebase.apps.isEmpty) {
+    return const Stream.empty();
+  }
+  try {
+    return FirebaseAuth.instance.authStateChanges().map<void>((_) {});
+  } catch (_) {
+    return const Stream.empty();
+  }
 }
 
 /// Bridges a [Stream] into a [Listenable] so `GoRouter.refreshListenable`

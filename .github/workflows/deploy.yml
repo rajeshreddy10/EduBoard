@@ -358,7 +358,9 @@ jobs:
           NEXT_TELEMETRY_DISABLED: '1'
           GITHUB_ACTIONS: 'true'
           CI: 'false'
-        run: npm run build:web
+        run: |
+          npm run build:web
+          touch apps/web/out/.nojekyll
 
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
