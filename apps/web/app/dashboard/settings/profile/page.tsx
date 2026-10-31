@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useAuth } from "@/lib/AuthContext";
+import { auth } from "@/lib/firebase";
 import { userProfileService } from "@/lib/services/firebaseData";
 import { setUser as saveUserToStore } from "@/lib/store";
 import type { User } from "@/lib/types";
@@ -94,43 +95,45 @@ export default function ProfileSettings() {
   };
 
   const handleSave = async () => {
-    if (!user?.id || isSaving) return;
+    const activeUid = user?.id || auth.currentUser?.uid;
+    if (!activeUid || isSaving) return;
 
     const updatedData: any = {
-      name,
-      username,
-      bio,
-      phone,
-      address,
-      organization: institution,
-      institution,
-      location,
-      teachingPhilosophy,
+      name: name.trim(),
+      username: username.trim(),
+      bio: bio.trim(),
+      phone: phone.trim(),
+      address: address.trim(),
+      organization: institution.trim(),
+      institution: institution.trim(),
+      location: location.trim(),
+      teachingPhilosophy: teachingPhilosophy.trim(),
       dob,
       gender,
-      avatar: avatarPreview
+      avatar: avatarPreview || '',
     };
 
     setIsSaving(true);
-    // Optimistic local update: apply immediately so user has zero wait time
-    const updatedUser = { ...user, ...updatedData };
-    saveUserToStore(updatedUser);
-    setUserState(updatedUser);
-    setSaved(true);
-    window.dispatchEvent(new CustomEvent('profile-changed'));
-    setTimeout(() => setSaved(false), 2000);
+    setUploadError(null);
 
-    // Run remote background updates concurrently with a 3.5s timeout guard
-    Promise.all([
-      userProfileService.updateProfile(user.id, updatedData),
-      updateUserProfile(updatedData),
-    ])
-      .catch((err) => {
-        console.error("Background sync for profile updates:", err);
-      })
-      .finally(() => {
-        setIsSaving(false);
-      });
+    try {
+      // 1. Direct write to Firebase Firestore
+      await userProfileService.updateProfile(activeUid, updatedData);
+
+      // 2. Sync to auth context and local storage
+      await updateUserProfile(updatedData);
+      const updatedUser = { ...user, ...updatedData };
+      saveUserToStore(updatedUser);
+      setUserState(updatedUser);
+      setSaved(true);
+      window.dispatchEvent(new CustomEvent('profile-changed'));
+      setTimeout(() => setSaved(false), 2500);
+    } catch (err: any) {
+      console.error('[Web Profile Settings] Failed to save profile to Firebase:', err);
+      setUploadError(err.message || 'Failed to sync profile. Please check your connection.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const initials = name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase() || 'U';

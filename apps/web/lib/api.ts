@@ -258,8 +258,13 @@ class EduBoardAPI {
   }
 
   async updateProfile(data: Partial<UserProfile>): Promise<UserProfile> {
-    const response = await this.client.put<UserProfile>('/profile', data);
-    return response.data;
+    try {
+      const response = await this.client.put<UserProfile>('/users/profile', data);
+      return response.data;
+    } catch {
+      const response = await this.client.put<UserProfile>('/profile', data);
+      return response.data;
+    }
   }
 
   async uploadAvatar(file: File): Promise<{ url: string }> {

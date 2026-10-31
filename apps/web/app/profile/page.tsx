@@ -9,8 +9,10 @@ import {
   Phone, MapPin, Loader2, AlertCircle, Edit3, Trash2
 } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
+import { auth } from '@/lib/firebase';
 import { userProfileService } from '@/lib/services/firebaseData';
 import { updateProfile as updateLocalStoreProfile } from '@/lib/store';
+import type { User } from '@/lib/types';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import DashboardLayout from '@/app/dashboard/layout';
 
@@ -140,56 +142,61 @@ function ProfileContent() {
   };
 
   const handleSave = async () => {
-    if (!validateForm() || !user?.id || isSaving) return;
+    if (!validateForm() || isSaving) return;
+
+    const activeUid = user?.id || auth.currentUser?.uid;
+    if (!activeUid) {
+      setSaveError('No authenticated user session found. Please sign in again.');
+      return;
+    }
 
     setIsSaving(true);
     setSaveError(null);
 
-    // Optimistic immediate update to local state & store (instant UI response)
-    updateLocalStoreProfile({
-      fullName: formData.name,
-      email: formData.email,
-      institution: formData.institution,
-      dateOfBirth: formData.dateOfBirth,
+    const payloadToSave: Partial<User> = {
+      name: formData.name.trim(),
+      email: formData.email.trim(),
+      address: formData.address.trim(),
+      organization: formData.institution.trim(),
+      institution: formData.institution.trim(),
+      dob: formData.dateOfBirth,
       gender: formData.gender,
-      avatarUrl: formData.avatarUrl || undefined,
-      bio: formData.bio,
-    });
-    setProfile(formData);
-    setIsEditing(false);
-    setSaveSuccess(true);
-    setTimeout(() => setSaveSuccess(false), 2500);
+      avatar: formData.avatarUrl || undefined,
+      bio: formData.bio.trim(),
+      phone: formData.phone.trim(),
+      location: formData.location.trim(),
+      teachingPhilosophy: formData.teachingPhilosophy.trim(),
+    };
 
-    // Concurrently persist to Firebase & User profile
-    Promise.all([
-      userProfileService.updateProfile(user.id, {
-        name: formData.name,
+    try {
+      console.log('[Web Profile] Submitting profile updates to Firebase for UID:', activeUid, payloadToSave);
+
+      // 1. Direct write to Firebase Firestore
+      await userProfileService.updateProfile(activeUid, payloadToSave);
+
+      // 2. Sync to auth context and local storage
+      await updateUserProfile(payloadToSave);
+      updateLocalStoreProfile({
+        fullName: formData.name,
         email: formData.email,
-        address: formData.address,
-        organization: formData.institution,
         institution: formData.institution,
-        dob: formData.dateOfBirth,
+        dateOfBirth: formData.dateOfBirth,
         gender: formData.gender,
-        avatar: formData.avatarUrl || undefined,
+        avatarUrl: formData.avatarUrl || undefined,
         bio: formData.bio,
-        phone: formData.phone,
-        location: formData.location,
-        teachingPhilosophy: formData.teachingPhilosophy,
-      } as any),
-      updateUserProfile({
-        name: formData.name,
-        address: formData.address,
-        organization: formData.institution,
-        institution: formData.institution,
-        avatar: formData.avatarUrl || undefined,
-      }),
-    ])
-      .catch((err: any) => {
-        console.error('Failed to sync profile remotely:', err);
-      })
-      .finally(() => {
-        setIsSaving(false);
       });
+
+      setProfile(formData);
+      setIsEditing(false);
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+      console.log('[Web Profile] Profile saved successfully to Firebase & local store.');
+    } catch (err: any) {
+      console.error('[Web Profile] Failed to sync profile remotely:', err);
+      setSaveError(err.message || 'Failed to save profile. Please verify your connection.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancel = () => {

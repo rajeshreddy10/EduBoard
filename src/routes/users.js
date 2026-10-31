@@ -36,6 +36,42 @@ router.get('/:id', authenticate, asyncHandler(async (req, res) => {
   });
 }));
 
+// PUT /profile - Update current user profile using Admin SDK (bypasses client security restrictions)
+router.put('/profile', authenticate, asyncHandler(async (req, res) => {
+  const uid = req.user?.id || req.user?.uid;
+  if (!uid) return res.status(401).json({ error: 'Unauthorized: missing user identifier' });
+
+  const payload = req.body || {};
+  if (db.db && typeof db.db.collection === 'function') {
+    const cleanPayload = { ...payload, updated_at: new Date().toISOString() };
+    delete cleanPayload.password_hash;
+    await db.db.collection('users').doc(uid).set(cleanPayload, { merge: true });
+    return res.json({ success: true, profile: cleanPayload });
+  }
+  res.status(500).json({ error: 'Database unavailable' });
+}));
+
+// PUT /:id - Update user profile by ID using Admin SDK
+router.put('/:id', authenticate, asyncHandler(async (req, res) => {
+  const targetId = req.params.id;
+  const currentUid = req.user?.id || req.user?.uid;
+  const isSelf = currentUid === targetId;
+  const isAdmin = req.user?.role === 'admin' || req.user?.role === 'super_admin';
+
+  if (!isSelf && !isAdmin) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+
+  const payload = req.body || {};
+  if (db.db && typeof db.db.collection === 'function') {
+    const cleanPayload = { ...payload, updated_at: new Date().toISOString() };
+    delete cleanPayload.password_hash;
+    await db.db.collection('users').doc(targetId).set(cleanPayload, { merge: true });
+    return res.json({ success: true, profile: cleanPayload });
+  }
+  res.status(500).json({ error: 'Database unavailable' });
+}));
+
 // PUT /:id/role - Update user role
 router.put('/:id/role', requireRole('admin'), asyncHandler(async (req, res) => {
   const { role } = req.body;

@@ -20,6 +20,7 @@ export interface User {
   website?: string;
   dob?: string;
   gender?: string;
+  teachingPhilosophy?: string;
   socialLinks?: {
     twitter?: string;
     linkedin?: string;
@@ -39,6 +40,7 @@ export interface AuthResponse {
   token: string;
   refreshToken: string;
   expiresIn: number;
+  firebaseCustomToken?: string;
 }
 
 export interface LoginRequest {
@@ -182,6 +184,7 @@ export interface UserProfile {
   website?: string;
   dob?: string;
   gender?: string;
+  teachingPhilosophy?: string;
   socialLinks?: {
     twitter?: string;
     linkedin?: string;

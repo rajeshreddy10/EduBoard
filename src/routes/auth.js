@@ -218,8 +218,19 @@ router.post('/login', asyncHandler(async (req, res) => {
   const token = generateToken(user);
   const refreshToken = generateRefreshToken(user);
 
+  let firebaseCustomToken = null;
+  try {
+    const admin = require('firebase-admin');
+    if (admin && admin.apps && admin.apps.length) {
+      firebaseCustomToken = await admin.auth().createCustomToken(user.id);
+    }
+  } catch (tokenErr) {
+    console.warn('[Firebase Auth] Custom token creation notice:', tokenErr.message);
+  }
+
   res.json({
     token, refreshToken,
+    firebaseCustomToken,
     user: {
       id: user.id,
       email: user.email,
@@ -305,9 +316,20 @@ router.post('/oauth/google', asyncHandler(async (req, res) => {
   const token = generateToken(user);
   const refreshToken = generateRefreshToken(user);
 
+  let firebaseCustomToken = null;
+  try {
+    const admin = require('firebase-admin');
+    if (admin && admin.apps && admin.apps.length) {
+      firebaseCustomToken = await admin.auth().createCustomToken(user.id);
+    }
+  } catch (tokenErr) {
+    console.warn('[Firebase Auth] Custom token creation notice:', tokenErr.message);
+  }
+
   res.json({
     token,
     refreshToken,
+    firebaseCustomToken,
     user: {
       id: user.id,
       email: user.email,

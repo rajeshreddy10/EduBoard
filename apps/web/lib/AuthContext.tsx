@@ -207,7 +207,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch (fbErr: any) {
         console.warn('[Firebase Auth] Primary Firebase login note:', fbErr.code, fbErr.message);
         try {
-          await api.login({ email: normalizedEmail, password });
+          const apiRes = await api.login({ email: normalizedEmail, password });
+          if ((apiRes as any)?.firebaseCustomToken) {
+            console.log('[Firebase Auth] Authenticating with Firebase custom token from API...');
+            const { signInWithCustomToken } = await import('firebase/auth');
+            const cred = await signInWithCustomToken(auth, (apiRes as any).firebaseCustomToken);
+            firebaseUser = cred.user;
+            console.log('[Firebase Auth] Custom token authentication successful for UID:', firebaseUser.uid);
+          }
         } catch (apiErr) {
           let userMsg = 'Invalid email or password. Please check your credentials.';
           if (fbErr.code === 'auth/user-not-found' || fbErr.code === 'auth/wrong-password' || fbErr.code === 'auth/invalid-credential') {
@@ -222,13 +229,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      const uid = firebaseUser?.uid || auth.currentUser?.uid;
-      if (!uid) {
-        const canonicalId = `usr_${normalizedEmail.replace(/[^a-z0-9]/g, '_')}`;
-        console.warn('[Firebase Auth] Auth UID not available yet, using canonical ID:', canonicalId);
+      let activeUid = firebaseUser?.uid || auth.currentUser?.uid;
+      if (!activeUid) {
+        try {
+          const emailQuery = query(collection(db, 'users'), where('email', '==', normalizedEmail));
+          const emailSnap = await getDocs(emailQuery);
+          if (!emailSnap.empty) {
+            activeUid = emailSnap.docs[0].id;
+          }
+        } catch (_) {}
       }
-
-      const activeUid = uid || `usr_${normalizedEmail.replace(/[^a-z0-9]/g, '_')}`;
+      activeUid = activeUid || 'guest';
 
       // Fetch or sync Firestore user profile record using Auth UID
       let firestoreProfile: any = null;

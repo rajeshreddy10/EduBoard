@@ -22,6 +22,17 @@ import * as store from '../store';
 
 function sanitizePayload(obj: any): any {
   if (obj === null || obj === undefined) return null;
+  // Preserve Firestore FieldValue (e.g. serverTimestamp()), Timestamps, and Dates intact
+  if (
+    typeof obj === 'object' &&
+    (obj.constructor?.name === 'FieldValue' ||
+      obj.constructor?.name === 'Timestamp' ||
+      obj.constructor?.name === 'ServerTimestampFieldValueImpl' ||
+      obj instanceof Date ||
+      obj._methodName)
+  ) {
+    return obj;
+  }
   if (Array.isArray(obj)) {
     return obj.map(sanitizePayload);
   }
@@ -569,11 +580,15 @@ export const userProfileService = {
   },
 
   async updateProfile(userId: string, data: Partial<User>): Promise<void> {
-    if (!userId) return;
+    const activeUid = auth.currentUser?.uid || userId;
+    if (!activeUid || activeUid === 'guest' || activeUid === 'usr_guest') return;
+
+    console.log(`[Firebase Firestore] [users] Updating profile for target UID: ${activeUid} (currentAuthUid: ${auth.currentUser?.uid || 'none'})`);
+
     try {
       const payload = { ...data };
       if (payload.avatar && payload.avatar.startsWith('data:')) {
-        payload.avatar = await this.uploadAvatar(userId, payload.avatar);
+        payload.avatar = await this.uploadAvatar(activeUid, payload.avatar);
       }
 
       const nowIso = new Date().toISOString();
@@ -581,30 +596,69 @@ export const userProfileService = {
         ...payload,
         name: payload.name || (payload as any).full_name,
         full_name: payload.name || (payload as any).full_name,
-        address: (payload as any).address,
-        organization: (payload as any).organization || payload.institution,
-        institution: payload.institution || (payload as any).organization,
-        phone: payload.phone || (payload as any).phoneNumber || (payload as any).phone_number,
-        phoneNumber: payload.phone || (payload as any).phoneNumber || (payload as any).phone_number,
-        phone_number: payload.phone || (payload as any).phoneNumber || (payload as any).phone_number,
-        location: payload.location,
-        bio: payload.bio,
-        avatar: payload.avatar,
-        avatarUrl: payload.avatar,
-        photoURL: payload.avatar,
-        userId: userId,
-        user_id: userId,
+        address: (payload as any).address !== undefined ? (payload as any).address : '',
+        organization: (payload as any).organization || payload.institution || '',
+        institution: payload.institution || (payload as any).organization || '',
+        phone: payload.phone || (payload as any).phoneNumber || (payload as any).phone_number || '',
+        phoneNumber: payload.phone || (payload as any).phoneNumber || (payload as any).phone_number || '',
+        phone_number: payload.phone || (payload as any).phoneNumber || (payload as any).phone_number || '',
+        location: payload.location !== undefined ? payload.location : '',
+        bio: payload.bio !== undefined ? payload.bio : '',
+        avatar: payload.avatar || '',
+        avatarUrl: payload.avatar || '',
+        photoURL: payload.avatar || '',
+        userId: activeUid,
+        user_id: activeUid,
+        uid: activeUid,
+        id: activeUid,
         updatedAt: serverTimestamp(),
         updated_at: nowIso,
       });
 
-      // Write strictly to users/{userId}
-      const userRef = doc(db, 'users', userId);
-      await setDoc(userRef, cleanPayload, { merge: true });
+      // 1. Primary write: Firestore client SDK directly to canonical users/{activeUid}
+      let writeSuccess = false;
+      try {
+        const userRef = doc(db, 'users', activeUid);
+        await setDoc(userRef, cleanPayload, { merge: true });
+        writeSuccess = true;
+        console.log(`[Firebase Firestore] [users] Successfully saved profile to /users/${activeUid} via Firestore SDK`);
+      } catch (firestoreErr: any) {
+        console.warn(`[Firebase Firestore] [users] Client setDoc note (${firestoreErr.code || firestoreErr.message}). Attempting Admin API fallback...`);
+      }
 
-      if (auth.currentUser?.uid && auth.currentUser.uid !== userId) {
-        const authUidRef = doc(db, 'users', auth.currentUser.uid);
-        await setDoc(authUidRef, cleanPayload, { merge: true });
+      // 2. Server Admin SDK fallback if client write failed or was blocked by rules
+      if (!writeSuccess) {
+        try {
+          const apiPayload = { ...cleanPayload };
+          delete (apiPayload as any).updatedAt; // Strip FieldValue before JSON serialization
+          await api.updateProfile(apiPayload as any);
+          console.log(`[Firebase Firestore] [users] Successfully saved profile to /users/${activeUid} via backend Admin API fallback`);
+          writeSuccess = true;
+        } catch (apiErr: any) {
+          console.error(`[Firebase Firestore] [users] Both client and server writes failed for ${activeUid}:`, apiErr.message || apiErr);
+          throw apiErr;
+        }
+      }
+
+      // 3. Mirror to auth.currentUser if different
+      if (auth.currentUser?.uid && auth.currentUser.uid !== activeUid) {
+        try {
+          const authUidRef = doc(db, 'users', auth.currentUser.uid);
+          await setDoc(authUidRef, cleanPayload, { merge: true });
+        } catch (_) {}
+      }
+
+      // 4. Update Firebase Auth displayName & photoURL if authenticated
+      if (auth.currentUser) {
+        try {
+          const { updateProfile: fbAuthUpdateProfile } = await import('firebase/auth');
+          await fbAuthUpdateProfile(auth.currentUser, {
+            displayName: cleanPayload.name || auth.currentUser.displayName,
+            photoURL: cleanPayload.avatar || auth.currentUser.photoURL,
+          });
+        } catch (authErr) {
+          console.warn('[Firebase Auth] updateUserProfile notice:', authErr);
+        }
       }
     } catch (error) {
       console.error('[Firebase Firestore] [users] Error updating profile:', error);
