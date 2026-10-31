@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/history_item_model.dart';
@@ -61,11 +62,13 @@ class HistoryState {
 class HistoryNotifier extends Notifier<HistoryState> {
   HistoryRepository get _repo => ref.read(historyRepositoryProvider);
   StreamSubscription<List<HistoryItemModel>>? _historySub;
+  StreamSubscription<User?>? _authSub;
 
   @override
   HistoryState build() {
     ref.onDispose(() {
       _historySub?.cancel();
+      _authSub?.cancel();
     });
 
     Future.microtask(() => _init());
@@ -73,15 +76,33 @@ class HistoryNotifier extends Notifier<HistoryState> {
   }
 
   Future<void> _init() async {
-    await loadHistory();
+    final currentUid = FirebaseAuth.instance.currentUser?.uid;
+    if (currentUid != null) {
+      await _subscribeToUserHistory(currentUid);
+    } else {
+      await loadHistory();
+    }
+
+    // Dynamic session reactivity: when a user logs in, automatically re-connect
+    // the Firestore real-time listener to sync the remote boards immediately.
+    _authSub = FirebaseAuth.instance.authStateChanges().listen((user) async {
+      final uid = user?.uid;
+      if (uid != null) {
+        await _subscribeToUserHistory(uid);
+      } else {
+        _historySub?.cancel();
+        state = const HistoryState(isLoading: false);
+      }
+    });
+  }
+
+  Future<void> _subscribeToUserHistory(String uid) async {
+    _historySub?.cancel();
+    await loadHistory(uid);
 
     // Setup live real-time subscription matching Web app's BoardContext.
-    // The repository stream is internally guarded with handleError, so a
-    // Firestore/network hiccup here outputs a warning and keeps last data.
-    _historySub = _repo.watchHistoryItems().listen((liveItems) {
-      if (liveItems.isNotEmpty) {
-        state = state.copyWith(allItems: liveItems, isLoading: false, errorMessage: '');
-      }
+    _historySub = _repo.watchHistoryItems(uid).listen((liveItems) {
+      state = state.copyWith(allItems: liveItems, isLoading: false, errorMessage: '');
     }, onError: (e) {
       debugPrint('[History Stream Warning] $e');
     });
@@ -100,10 +121,10 @@ class HistoryNotifier extends Notifier<HistoryState> {
     return 'You are offline. Showing your saved boards.';
   }
 
-  Future<void> loadHistory() async {
+  Future<void> loadHistory([String? explicitUid]) async {
     state = state.copyWith(isLoading: true, errorMessage: '');
     try {
-      final items = await _repo.getAllHistoryItems();
+      final items = await _repo.getAllHistoryItems(explicitUid);
       state = state.copyWith(allItems: items, isLoading: false);
     } catch (e) {
       // Never crash the screen: keep existing items and show a soft banner.

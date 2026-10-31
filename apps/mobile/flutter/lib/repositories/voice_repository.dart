@@ -223,6 +223,8 @@ class LiveVoiceRepository implements VoiceRepository {
       'createdAt': existing?['createdAt']?.toString() ?? nowIso,
       'owner_id': existing?['owner_id']?.toString() ?? _currentUserId,
       'createdBy': existing?['createdBy']?.toString() ?? (_currentUserId ?? 'guest'),
+      'user_id': existing?['owner_id']?.toString() ?? _currentUserId,
+      'userId': existing?['owner_id']?.toString() ?? _currentUserId,
       'duration_seconds': duration.inSeconds,
       'total_shapes': blocks.length,
       'tags': tags,

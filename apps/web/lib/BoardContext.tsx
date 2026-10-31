@@ -7,6 +7,8 @@ import { socketService } from '@/lib/socket';
 import { historyService } from '@/lib/services/firebaseData';
 import { useAuth } from '@/lib/AuthContext';
 import { resolveBoardStudio } from '@/lib/boardRouting';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 interface BoardContextType {
   currentBoard: Board | null;
@@ -138,6 +140,77 @@ export function BoardProvider({ children }: { children: ReactNode }) {
     });
     return () => { unsubStroke(); unsubCursor(); };
   }, [currentBoard?.id]);
+
+  // Real-time Firestore sync for the active board across Web and Mobile
+  useEffect(() => {
+    if (!currentBoard?.id) return;
+    const boardDocRef = doc(db, 'whiteboards', currentBoard.id);
+    const unsubBoard = onSnapshot(boardDocRef, (snapshot) => {
+      if (!snapshot.exists() || snapshot.metadata.hasPendingWrites) return;
+      const data = snapshot.data();
+      if (!data) return;
+
+      const remoteStrokes = Array.isArray(data.strokes) ? data.strokes : [];
+      const remoteElements = Array.isArray(data.elements) ? data.elements : [];
+
+      const remoteSig = lastCloudSignatureKey(remoteStrokes);
+      const localSig = lastCloudSignatureKey(strokesRef.current);
+
+      if (remoteSig !== localSig && remoteStrokes.length > 0) {
+        lastCloudSignatureRef.current = [
+          currentBoard.id,
+          data.title || currentBoard.title,
+          remoteStrokes.length,
+          remoteElements.length,
+          JSON.stringify(remoteElements),
+          data.teacherNotes?.length || 0,
+          data.activeDocument?.name || '',
+          remoteSig,
+        ].join('|');
+        setStrokes(remoteStrokes);
+      }
+
+      setCurrentBoard(prev => {
+        if (!prev || prev.id !== currentBoard.id) return prev;
+        return {
+          ...prev,
+          title: data.title || prev.title,
+          description: data.description !== undefined ? data.description : prev.description,
+          elements: remoteElements.length > 0 ? remoteElements : prev.elements,
+          teacherNotes: data.teacherNotes !== undefined ? data.teacherNotes : (prev as any).teacherNotes,
+          updatedAt: data.updatedAt || data.updated_at || prev.updatedAt,
+        };
+      });
+    }, (err) => {
+      console.warn('[Firebase Firestore] [whiteboards] Active board snapshot notice:', err);
+    });
+
+    return () => {
+      unsubBoard();
+    };
+  }, [currentBoard?.id]);
+
+  // Debounced auto-sync to Firestore when canvas changes on Web
+  const autoSyncTimerRef = useRef<NodeJS.Timeout | null>(null);
+  useEffect(() => {
+    if (!currentBoard?.id || !user?.id || strokes.length === 0) return;
+
+    if (autoSyncTimerRef.current) {
+      clearTimeout(autoSyncTimerRef.current);
+    }
+
+    autoSyncTimerRef.current = setTimeout(() => {
+      saveBoard().catch(err => {
+        console.warn('[BoardContext] Auto-sync board notice:', err);
+      });
+    }, 2000);
+
+    return () => {
+      if (autoSyncTimerRef.current) {
+        clearTimeout(autoSyncTimerRef.current);
+      }
+    };
+  }, [strokes, currentBoard?.id, user?.id, saveBoard]);
 
   const addStroke = useCallback((stroke: DrawingStroke) => {
     setStrokes(prev => {
@@ -399,7 +472,7 @@ export function BoardProvider({ children }: { children: ReactNode }) {
 function lastCloudSignatureKey(strokes: any[]): string {
   if (!strokes || strokes.length === 0) return 'empty';
   const last = strokes[strokes.length - 1];
-  return `${last?.id || Math.random()}:pts=${last?.points?.length || 0}:t=${last?.timestamp || last?.createdAt || ''}`;
+  return `len=${strokes.length}:id=${last?.id || ''}:pts=${last?.points?.length || 0}:t=${last?.timestamp || last?.createdAt || ''}`;
 }
 
 export function useBoard() {

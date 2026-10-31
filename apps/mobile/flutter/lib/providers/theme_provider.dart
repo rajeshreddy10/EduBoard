@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -31,8 +33,16 @@ class ThemeState {
 }
 
 class ThemeNotifier extends Notifier<ThemeState> {
+  StreamSubscription? _settingsSub;
+  StreamSubscription<User?>? _authSub;
+
   @override
   ThemeState build() {
+    ref.onDispose(() {
+      _settingsSub?.cancel();
+      _authSub?.cancel();
+    });
+
     final savedPresetIndex = StorageService.get(AppConstants.themeBox, 'preset_index');
     final savedAccentIndex = StorageService.get(AppConstants.themeBox, 'accent_index');
     final savedMode = StorageService.get(AppConstants.themeBox, 'theme_mode');
@@ -52,7 +62,80 @@ class ThemeNotifier extends Notifier<ThemeState> {
     if (savedMode == 'dark') mode = ThemeMode.dark;
     if (savedMode == 'system') mode = ThemeMode.system;
 
+    Future.microtask(() => _setupSettingsListener());
+
     return ThemeState(preset: preset, accent: accent, mode: mode);
+  }
+
+  void _setupSettingsListener() {
+    final currentUid = FirebaseAuth.instance.currentUser?.uid;
+    if (currentUid != null) {
+      _listenToRemoteSettings(currentUid);
+    }
+
+    _authSub = FirebaseAuth.instance.authStateChanges().listen((user) {
+      final uid = user?.uid;
+      if (uid != null) {
+        _listenToRemoteSettings(uid);
+      } else {
+        _settingsSub?.cancel();
+      }
+    });
+  }
+
+  void _listenToRemoteSettings(String uid) {
+    _settingsSub?.cancel();
+    try {
+      _settingsSub = FirebaseFirestore.instance
+          .collection('userSettings')
+          .doc(uid)
+          .snapshots()
+          .listen((snap) {
+        if (!snap.exists || snap.data() == null) return;
+        final data = snap.data()!;
+
+        // 1. Theme mode
+        final remoteTheme = data['theme']?.toString().toLowerCase();
+        if (remoteTheme != null) {
+          ThemeMode? newMode;
+          if (remoteTheme == 'light') newMode = ThemeMode.light;
+          if (remoteTheme == 'dark') newMode = ThemeMode.dark;
+          if (remoteTheme == 'system') newMode = ThemeMode.system;
+          if (newMode != null && newMode != state.mode) {
+            state = state.copyWith(mode: newMode);
+            StorageService.put(AppConstants.themeBox, 'theme_mode', newMode.name);
+          }
+        }
+
+        // 2. Preset
+        final remotePreset = data['theme_preset']?.toString();
+        if (remotePreset != null) {
+          final matched = EduThemePreset.values.cast<EduThemePreset?>().firstWhere(
+                (p) => p?.name == remotePreset,
+                orElse: () => null,
+              );
+          if (matched != null && matched != state.preset) {
+            state = state.copyWith(preset: matched);
+            StorageService.put(AppConstants.themeBox, 'preset_index', matched.index);
+          }
+        }
+
+        // 3. Accent
+        final remoteAccent = data['accentColor']?.toString();
+        if (remoteAccent != null) {
+          final matched = EduAccentColor.values.cast<EduAccentColor?>().firstWhere(
+                (a) => a?.name == remoteAccent,
+                orElse: () => null,
+              );
+          if (matched != null && matched != state.accent) {
+            state = state.copyWith(accent: matched);
+            StorageService.put(AppConstants.themeBox, 'accent_index', matched.index);
+          }
+        }
+      }, onError: (e) {
+        debugPrint('[Theme Settings Listener Warning] $e');
+      });
+    } catch (_) {}
   }
 
   void _syncToRemote({String? theme, String? preset, String? accent}) {

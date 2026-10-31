@@ -110,13 +110,51 @@ export const historyService = {
     if (!userId) return null;
     try {
       const whiteboardsRef = collection(db, 'whiteboards');
-      const q = query(whiteboardsRef, where('owner_id', '==', userId));
+      const boardsMap = new Map<string, Board>();
 
-      return onSnapshot(q, (snapshot) => {
-        callback(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Board)));
-      }, (error) => {
-        console.warn('[Firebase Firestore] [whiteboards] Subscription notice:', error);
+      const notify = () => {
+        const sorted = Array.from(boardsMap.values()).sort((a: any, b: any) => {
+          const timeA = new Date(a.updatedAt || a.updated_at || a.createdAt || a.created_at || 0).getTime();
+          const timeB = new Date(b.updatedAt || b.updated_at || b.createdAt || b.created_at || 0).getTime();
+          return timeB - timeA;
+        });
+        callback(sorted);
+      };
+
+      const handleSnapshot = (snap: any) => {
+        snap.docChanges().forEach((change: any) => {
+          if (change.type === 'removed') {
+            boardsMap.delete(change.doc.id);
+          } else {
+            boardsMap.set(change.doc.id, { id: change.doc.id, ...change.doc.data() } as Board);
+          }
+        });
+        snap.docs.forEach((d: any) => {
+          boardsMap.set(d.id, { id: d.id, ...d.data() } as Board);
+        });
+        notify();
+      };
+
+      // Listen across all common ownership field aliases used by Web & Mobile
+      const unsub1 = onSnapshot(query(whiteboardsRef, where('owner_id', '==', userId)), handleSnapshot, (err) => {
+        console.warn('[Firebase Firestore] [whiteboards:owner_id] listener notice:', err);
       });
+      const unsub2 = onSnapshot(query(whiteboardsRef, where('createdBy', '==', userId)), handleSnapshot, (err) => {
+        console.warn('[Firebase Firestore] [whiteboards:createdBy] listener notice:', err);
+      });
+      const unsub3 = onSnapshot(query(whiteboardsRef, where('userId', '==', userId)), handleSnapshot, (err) => {
+        console.warn('[Firebase Firestore] [whiteboards:userId] listener notice:', err);
+      });
+      const unsub4 = onSnapshot(query(whiteboardsRef, where('user_id', '==', userId)), handleSnapshot, (err) => {
+        console.warn('[Firebase Firestore] [whiteboards:user_id] listener notice:', err);
+      });
+
+      return () => {
+        unsub1();
+        unsub2();
+        unsub3();
+        unsub4();
+      };
     } catch (error) {
       console.warn('[Firebase Firestore] [whiteboards] Failed to setup listener:', error);
       return null;
@@ -149,12 +187,22 @@ export const historyService = {
     try {
       const withAssets = await offloadLargeAssets(userId, boardInput as Board);
       const compressed = await compressOversizedContent(withAssets);
+      const nowIso = new Date().toISOString();
+      const totalShapes = (compressed.strokes?.length || 0) + (compressed.elements?.length || 0);
+
       const payload = sanitizePayload({
         ...compressed,
-        // Never clobber an existing owner/creator: keeps History opens continuing the SAME board.
-        owner_id: (boardInput as any).owner_id || userId,
-        createdBy: boardInput.createdBy || userId,
-        createdAt: boardInput.createdAt || new Date().toISOString(),
+        // Populate all ownership and timestamp aliases for cross-platform Web & Mobile sync
+        owner_id: (boardInput as any).owner_id || boardInput.createdBy || (boardInput as any).userId || (boardInput as any).user_id || userId,
+        createdBy: boardInput.createdBy || (boardInput as any).owner_id || (boardInput as any).userId || (boardInput as any).user_id || userId,
+        userId: (boardInput as any).userId || (boardInput as any).user_id || (boardInput as any).owner_id || boardInput.createdBy || userId,
+        user_id: (boardInput as any).user_id || (boardInput as any).userId || (boardInput as any).owner_id || boardInput.createdBy || userId,
+        createdAt: boardInput.createdAt || (boardInput as any).created_at || nowIso,
+        created_at: (boardInput as any).created_at || boardInput.createdAt || nowIso,
+        updatedAt: nowIso,
+        updated_at: nowIso,
+        total_shapes: totalShapes,
+        strokeCount: compressed.strokes?.length || 0,
       });
       await setDoc(doc(db, 'whiteboards', boardInput.id), payload, { merge: true });
     } catch (error) {
@@ -465,10 +513,24 @@ export const userProfileService = {
             role: data.role || 'teacher',
             username: data.username || data.email?.split('@')[0] || 'user',
             avatar: data.avatar || '',
+            bio: data.bio || '',
+            phone: data.phone || '',
+            institution: data.institution || '',
+            grade: data.grade || '',
+            subject: data.subject || (Array.isArray(data.subjects) ? data.subjects.join(', ') : ''),
+            location: data.location || '',
+            website: data.website || '',
+            dob: data.dob || '',
+            gender: data.gender || '',
+            socialLinks: data.socialLinks || {},
+            languages: data.languages || [],
+            certifications: data.certifications || [],
+            interests: data.interests || [],
             isVerified: data.isVerified ?? true,
             isBiometricEnabled: data.isBiometricEnabled || false,
-            createdAt: data.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
-            lastLoginAt: data.lastLoginAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+            createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt || new Date().toISOString(),
+            lastLoginAt: data.lastLoginAt?.toDate?.()?.toISOString() || data.lastLoginAt || new Date().toISOString(),
+            ...data, // preserve additional fields from mobile (department, teachingPhilosophy, etc.)
           };
           callback(profile);
         } else {
@@ -493,7 +555,10 @@ export const userProfileService = {
 
       const cleanPayload = sanitizePayload({
         ...payload,
+        name: payload.name || (payload as any).full_name,
         full_name: payload.name || (payload as any).full_name,
+        userId: userId,
+        user_id: userId,
         updatedAt: serverTimestamp()
       });
 
@@ -516,6 +581,23 @@ export const userProfileService = {
  * Theme & User Settings Service (Approved Collection: "userSettings")
  */
 export const userSettingsService = {
+  subscribeToSettings(userId: string, callback: (settings: any) => void): Unsubscribe | null {
+    if (!userId || userId === 'guest' || userId === 'usr_guest') return null;
+    try {
+      const settingsRef = doc(db, 'userSettings', userId);
+      return onSnapshot(settingsRef, (snap) => {
+        if (snap.exists()) {
+          callback(snap.data());
+        }
+      }, (err) => {
+        console.warn('[Firebase Firestore] [userSettings] Subscription error:', err);
+      });
+    } catch (error) {
+      console.error('[Firebase Firestore] [userSettings] Error setting up settings subscription:', error);
+      return null;
+    }
+  },
+
   async getSettings(userId: string): Promise<any | null> {
     if (!userId) return null;
     try {
@@ -538,6 +620,8 @@ export const userSettingsService = {
       console.log(`[Firebase Firestore] [userSettings] Saving settings for user ${userId}`);
       const payload = sanitizePayload({
         ...settingsData,
+        userId: userId,
+        user_id: userId,
         updatedAt: new Date().toISOString(),
       });
       const settingsRef = doc(db, 'userSettings', userId);

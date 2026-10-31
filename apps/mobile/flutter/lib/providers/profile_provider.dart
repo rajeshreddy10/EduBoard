@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user_profile_model.dart';
@@ -11,11 +12,13 @@ final profileRepositoryProvider = Provider<ProfileRepository>((ref) {
 class ProfileNotifier extends Notifier<UserProfileModel> {
   ProfileRepository get _repo => ref.read(profileRepositoryProvider);
   StreamSubscription<UserProfileModel?>? _profileSub;
+  StreamSubscription<User?>? _authSub;
 
   @override
   UserProfileModel build() {
     ref.onDispose(() {
       _profileSub?.cancel();
+      _authSub?.cancel();
     });
 
     Future.microtask(() => _init());
@@ -23,6 +26,27 @@ class ProfileNotifier extends Notifier<UserProfileModel> {
   }
 
   Future<void> _init() async {
+    final currentUid = FirebaseAuth.instance.currentUser?.uid;
+    if (currentUid != null) {
+      await _subscribeToUserProfile(currentUid);
+    } else {
+      final prof = await _repo.getProfile();
+      state = prof;
+    }
+
+    _authSub = FirebaseAuth.instance.authStateChanges().listen((user) async {
+      final uid = user?.uid;
+      if (uid != null) {
+        await _subscribeToUserProfile(uid);
+      } else {
+        _profileSub?.cancel();
+        state = UserProfileModel.empty();
+      }
+    });
+  }
+
+  Future<void> _subscribeToUserProfile(String uid) async {
+    _profileSub?.cancel();
     final prof = await _repo.getProfile();
     state = prof;
 

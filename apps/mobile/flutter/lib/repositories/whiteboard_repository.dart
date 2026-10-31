@@ -159,15 +159,30 @@ class LiveWhiteboardRepository implements WhiteboardRepository {
     final fs = _firestore;
 
     // 1. Persist to Firestore sub-collection: whiteboards/{boardId}/shapes/{shapeId}
+    // AND mirror onto whiteboards/{boardId} doc strokes array for instant cross-device sync
     if (fs != null) {
       try {
-        await fs
-            .collection('whiteboards')
-            .doc(boardId)
-            .collection('shapes')
-            .doc(stroke.id)
-            .set(shapeData, SetOptions(merge: true))
-            .timeout(const Duration(seconds: 10));
+        final compressed = _compressStrokeForDoc(stroke);
+        await Future.wait([
+          fs
+              .collection('whiteboards')
+              .doc(boardId)
+              .collection('shapes')
+              .doc(stroke.id)
+              .set(shapeData, SetOptions(merge: true))
+              .timeout(const Duration(seconds: 10)),
+          fs
+              .collection('whiteboards')
+              .doc(boardId)
+              .set({
+                'strokes': FieldValue.arrayUnion([compressed]),
+                'total_shapes': FieldValue.increment(1),
+                'strokeCount': FieldValue.increment(1),
+                'updated_at': DateTime.now().toIso8601String(),
+                'updatedAt': DateTime.now().toIso8601String(),
+              }, SetOptions(merge: true))
+              .timeout(const Duration(seconds: 10)),
+        ]);
       } on TimeoutException {
         debugPrint('[Firestore Save Stroke Note] timed out — stroke kept in memory');
       } catch (e) {
@@ -441,6 +456,8 @@ class LiveWhiteboardRepository implements WhiteboardRepository {
       // re-opening a board from History must never fork its identity.
       'owner_id': ownerId,
       'createdBy': createdBy ?? 'guest',
+      'user_id': ownerId,
+      'userId': ownerId,
       'created_at': createdAt,
       'createdAt': createdAt,
       'tags': tagList,

@@ -8,8 +8,8 @@ import '../core/services/api_client.dart';
 import '../models/history_item_model.dart';
 
 abstract class HistoryRepository {
-  Future<List<HistoryItemModel>> getAllHistoryItems();
-  Stream<List<HistoryItemModel>> watchHistoryItems();
+  Future<List<HistoryItemModel>> getAllHistoryItems([String? explicitUid]);
+  Stream<List<HistoryItemModel>> watchHistoryItems([String? explicitUid]);
   Future<void> deleteHistoryItem(String id);
   Future<void> toggleFavorite(String id);
   Future<void> saveHistoryItem(HistoryItemModel item);
@@ -52,35 +52,73 @@ class FirestoreHistoryRepository implements HistoryRepository {
   }
 
   @override
-  Stream<List<HistoryItemModel>> watchHistoryItems() {
-    final uid = _currentUserId;
+  Stream<List<HistoryItemModel>> watchHistoryItems([String? explicitUid]) {
+    final uid = explicitUid ?? _currentUserId;
     final fs = _firestore;
     if (uid == null || fs == null) {
       return Stream.value([]);
     }
 
-    // Notifier list must never overflow; local filter stays consistent with
-    // the read path in getAllHistoryItems.
-    return fs
-        .collection('whiteboards')
-        .where('owner_id', isEqualTo: uid)
-        .limit(100)
-        .snapshots()
-        .map((snapshot) {
-      final items = snapshot.docs
-          .map((doc) => HistoryItemModel.fromJson(doc.data(), doc.id))
-          .toList();
-      items.sort((a, b) => b.modifiedAt.compareTo(a.modifiedAt));
-      return items;
-    }).handleError((e) {
-      debugPrint('[Firestore History Stream Note] $e');
-      // Swallowed: provider keeps showing the last successfully synced list.
-    });
+    final controller = StreamController<List<HistoryItemModel>>.broadcast();
+    final Map<String, HistoryItemModel> byId = {};
+    StreamSubscription? subOwner;
+    StreamSubscription? subCreatedBy;
+
+    void emitMerged() {
+      if (!controller.isClosed) {
+        final sorted = byId.values.toList()
+          ..sort((a, b) => b.modifiedAt.compareTo(a.modifiedAt));
+        controller.add(sorted);
+      }
+    }
+
+    void handleSnap(QuerySnapshot<Map<String, dynamic>> snap) {
+      for (final doc in snap.docs) {
+        byId[doc.id] = HistoryItemModel.fromJson(doc.data(), doc.id);
+      }
+      for (final change in snap.docChanges) {
+        if (change.type == DocumentChangeType.removed) {
+          byId.remove(change.doc.id);
+        }
+      }
+      emitMerged();
+    }
+
+    controller.onListen = () {
+      try {
+        subOwner = fs
+            .collection('whiteboards')
+            .where('owner_id', isEqualTo: uid)
+            .limit(100)
+            .snapshots()
+            .listen(handleSnap, onError: (e) {
+          debugPrint('[Firestore History Stream Note] $e');
+        });
+
+        subCreatedBy = fs
+            .collection('whiteboards')
+            .where('createdBy', isEqualTo: uid)
+            .limit(100)
+            .snapshots()
+            .listen(handleSnap, onError: (e) {
+          debugPrint('[Firestore History Stream Note] $e');
+        });
+      } catch (e) {
+        debugPrint('[Firestore History Watch Error] $e');
+      }
+    };
+
+    controller.onCancel = () {
+      subOwner?.cancel();
+      subCreatedBy?.cancel();
+    };
+
+    return controller.stream;
   }
 
   @override
-  Future<List<HistoryItemModel>> getAllHistoryItems() async {
-    final uid = _currentUserId;
+  Future<List<HistoryItemModel>> getAllHistoryItems([String? explicitUid]) async {
+    final uid = explicitUid ?? _currentUserId;
     final fs = _firestore;
 
     // 1. Try Firestore approved collection: "whiteboards"
@@ -200,11 +238,15 @@ class FirestoreHistoryRepository implements HistoryRepository {
   Future<void> saveHistoryItem(HistoryItemModel item) async {
     final uid = _currentUserId;
     final fs = _firestore;
+    final nowIso = DateTime.now().toIso8601String();
     final payload = {
       ...item.toJson(),
       'owner_id': uid,
       'createdBy': uid,
-      'updated_at': DateTime.now().toIso8601String(),
+      'user_id': uid,
+      'userId': uid,
+      'updated_at': nowIso,
+      'updatedAt': nowIso,
     };
 
     // Firestore first (source of truth), backend mirror second. Uses a write

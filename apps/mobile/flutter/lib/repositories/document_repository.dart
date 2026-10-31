@@ -43,14 +43,20 @@ class FirestoreDocumentRepository implements DocumentRepository {
     final fs = _firestore;
     if (uid != null && fs != null) {
       try {
-        // Query boards tagged with studio: 'doccanvas' or category: 'docAnnotation'
-        final snap = await fs
-            .collection('whiteboards')
-            .where('owner_id', isEqualTo: uid)
-            .get();
+        final results = await Future.wait([
+          fs.collection('whiteboards').where('owner_id', isEqualTo: uid).get(),
+          fs.collection('whiteboards').where('createdBy', isEqualTo: uid).get(),
+        ]).catchError((_) => <QuerySnapshot<Map<String, dynamic>>>[]);
 
-        if (snap.docs.isNotEmpty) {
-          final docs = snap.docs.where((d) {
+        final allDocs = <String, QueryDocumentSnapshot<Map<String, dynamic>>>{};
+        for (final snap in results) {
+          for (final doc in snap.docs) {
+            allDocs[doc.id] = doc;
+          }
+        }
+
+        if (allDocs.isNotEmpty) {
+          final docs = allDocs.values.where((d) {
             final data = d.data();
             final studio = data['studio']?.toString();
             final category = data['category']?.toString();
@@ -233,6 +239,8 @@ class FirestoreDocumentRepository implements DocumentRepository {
       'updatedAt': nowIso,
       'owner_id': uid,
       'createdBy': uid,
+      'user_id': uid,
+      'userId': uid,
       'activeDocument': document.toJson(),
       'bgFile': {
         'url': document.url ?? document.filePath ?? '',

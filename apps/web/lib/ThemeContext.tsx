@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { getStoredTheme, getStoredAccent, applyTheme, applyAccent, type ThemeId } from './theme';
 import { useAuth } from './AuthContext';
-import { userProfileService } from './services/firebaseData';
+import { userProfileService, userSettingsService } from './services/firebaseData';
 
 interface ThemeContextType {
   theme: ThemeId;
@@ -39,27 +39,41 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!user?.id || user.id === 'guest' || user.id === 'usr_guest') return;
-    async function syncThemeFromFirestore() {
-      try {
-        console.log('[Firebase Firestore] [Menu Option: Theme Studio] Loading user theme preference from Firestore for user:', user!.id);
-        const profile = await userProfileService.getProfile(user!.id);
-        if (profile) {
-          if ((profile as any).theme) {
-            console.log('[Firebase Firestore] [Menu Option: Theme Studio] Applied user theme:', (profile as any).theme);
-            setThemeState((profile as any).theme);
-            applyTheme((profile as any).theme);
-          }
-          if ((profile as any).accentColor) {
-            console.log('[Firebase Firestore] [Menu Option: Theme Studio] Applied user accent color:', (profile as any).accentColor);
-            setAccentColorState((profile as any).accentColor);
-            applyAccent((profile as any).accentColor);
-          }
-        }
-      } catch (err) {
-        console.warn('[Firebase Firestore] [Menu Option: Theme Studio] Failed to load user theme from Firestore:', err);
+
+    // Real-time Firestore sync with userSettings collection (shared across Mobile and Web)
+    const unsubSettings = userSettingsService.subscribeToSettings(user.id, (settings) => {
+      if (!settings) return;
+      const themePreset = settings.themePreset || settings.theme || settings.themeMode;
+      if (themePreset && ['light', 'dark', 'midnight', 'sunset', 'emerald', 'cyberpunk'].includes(themePreset)) {
+        setThemeState(themePreset as ThemeId);
+        applyTheme(themePreset as ThemeId);
+      } else if (settings.themeMode === 'dark' || settings.themeMode === 'light') {
+        setThemeState(settings.themeMode as ThemeId);
+        applyTheme(settings.themeMode as ThemeId);
       }
-    }
-    syncThemeFromFirestore();
+      if (settings.accentColor) {
+        setAccentColorState(settings.accentColor);
+        applyAccent(settings.accentColor);
+      }
+    });
+
+    // Real-time Firestore sync with users collection profile
+    const unsubProfile = userProfileService.subscribeToProfile(user.id, (profile: any) => {
+      if (!profile) return;
+      if (profile.theme && ['light', 'dark', 'midnight', 'sunset', 'emerald', 'cyberpunk'].includes(profile.theme)) {
+        setThemeState(profile.theme);
+        applyTheme(profile.theme);
+      }
+      if (profile.accentColor) {
+        setAccentColorState(profile.accentColor);
+        applyAccent(profile.accentColor);
+      }
+    });
+
+    return () => {
+      if (unsubSettings) unsubSettings();
+      if (unsubProfile) unsubProfile();
+    };
   }, [user?.id]);
 
   useEffect(() => {
@@ -84,6 +98,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (user?.id) {
       console.log('[Firebase Firestore] [Menu Option: Theme Studio] Saving updated theme to Firestore for user:', user.id, newTheme);
       userProfileService.updateProfile(user.id, { theme: newTheme } as any).catch(console.error);
+      userSettingsService.saveSettings(user.id, {
+        theme: newTheme,
+        themePreset: newTheme,
+        themeMode: newTheme === 'light' ? 'light' : 'dark',
+      }).catch(console.error);
     }
   };
 
@@ -93,6 +112,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (user?.id) {
       console.log('[Firebase Firestore] [Menu Option: Theme Studio] Saving updated accent color to Firestore for user:', user.id, color);
       userProfileService.updateProfile(user.id, { accentColor: color } as any).catch(console.error);
+      userSettingsService.saveSettings(user.id, { accentColor: color }).catch(console.error);
     }
   };
 
