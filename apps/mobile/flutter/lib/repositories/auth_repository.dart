@@ -355,13 +355,13 @@ class FirebaseAuthRepository implements AuthRepository {
                 data['name'] ?? data['full_name'] ?? name ?? email.split('@')[0],
                 email.split('@')[0]),
             email: asStringOr(data['email'] ?? email, email),
-            role: asStringOr(data['role'], 'Teacher'),
-            institution: asStringOr(data['institution'], 'EduBoard Academic Institute'),
-            department: asStringOr(data['department'], 'STEM Department'),
+            address: asStringOr(data['address'], ''),
+            organization: asStringOr(data['organization'] ?? data['institution'], 'EduBoard'),
+            phone: asStringOr(data['phone'] ?? data['phoneNumber'] ?? data['phone_number'], ''),
+            location: asStringOr(data['location'], ''),
             bio: asStringOr(data['bio'], ''),
-            teachingPhilosophy: asStringOr(data['teachingPhilosophy'], ''),
-            avatarUrl: asStringOrNullable(data['avatar'] ?? data['avatarUrl']),
-            subjects: asStringListOr(data['subjects'], ['General STEM']),
+            avatarUrl: asStringOrNullable(data['avatar'] ?? data['avatarUrl'] ?? data['photoURL']),
+            role: asStringOr(data['role'], 'User'),
           );
         }
       } catch (e) {
@@ -377,13 +377,13 @@ class FirebaseAuthRepository implements AuthRepository {
             name: asStringOr(res['name'] ?? res['full_name'] ?? name ?? email.split('@')[0],
                 email.split('@')[0]),
             email: asStringOr(res['email'], email),
-            role: asStringOr(res['role'], 'Teacher'),
-            institution: asStringOr(res['institution'], 'EduBoard Academic Institute'),
-            department: asStringOr(res['department'], 'STEM Department'),
+            address: asStringOr(res['address'], ''),
+            organization: asStringOr(res['organization'] ?? res['institution'], 'EduBoard'),
+            phone: asStringOr(res['phone'] ?? res['phoneNumber'] ?? res['phone_number'], ''),
+            location: asStringOr(res['location'], ''),
             bio: asStringOr(res['bio'], ''),
-            teachingPhilosophy: asStringOr(res['teachingPhilosophy'], ''),
             avatarUrl: asStringOrNullable(res['avatar'] ?? res['avatarUrl']),
-            subjects: asStringListOr(res['subjects'], ['General STEM']),
+            role: asStringOr(res['role'], 'User'),
           );
         }
       } catch (_) {}
@@ -393,12 +393,12 @@ class FirebaseAuthRepository implements AuthRepository {
       id: uid ?? 'user_default',
       name: name ?? email.split('@')[0],
       email: email,
-      role: 'Principal STEM Instructor',
-      institution: 'EduBoard Academic Institute',
-      department: 'Computational Sciences',
-      bio: 'EduBoard educator.',
-      teachingPhilosophy: 'Active problem-solving and visual collaboration.',
-      subjects: ['Physics', 'Mathematics'],
+      address: '',
+      organization: 'EduBoard',
+      phone: '',
+      location: '',
+      bio: 'EduBoard user.',
+      role: 'User',
     );
 
     if (uid != null && _firestore != null) {

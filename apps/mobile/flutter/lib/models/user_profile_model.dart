@@ -1,54 +1,66 @@
-/// User Profile model with academic and pedagogical metadata
+/// User Profile model with Name, Address, Organization, Phone, Location, Bio, and Profile Pic
 library;
 
 class UserProfileModel {
   final String id;
-  final String name;
   final String email;
-  final String role;
-  final String institution;
-  final String department;
+  final String name;
+  final String address;
+  final String organization;
+  final String phone;
+  final String location;
   final String bio;
-  final String teachingPhilosophy;
   final String? avatarUrl;
-  final List<String> subjects;
+  final String? _role;
+  final List<String>? _subjects;
 
   const UserProfileModel({
     required this.id,
-    required this.name,
     required this.email,
-    required this.role,
-    required this.institution,
-    required this.department,
-    required this.bio,
-    required this.teachingPhilosophy,
+    required this.name,
+    this.address = '',
+    this.organization = '',
+    this.phone = '',
+    this.location = '',
+    this.bio = '',
     this.avatarUrl,
-    required this.subjects,
-  });
+    String? role,
+    List<String>? subjects,
+  })  : _role = role,
+        _subjects = subjects;
+
+  // Backward-compatibility getters
+  String get institution => organization;
+  String get role => _role ?? 'teacher';
+  String get department => '';
+  String get teachingPhilosophy => '';
+  List<String> get subjects => _subjects ?? const [];
 
   UserProfileModel copyWith({
     String? id,
-    String? name,
     String? email,
-    String? role,
-    String? institution,
-    String? department,
+    String? name,
+    String? address,
+    String? organization,
+    String? phone,
+    String? location,
     String? bio,
-    String? teachingPhilosophy,
     String? avatarUrl,
+    String? role,
     List<String>? subjects,
   }) {
     return UserProfileModel(
       id: id ?? this.id,
-      name: name ?? this.name,
       email: email ?? this.email,
-      role: role ?? this.role,
-      institution: institution ?? this.institution,
-      department: department ?? this.department,
+      name: name ?? this.name,
+      address: address ?? this.address,
+      organization: organization ?? this.organization,
+      phone: phone ?? this.phone,
+      location: location ?? this.location,
       bio: bio ?? this.bio,
-      teachingPhilosophy: teachingPhilosophy ?? this.teachingPhilosophy,
       avatarUrl: avatarUrl ?? this.avatarUrl,
-      subjects: subjects ?? this.subjects,
+      role: role ?? _role,
+      subjects: subjects ?? _subjects,
     );
   }
 
@@ -58,23 +70,29 @@ class UserProfileModel {
     'name': name,
     'full_name': name,
     'email': email,
-    'role': role,
-    'institution': institution,
-    'department': department,
+    'address': address,
+    'organization': organization,
+    'institution': organization,
+    'phone': phone,
+    'phoneNumber': phone,
+    'phone_number': phone,
+    'location': location,
     'bio': bio,
-    'teachingPhilosophy': teachingPhilosophy,
     'avatar': avatarUrl,
     'avatarUrl': avatarUrl,
-    'subjects': subjects,
+    'photoURL': avatarUrl,
+    if (_role != null) 'role': _role,
   };
 
   factory UserProfileModel.fromJson(Map<String, dynamic> json) {
     final email = (json['email'] ?? '').toString();
     final name = (json['name'] ?? json['full_name'] ?? (email.isNotEmpty ? email.split('@').first : 'EduBoard User')).toString();
+    final address = (json['address'] ?? '').toString();
+    final organization = (json['organization'] ?? json['institution'] ?? '').toString();
+    final phone = (json['phone'] ?? json['phoneNumber'] ?? json['phone_number'] ?? '').toString();
+    final location = (json['location'] ?? '').toString();
+    final bio = (json['bio'] ?? '').toString();
 
-    // Avatar may arrive as a string URL/Base64, an object {url:...} from some
-    // backend conventions, or something unexpected — normalize to a resolvable
-    // string or null so EduImage never receives garbage.
     dynamic rawAvatar = json['avatar'] ?? json['avatarUrl'] ?? json['photoURL'];
     String? avatarUrl;
     if (rawAvatar is Map) {
@@ -88,36 +106,33 @@ class UserProfileModel {
     List<String>? subjects;
     if (rawSubjects is List) {
       subjects = rawSubjects.whereType<Object>().map((e) => e.toString()).toList();
-    } else if (rawSubjects is String && rawSubjects.trim().isNotEmpty) {
-      // Tolerate comma-separated single-string conventions.
-      subjects = rawSubjects.split(',').map((s) => s.trim()).where((s) => s.isNotEmpty).toList();
     }
 
     return UserProfileModel(
       id: (json['id'] ?? json['uid'] ?? '').toString(),
-      name: name,
       email: email,
-      role: (json['role'] ?? 'teacher').toString(),
-      institution: (json['institution'] ?? 'EduBoard Academic Institute').toString(),
-      department: (json['department'] ?? 'Department of Sciences').toString(),
-      bio: (json['bio'] ?? '').toString(),
-      teachingPhilosophy: (json['teachingPhilosophy'] ?? '').toString(),
+      name: name,
+      address: address,
+      organization: organization,
+      phone: phone,
+      location: location,
+      bio: bio,
       avatarUrl: avatarUrl,
-      subjects: subjects ?? ['Mathematics', 'Science'],
+      role: json['role']?.toString(),
+      subjects: subjects,
     );
   }
 
   static UserProfileModel empty() {
     return const UserProfileModel(
       id: '',
-      name: 'EduBoard Instructor',
       email: '',
-      role: 'teacher',
-      institution: 'EduBoard Academic Institute',
-      department: 'Department of Sciences',
+      name: 'EduBoard User',
+      address: '',
+      organization: '',
+      phone: '',
+      location: '',
       bio: '',
-      teachingPhilosophy: '',
-      subjects: ['General STEM'],
     );
   }
 }

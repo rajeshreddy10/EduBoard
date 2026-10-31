@@ -16,13 +16,12 @@ void main() {
         'uid': 'usr_test123',
         'full_name': 'Prof. Alan Turing',
         'email': 'alan.turing@cambridge.edu',
-        'role': 'teacher',
-        'institution': 'Cambridge University',
-        'department': 'Computer Science',
+        'address': 'King\'s College, Cambridge CB2 1ST',
+        'organization': 'Cambridge University',
+        'phone': '+44 1223 332000',
+        'location': 'Cambridge, UK',
         'bio': 'Pioneer of theoretical computing.',
-        'teachingPhilosophy': 'Formalize and verify.',
         'avatar': 'https://firebasestorage.googleapis.com/v0/b/eduboard-6fdcc.firebasestorage.app/o/users%2Fusr_test123%2Favatar',
-        'subjects': ['Algorithms', 'Logic'],
       };
 
       final profile = UserProfileModel.fromJson(firestoreDoc);
@@ -30,13 +29,21 @@ void main() {
       expect(profile.id, equals('usr_test123'));
       expect(profile.name, equals('Prof. Alan Turing'));
       expect(profile.email, equals('alan.turing@cambridge.edu'));
-      expect(profile.role, equals('teacher'));
+      expect(profile.address, equals('King\'s College, Cambridge CB2 1ST'));
+      expect(profile.organization, equals('Cambridge University'));
+      expect(profile.phone, equals('+44 1223 332000'));
+      expect(profile.location, equals('Cambridge, UK'));
+      expect(profile.bio, equals('Pioneer of theoretical computing.'));
       expect(profile.avatarUrl, contains('eduboard-6fdcc.firebasestorage.app'));
-      expect(profile.subjects.length, equals(2));
 
       final serialized = profile.toJson();
       expect(serialized['full_name'], equals('Prof. Alan Turing'));
       expect(serialized['uid'], equals('usr_test123'));
+      expect(serialized['address'], equals('King\'s College, Cambridge CB2 1ST'));
+      expect(serialized['organization'], equals('Cambridge University'));
+      expect(serialized['phone'], equals('+44 1223 332000'));
+      expect(serialized['location'], equals('Cambridge, UK'));
+      expect(serialized['bio'], equals('Pioneer of theoretical computing.'));
     });
 
     test('HistoryItemModel parses Firestore whiteboards collection document correctly', () {

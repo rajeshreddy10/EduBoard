@@ -2,19 +2,115 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/utilities/responsive_layout.dart';
-import '../../../core/widgets/app_status_badge.dart';
+import '../../../core/widgets/edu_button.dart';
+import '../../../core/widgets/edu_text_field.dart';
+import '../../../models/user_profile_model.dart';
 import '../../../providers/auth_provider.dart';
 import '../../../providers/profile_provider.dart';
-import '../widgets/academic_info_form.dart';
 import '../widgets/avatar_picker_widget.dart';
-import '../widgets/bio_section_widget.dart';
 
-/// Full instructor profile screen with academic information, bio, and settings links
-class ProfileScreen extends ConsumerWidget {
+/// User profile screen containing only:
+/// Name, Address, Organization, Phone Number, Location, Bio, and Profile Pic
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  late final TextEditingController _nameController;
+  late final TextEditingController _addressController;
+  late final TextEditingController _organizationController;
+  late final TextEditingController _phoneController;
+  late final TextEditingController _locationController;
+  late final TextEditingController _bioController;
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final profile = ref.read(profileProvider);
+    _nameController = TextEditingController(text: profile.name);
+    _addressController = TextEditingController(text: profile.address);
+    _organizationController = TextEditingController(text: profile.organization);
+    _phoneController = TextEditingController(text: profile.phone);
+    _locationController = TextEditingController(text: profile.location);
+    _bioController = TextEditingController(text: profile.bio);
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _addressController.dispose();
+    _organizationController.dispose();
+    _phoneController.dispose();
+    _locationController.dispose();
+    _bioController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleSave() async {
+    setState(() => _isSaving = true);
+    try {
+      await ref.read(profileProvider.notifier).saveProfile(
+            name: _nameController.text.trim(),
+            address: _addressController.text.trim(),
+            organization: _organizationController.text.trim(),
+            phone: _phoneController.text.trim(),
+            location: _locationController.text.trim(),
+            bio: _bioController.text.trim(),
+          );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profile saved to Firebase successfully.'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save profile: $e'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Sync text fields with remote changes if initially empty
+    ref.listen<UserProfileModel>(profileProvider, (previous, next) {
+      if (_nameController.text.isEmpty && next.name.isNotEmpty) {
+        _nameController.text = next.name;
+      }
+      if (_addressController.text.isEmpty && next.address.isNotEmpty) {
+        _addressController.text = next.address;
+      }
+      if (_organizationController.text.isEmpty && next.organization.isNotEmpty) {
+        _organizationController.text = next.organization;
+      }
+      if (_phoneController.text.isEmpty && next.phone.isNotEmpty) {
+        _phoneController.text = next.phone;
+      }
+      if (_locationController.text.isEmpty && next.location.isNotEmpty) {
+        _locationController.text = next.location;
+      }
+      if (_bioController.text.isEmpty && next.bio.isNotEmpty) {
+        _bioController.text = next.bio;
+      }
+    });
+
     final profile = ref.watch(profileProvider);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -23,13 +119,13 @@ class ProfileScreen extends ConsumerWidget {
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: Text(
-          'Instructor Profile',
+          'Profile',
           style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_outlined),
-            tooltip: 'App Settings',
+            tooltip: 'Settings',
             onPressed: () => context.push('/settings'),
           ),
           const SizedBox(width: 8),
@@ -43,68 +139,126 @@ class ProfileScreen extends ConsumerWidget {
               constraints: BoxConstraints(maxWidth: ResponsiveLayout.contentWidth(context)),
               child: Column(
                 children: [
+                  // 1. Profile Picture
                   const AvatarPickerWidget(),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
+
+                  // Display Name & Email Subtitle
                   Text(
-                    profile.name,
+                    profile.name.isNotEmpty ? profile.name : 'User Profile',
                     style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    profile.email,
-                    style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 13),
-                  ),
-                  const SizedBox(height: 8),
-                  AppStatusBadge(label: profile.role, color: colorScheme.primary),
+                  if (profile.email.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      profile.email,
+                      style: TextStyle(
+                        color: colorScheme.onSurface.withValues(alpha: 0.6),
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 24),
 
-                  // Settings Hub Navigation Card
+                  // 2. Profile Details Form (name, address, organization, phone, location, bio)
                   Container(
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       color: colorScheme.surface,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: colorScheme.onSurface.withValues(alpha: 0.08)),
                     ),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        ListTile(
-                          leading: Icon(Icons.security_rounded, color: colorScheme.primary),
-                          title: const Text('Security & Biometrics', style: TextStyle(fontWeight: FontWeight.w600)),
-                          subtitle: const Text('Password, 2FA, authorized devices'),
-                          trailing: const Icon(Icons.chevron_right_rounded),
-                          onTap: () => context.push('/profile/security'),
+                        Row(
+                          children: [
+                            Icon(Icons.person_pin_rounded, size: 20, color: colorScheme.primary),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Profile Details',
+                              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                          ],
                         ),
-                        const Divider(height: 1),
-                        ListTile(
-                          leading: Icon(Icons.palette_outlined, color: colorScheme.secondary),
-                          title: const Text('Themes & Appearance', style: TextStyle(fontWeight: FontWeight.w600)),
-                          subtitle: const Text('6 dynamic themes, 9 color accents'),
-                          trailing: const Icon(Icons.chevron_right_rounded),
-                          onTap: () => context.push('/dashboard/settings/theme'),
+                        const SizedBox(height: 18),
+
+                        // Name
+                        EduTextField(
+                          controller: _nameController,
+                          label: 'Name',
+                          hintText: 'Enter your full name',
+                          prefixIcon: Icons.person_outline_rounded,
                         ),
-                        const Divider(height: 1),
-                        ListTile(
-                          leading: Icon(Icons.settings_outlined, color: colorScheme.tertiary),
-                          title: const Text('General Settings', style: TextStyle(fontWeight: FontWeight.w600)),
-                          subtitle: const Text('Language, accessibility, offline sync'),
-                          trailing: const Icon(Icons.chevron_right_rounded),
-                          onTap: () => context.push('/settings'),
+                        const SizedBox(height: 16),
+
+                        // Address
+                        EduTextField(
+                          controller: _addressController,
+                          label: 'Address',
+                          hintText: 'Enter your street address',
+                          prefixIcon: Icons.home_outlined,
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Organization
+                        EduTextField(
+                          controller: _organizationController,
+                          label: 'Organization',
+                          hintText: 'Company, School, or Institute',
+                          prefixIcon: Icons.business_outlined,
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Phone Number
+                        EduTextField(
+                          controller: _phoneController,
+                          label: 'Phone Number',
+                          hintText: '+1 234 567 8900',
+                          keyboardType: TextInputType.phone,
+                          prefixIcon: Icons.phone_outlined,
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Location
+                        EduTextField(
+                          controller: _locationController,
+                          label: 'Location',
+                          hintText: 'City, Country',
+                          prefixIcon: Icons.location_on_outlined,
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Bio
+                        EduTextField(
+                          controller: _bioController,
+                          label: 'Bio',
+                          hintText: 'Write a brief description about yourself...',
+                          maxLines: 4,
+                          prefixIcon: Icons.notes_rounded,
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Save Button
+                        EduButton(
+                          label: 'Save Profile',
+                          icon: Icons.save_rounded,
+                          isLoading: _isSaving,
+                          onPressed: _handleSave,
                         ),
                       ],
                     ),
                   ),
 
-                  const SizedBox(height: 24),
-                  const AcademicInfoForm(),
-                  const SizedBox(height: 20),
-                  const BioSectionWidget(),
                   const SizedBox(height: 28),
 
-                  // Sign Out
+                  // Sign Out Button
                   OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
                       foregroundColor: colorScheme.error,
                       side: BorderSide(color: colorScheme.error.withValues(alpha: 0.4)),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     ),
                     icon: const Icon(Icons.logout_rounded, size: 20),
                     label: const Text('Sign Out of Workspace'),
@@ -113,7 +267,7 @@ class ProfileScreen extends ConsumerWidget {
                       context.go('/login');
                     },
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 32),
                 ],
               ),
             ),

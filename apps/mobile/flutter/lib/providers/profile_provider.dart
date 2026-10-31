@@ -60,6 +60,28 @@ class ProfileNotifier extends Notifier<UserProfileModel> {
     });
   }
 
+  Future<void> saveProfile({
+    required String name,
+    required String address,
+    required String organization,
+    required String phone,
+    required String location,
+    required String bio,
+    String? avatarUrl,
+  }) async {
+    final updated = state.copyWith(
+      name: name,
+      address: address,
+      organization: organization,
+      phone: phone,
+      location: location,
+      bio: bio,
+      avatarUrl: avatarUrl ?? state.avatarUrl,
+    );
+    state = updated;
+    await _repo.updateProfile(updated);
+  }
+
   Future<void> updateAcademicInfo({
     required String name,
     required String institution,
@@ -68,9 +90,7 @@ class ProfileNotifier extends Notifier<UserProfileModel> {
   }) async {
     final updated = state.copyWith(
       name: name,
-      institution: institution,
-      department: department,
-      role: role,
+      organization: institution,
     );
     state = updated;
     await _repo.updateProfile(updated);
@@ -83,9 +103,7 @@ class ProfileNotifier extends Notifier<UserProfileModel> {
   }
 
   Future<void> updatePhilosophy(String philosophy) async {
-    final updated = state.copyWith(teachingPhilosophy: philosophy);
-    state = updated;
-    await _repo.updateProfile(updated);
+    // Teaching philosophy removed as per profile requirements; no-op
   }
 
   Future<void> updateAvatar(String? avatarUrl) async {

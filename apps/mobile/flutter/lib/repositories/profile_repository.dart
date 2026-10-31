@@ -96,13 +96,12 @@ class FirebaseProfileRepository implements ProfileRepository {
         id: user.uid,
         name: user.displayName ?? user.email?.split('@').first ?? 'EduBoard User',
         email: user.email ?? '',
-        role: 'teacher',
-        institution: 'EduBoard Academic Institute',
-        department: 'Department of Sciences',
+        address: '',
+        organization: 'EduBoard',
+        phone: '',
+        location: '',
         bio: '',
-        teachingPhilosophy: '',
         avatarUrl: user.photoURL,
-        subjects: ['Mathematics', 'Science'],
       );
       try {
         await _firestore
@@ -124,21 +123,26 @@ class FirebaseProfileRepository implements ProfileRepository {
     final uid = profile.id.isNotEmpty ? profile.id : _currentUserId;
     if (uid == null || uid.isEmpty) return;
 
+    final nowIso = DateTime.now().toIso8601String();
     final data = {
       'id': uid,
       'uid': uid,
       'name': profile.name,
       'full_name': profile.name,
       'email': profile.email,
-      'role': profile.role,
-      'institution': profile.institution,
-      'department': profile.department,
+      'address': profile.address,
+      'organization': profile.organization,
+      'institution': profile.organization,
+      'phone': profile.phone,
+      'phoneNumber': profile.phone,
+      'phone_number': profile.phone,
+      'location': profile.location,
       'bio': profile.bio,
-      'teachingPhilosophy': profile.teachingPhilosophy,
-      'subjects': profile.subjects,
       'avatar': profile.avatarUrl,
       'avatarUrl': profile.avatarUrl,
-      'updated_at': DateTime.now().toIso8601String(),
+      'photoURL': profile.avatarUrl,
+      'updated_at': nowIso,
+      'updatedAt': nowIso,
     };
 
     // 1. Update shared Firestore users/{uid} collection
@@ -157,7 +161,7 @@ class FirebaseProfileRepository implements ProfileRepository {
       }
     }
 
-    // 2. Also sync to backend users route if necessary
+    // 2. Also sync to backend users route if available
     try {
       await _api.put('/users/$uid/role', body: {'role': profile.role});
     } catch (_) {}

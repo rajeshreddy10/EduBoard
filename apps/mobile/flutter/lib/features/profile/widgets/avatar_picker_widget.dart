@@ -43,6 +43,15 @@ class AvatarPickerWidget extends ConsumerWidget {
               ),
               const SizedBox(height: 16),
               ListTile(
+                leading: const Icon(Icons.link_rounded),
+                title: const Text('Enter Profile Picture URL'),
+                subtitle: const Text('Use a custom web image or avatar URL'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _showCustomUrlDialog(context, ref);
+                },
+              ),
+              ListTile(
                 leading: const Icon(Icons.clear_rounded),
                 title: const Text('Reset to Name Initials'),
                 onTap: () {
@@ -53,6 +62,41 @@ class AvatarPickerWidget extends ConsumerWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  void _showCustomUrlDialog(BuildContext context, WidgetRef ref) {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Profile Picture URL'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            hintText: 'https://example.com/avatar.jpg',
+            labelText: 'Image URL',
+            prefixIcon: Icon(Icons.image_outlined),
+          ),
+          keyboardType: TextInputType.url,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final text = controller.text.trim();
+              if (text.isNotEmpty) {
+                ref.read(profileProvider.notifier).updateAvatar(text);
+              }
+              Navigator.pop(ctx);
+            },
+            child: const Text('Apply'),
+          ),
+        ],
       ),
     );
   }
