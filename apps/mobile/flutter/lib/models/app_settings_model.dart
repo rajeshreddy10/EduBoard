@@ -53,9 +53,12 @@ class AppSettingsModel {
   Map<String, dynamic> toJson() => {
     'language': language,
     'timeZone': timeZone,
+    'timezone': timeZone,
     'region': region,
     'highContrast': highContrast,
+    'high_contrast': highContrast,
     'reduceMotion': reduceMotion,
+    'reduce_motion': reduceMotion,
     'textScaleFactor': textScaleFactor,
     'autoSyncOffline': autoSyncOffline,
     'lastSyncTime': lastSyncTime.toIso8601String(),
@@ -65,10 +68,10 @@ class AppSettingsModel {
   factory AppSettingsModel.fromJson(Map<String, dynamic> json) {
     return AppSettingsModel(
       language: json['language']?.toString() ?? 'English (US)',
-      timeZone: json['timeZone']?.toString() ?? 'UTC-08:00 (Pacific Time)',
+      timeZone: json['timeZone']?.toString() ?? json['timezone']?.toString() ?? 'UTC-08:00 (Pacific Time)',
       region: json['region']?.toString() ?? 'North America',
-      highContrast: asBoolOr(json['highContrast'], false),
-      reduceMotion: asBoolOr(json['reduceMotion'], false),
+      highContrast: asBoolOr(json['highContrast'] ?? json['high_contrast'], false),
+      reduceMotion: asBoolOr(json['reduceMotion'] ?? json['reduce_motion'], false),
       textScaleFactor: asDoubleOr(json['textScaleFactor'], 1.0),
       autoSyncOffline: asBoolOr(json['autoSyncOffline'], true),
       lastSyncTime: asDateOr(json['lastSyncTime'], DateTime.now()),

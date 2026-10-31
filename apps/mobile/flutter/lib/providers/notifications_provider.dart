@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/notification_item_model.dart';
@@ -48,11 +49,13 @@ class NotificationState {
 class NotificationNotifier extends Notifier<NotificationState> {
   NotificationRepository get _repo => ref.read(notificationRepositoryProvider);
   StreamSubscription<List<NotificationItemModel>>? _notifSub;
+  StreamSubscription<User?>? _authSub;
 
   @override
   NotificationState build() {
     ref.onDispose(() {
       _notifSub?.cancel();
+      _authSub?.cancel();
     });
 
     Future.microtask(() => _init());
@@ -60,14 +63,30 @@ class NotificationNotifier extends Notifier<NotificationState> {
   }
 
   Future<void> _init() async {
-    await loadNotifications();
+    final currentUid = FirebaseAuth.instance.currentUser?.uid;
+    if (currentUid != null) {
+      await _subscribeToNotifications(currentUid);
+    } else {
+      await loadNotifications();
+    }
 
-    // Subscribe to live Firestore notifications. The repository stream is
-    // internally guarded with handleError, keeping stale data on failures.
-    _notifSub = _repo.watchNotifications().listen((liveItems) {
-      if (liveItems.isNotEmpty) {
-        state = state.copyWith(items: liveItems, isLoading: false, errorMessage: '');
+    _authSub = FirebaseAuth.instance.authStateChanges().listen((user) async {
+      final uid = user?.uid;
+      if (uid != null) {
+        await _subscribeToNotifications(uid);
+      } else {
+        _notifSub?.cancel();
+        state = const NotificationState(isLoading: false);
       }
+    });
+  }
+
+  Future<void> _subscribeToNotifications(String uid) async {
+    _notifSub?.cancel();
+    await loadNotifications(uid);
+
+    _notifSub = _repo.watchNotifications(uid).listen((liveItems) {
+      state = state.copyWith(items: liveItems, isLoading: false, errorMessage: '');
     }, onError: (e) {
       debugPrint('[Notifications Stream Warning] $e');
     });
@@ -84,10 +103,10 @@ class NotificationNotifier extends Notifier<NotificationState> {
     return 'You are offline. Showing cached notifications.';
   }
 
-  Future<void> loadNotifications() async {
+  Future<void> loadNotifications([String? explicitUid]) async {
     state = state.copyWith(isLoading: true, errorMessage: '');
     try {
-      final list = await _repo.getNotifications();
+      final list = await _repo.getNotifications(explicitUid);
       state = state.copyWith(items: list, isLoading: false);
     } catch (e) {
       state = state.copyWith(isLoading: false, errorMessage: _friendlyMessage(e));

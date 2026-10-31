@@ -8,8 +8,8 @@ import '../core/services/api_client.dart';
 import '../models/notification_item_model.dart';
 
 abstract class NotificationRepository {
-  Future<List<NotificationItemModel>> getNotifications();
-  Stream<List<NotificationItemModel>> watchNotifications();
+  Future<List<NotificationItemModel>> getNotifications([String? explicitUid]);
+  Stream<List<NotificationItemModel>> watchNotifications([String? explicitUid]);
   Future<void> markAllRead();
   Future<void> markRead(String id);
   Future<void> deleteNotification(String id);
@@ -64,31 +64,72 @@ class FirestoreNotificationRepository implements NotificationRepository {
   }
 
   @override
-  Stream<List<NotificationItemModel>> watchNotifications() {
-    final uid = _currentUserId;
+  Stream<List<NotificationItemModel>> watchNotifications([String? explicitUid]) {
+    final uid = explicitUid ?? _currentUserId;
     final fs = _firestore;
     if (uid == null || fs == null) {
       return Stream.value([]);
     }
 
-    return fs
-        .collection('notifications')
-        .where('userId', isEqualTo: uid)
-        .limit(100)
-        .snapshots()
-        .map((snapshot) {
-      final items = snapshot.docs
-          .map((doc) => NotificationItemModel.fromJson(doc.data(), doc.id))
-          .toList();
-      return _sorted(items);
-    }).handleError((e) {
-      debugPrint('[Firestore Notifications Stream Note] $e');
-    });
+    final controller = StreamController<List<NotificationItemModel>>.broadcast();
+    final Map<String, NotificationItemModel> byId = {};
+    StreamSubscription? subUserId;
+    StreamSubscription? subUserIdSnake;
+
+    void emitMerged() {
+      if (!controller.isClosed) {
+        final sorted = _sorted(byId.values.toList());
+        controller.add(sorted);
+      }
+    }
+
+    void handleSnap(QuerySnapshot<Map<String, dynamic>> snap) {
+      for (final doc in snap.docs) {
+        byId[doc.id] = NotificationItemModel.fromJson(doc.data(), doc.id);
+      }
+      for (final change in snap.docChanges) {
+        if (change.type == DocumentChangeType.removed) {
+          byId.remove(change.doc.id);
+        }
+      }
+      emitMerged();
+    }
+
+    controller.onListen = () {
+      try {
+        subUserId = fs
+            .collection('notifications')
+            .where('userId', isEqualTo: uid)
+            .limit(100)
+            .snapshots()
+            .listen(handleSnap, onError: (e) {
+          debugPrint('[Firestore Notifications Stream Note] $e');
+        });
+
+        subUserIdSnake = fs
+            .collection('notifications')
+            .where('user_id', isEqualTo: uid)
+            .limit(100)
+            .snapshots()
+            .listen(handleSnap, onError: (e) {
+          debugPrint('[Firestore Notifications Stream Note] $e');
+        });
+      } catch (e) {
+        debugPrint('[Firestore Notifications Watch Error] $e');
+      }
+    };
+
+    controller.onCancel = () {
+      subUserId?.cancel();
+      subUserIdSnake?.cancel();
+    };
+
+    return controller.stream;
   }
 
   @override
-  Future<List<NotificationItemModel>> getNotifications() async {
-    final uid = _currentUserId;
+  Future<List<NotificationItemModel>> getNotifications([String? explicitUid]) async {
+    final uid = explicitUid ?? _currentUserId;
     final fs = _firestore;
 
     // 1. Try Firestore approved collection: "notifications"

@@ -1,8 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { LANGUAGES, getStoredLanguage, getStoredSpellLang, applyLanguage, applySpellLang, type LangCode } from "@/lib/i18n";
+import { useAuth } from "@/lib/AuthContext";
+import { userSettingsService } from "@/lib/services/firebaseData";
 
 export default function LanguageSettings() {
+  const { user } = useAuth();
   const [lang, setLang] = useState<LangCode>('en');
   const [spellLang, setSpellLang] = useState<LangCode>('en');
 
@@ -14,11 +17,17 @@ export default function LanguageSettings() {
   const handleLang = (code: LangCode) => {
     setLang(code);
     applyLanguage(code);
+    if (user?.id) {
+      userSettingsService.saveSettings(user.id, { language: code }).catch(console.error);
+    }
   };
 
   const handleSpellLang = (code: LangCode) => {
     setSpellLang(code);
     applySpellLang(code);
+    if (user?.id) {
+      userSettingsService.saveSettings(user.id, { spellLanguage: code }).catch(console.error);
+    }
   };
 
   return (

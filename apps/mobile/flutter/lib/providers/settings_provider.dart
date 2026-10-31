@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/app_settings_model.dart';
 import '../repositories/settings_repository.dart';
@@ -8,11 +11,49 @@ final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
 
 class SettingsNotifier extends Notifier<AppSettingsModel> {
   SettingsRepository get _repo => ref.read(settingsRepositoryProvider);
+  StreamSubscription<AppSettingsModel>? _settingsSub;
+  StreamSubscription<User?>? _authSub;
 
   @override
   AppSettingsModel build() {
-    Future.microtask(() => _loadSettings());
+    ref.onDispose(() {
+      _settingsSub?.cancel();
+      _authSub?.cancel();
+    });
+
+    Future.microtask(() => _init());
     return AppSettingsModel.initial();
+  }
+
+  Future<void> _init() async {
+    final currentUid = FirebaseAuth.instance.currentUser?.uid;
+    if (currentUid != null) {
+      await _subscribeToSettings(currentUid);
+    } else {
+      await _loadSettings();
+    }
+
+    _authSub = FirebaseAuth.instance.authStateChanges().listen((user) async {
+      final uid = user?.uid;
+      if (uid != null) {
+        await _subscribeToSettings(uid);
+      } else {
+        _settingsSub?.cancel();
+        state = AppSettingsModel.initial();
+      }
+    });
+  }
+
+  Future<void> _subscribeToSettings(String uid) async {
+    _settingsSub?.cancel();
+    final initial = await _repo.getSettings(uid);
+    state = initial;
+
+    _settingsSub = _repo.watchSettings(uid).listen((liveSettings) {
+      state = liveSettings;
+    }, onError: (e) {
+      debugPrint('[Settings Stream Warning] $e');
+    });
   }
 
   Future<void> _loadSettings() async {

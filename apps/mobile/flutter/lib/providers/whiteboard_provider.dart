@@ -177,7 +177,7 @@ class WhiteboardState {
 
 class WhiteboardNotifier extends Notifier<WhiteboardState> {
   WhiteboardRepository get _repo => ref.read(whiteboardRepositoryProvider);
-  StreamSubscription<List<WhiteboardStroke>>? _strokesSub;
+  StreamSubscription? _strokesSub;
   Timer? _autoSaveTimer;
 
   /// Maps an active board id to a history category: ids minted by this app are
@@ -255,11 +255,23 @@ class WhiteboardNotifier extends Notifier<WhiteboardState> {
       clearSaveStatus: true,
     );
 
-    // 2. Subscribe to real-time changes from Firestore and Socket.IO
-    _strokesSub = _repo.watchBoardStrokes(boardId).listen((liveStrokes) {
-      if (liveStrokes.isNotEmpty) {
-        state = state.copyWith(strokes: liveStrokes);
-      }
+    // 2. Subscribe to real-time changes from Firestore (strokes, text elements, title) and Socket.IO
+    _strokesSub = _repo.watchActiveBoard(boardId).listen((snapshot) {
+      if (snapshot.isEmpty) return;
+      final bool hasPendingWrites = snapshot['hasPendingWrites'] == true;
+      if (hasPendingWrites) return; // Ignore local in-flight echo
+
+      final liveStrokes = snapshot['strokes'] as List<WhiteboardStroke>?;
+      final liveElements = snapshot['elements'] as List<WhiteboardTextElement>?;
+      final liveTitle = snapshot['title']?.toString();
+      final liveDescription = snapshot['description']?.toString();
+
+      state = state.copyWith(
+        strokes: (liveStrokes != null && liveStrokes.isNotEmpty) ? liveStrokes : state.strokes,
+        textElements: (liveElements != null && liveElements.isNotEmpty) ? liveElements : state.textElements,
+        boardTitle: (liveTitle != null && liveTitle.isNotEmpty) ? liveTitle : state.boardTitle,
+        boardDescription: (liveDescription != null && liveDescription.isNotEmpty) ? liveDescription : state.boardDescription,
+      );
     }, onError: (e) {
       debugPrint('[Whiteboard Stream Warning] $e');
     });

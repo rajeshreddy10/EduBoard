@@ -11,6 +11,7 @@ import '../core/utilities/safe_json.dart';
 
 abstract class WhiteboardRepository {
   Stream<List<WhiteboardStroke>> watchBoardStrokes(String boardId);
+  Stream<Map<String, dynamic>> watchActiveBoard(String boardId);
   Future<List<WhiteboardStroke>> loadActiveBoardStrokes(String boardId);
   Future<void> saveStroke(String boardId, WhiteboardStroke stroke);
   Future<void> deleteStroke(String boardId, String strokeId);
@@ -75,10 +76,92 @@ class LiveWhiteboardRepository implements WhiteboardRepository {
       if (data['strokes'] is List && (data['strokes'] as List).isNotEmpty) {
         final list = data['strokes'] as List;
         return list.whereType<Map>().map((s) => _mapMapToStroke(Map<String, dynamic>.from(s))).toList();
+      } else if (data['content'] is String && (data['content'] as String).trim().isNotEmpty) {
+        try {
+          final parsed = jsonDecode(data['content'] as String);
+          if (parsed is Map && parsed['strokes'] is List) {
+            return (parsed['strokes'] as List)
+                .whereType<Map>()
+                .map((s) => _mapMapToStroke(Map<String, dynamic>.from(s)))
+                .toList();
+          } else if (parsed is List) {
+            return parsed
+                .whereType<Map>()
+                .map((s) => _mapMapToStroke(Map<String, dynamic>.from(s)))
+                .toList();
+          }
+        } catch (_) {}
       }
       return <WhiteboardStroke>[];
     }).handleError((e) {
       debugPrint('[Whiteboard Stream Warning] $e');
+    });
+  }
+
+  @override
+  Stream<Map<String, dynamic>> watchActiveBoard(String boardId) {
+    _socket.connectAsync();
+    _socket.joinBoard(boardId);
+
+    final fs = _firestore;
+    if (fs == null) return Stream.value({});
+
+    return fs
+        .collection('whiteboards')
+        .doc(boardId)
+        .snapshots()
+        .map((doc) {
+      if (!doc.exists || doc.data() == null) return <String, dynamic>{};
+      final data = doc.data()!;
+
+      List<WhiteboardStroke> strokes = [];
+      if (data['strokes'] is List && (data['strokes'] as List).isNotEmpty) {
+        final list = data['strokes'] as List;
+        strokes = list.whereType<Map>().map((s) => _mapMapToStroke(Map<String, dynamic>.from(s))).toList();
+      } else if (data['content'] is String && (data['content'] as String).trim().isNotEmpty) {
+        try {
+          final parsed = jsonDecode(data['content'] as String);
+          if (parsed is Map && parsed['strokes'] is List) {
+            strokes = (parsed['strokes'] as List)
+                .whereType<Map>()
+                .map((s) => _mapMapToStroke(Map<String, dynamic>.from(s)))
+                .toList();
+          } else if (parsed is List) {
+            strokes = parsed
+                .whereType<Map>()
+                .map((s) => _mapMapToStroke(Map<String, dynamic>.from(s)))
+                .toList();
+          }
+        } catch (_) {}
+      }
+
+      List<WhiteboardTextElement> elements = [];
+      if (data['elements'] is List) {
+        elements = (data['elements'] as List)
+            .whereType<Map>()
+            .map((e) => _mapMapToTextElement(Map<String, dynamic>.from(e)))
+            .toList();
+      } else if (data['content'] is String && (data['content'] as String).trim().isNotEmpty) {
+        try {
+          final parsed = jsonDecode(data['content'] as String);
+          if (parsed is Map && parsed['elements'] is List) {
+            elements = (parsed['elements'] as List)
+                .whereType<Map>()
+                .map((e) => _mapMapToTextElement(Map<String, dynamic>.from(e)))
+                .toList();
+          }
+        } catch (_) {}
+      }
+
+      return {
+        'title': data['title']?.toString(),
+        'description': data['description']?.toString(),
+        'strokes': strokes,
+        'elements': elements,
+        'hasPendingWrites': doc.metadata.hasPendingWrites,
+      };
+    }).handleError((e) {
+      debugPrint('[Active Board Watch Warning] $e');
     });
   }
 

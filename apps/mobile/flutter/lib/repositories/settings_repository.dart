@@ -9,7 +9,8 @@ import '../core/services/storage_service.dart';
 import '../models/app_settings_model.dart';
 
 abstract class SettingsRepository {
-  Future<AppSettingsModel> getSettings();
+  Future<AppSettingsModel> getSettings([String? explicitUid]);
+  Stream<AppSettingsModel> watchSettings([String? explicitUid]);
   Future<void> updateSettings(AppSettingsModel settings);
 }
 
@@ -35,8 +36,26 @@ class FirestoreSettingsRepository implements SettingsRepository {
   String? get _currentUserId => _auth?.currentUser?.uid;
 
   @override
-  Future<AppSettingsModel> getSettings() async {
-    final uid = _currentUserId;
+  Stream<AppSettingsModel> watchSettings([String? explicitUid]) {
+    final uid = explicitUid ?? _currentUserId;
+    final fs = _firestore;
+    if (uid == null || fs == null) {
+      return Stream.value(AppSettingsModel.initial());
+    }
+
+    return fs.collection('userSettings').doc(uid).snapshots().map((snap) {
+      if (!snap.exists || snap.data() == null) {
+        return AppSettingsModel.initial();
+      }
+      return AppSettingsModel.fromJson(snap.data()!);
+    }).handleError((e) {
+      debugPrint('[Firestore Settings Stream Note] $e');
+    });
+  }
+
+  @override
+  Future<AppSettingsModel> getSettings([String? explicitUid]) async {
+    final uid = explicitUid ?? _currentUserId;
     final fs = _firestore;
 
     // 1. Try Firestore approved collection: "userSettings/{userId}"

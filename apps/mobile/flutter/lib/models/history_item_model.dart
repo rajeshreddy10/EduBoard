@@ -87,7 +87,7 @@ class HistoryItemModel {
   };
 
   factory HistoryItemModel.fromJson(Map<String, dynamic> json, [String? id]) {
-    final catName = (json['category'] ?? 'whiteboard').toString().toLowerCase();
+    final catName = ((json['category'] ?? json['studio']) ?? 'whiteboard').toString().toLowerCase();
     HistoryCategory cat = HistoryCategory.whiteboard;
     if (catName.contains('doc') || catName.contains('annotation')) {
       cat = HistoryCategory.docAnnotation;

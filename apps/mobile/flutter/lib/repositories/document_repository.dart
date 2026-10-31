@@ -6,7 +6,7 @@ import '../models/doc_annotation_model.dart';
 import '../core/utilities/safe_json.dart';
 
 abstract class DocumentRepository {
-  Future<List<DocumentModel>> getDocuments();
+  Future<List<DocumentModel>> getDocuments([String? explicitUid]);
   Future<DocumentModel?> loadDocument(String docId);
   Future<List<DocAnnotationModel>> getAnnotations(String docId);
   Future<void> saveAnnotation(String docId, DocAnnotationModel annotation);
@@ -38,14 +38,16 @@ class FirestoreDocumentRepository implements DocumentRepository {
   String? get _currentUserId => _auth?.currentUser?.uid;
 
   @override
-  Future<List<DocumentModel>> getDocuments() async {
-    final uid = _currentUserId;
+  Future<List<DocumentModel>> getDocuments([String? explicitUid]) async {
+    final uid = explicitUid ?? _currentUserId;
     final fs = _firestore;
     if (uid != null && fs != null) {
       try {
         final results = await Future.wait([
           fs.collection('whiteboards').where('owner_id', isEqualTo: uid).get(),
           fs.collection('whiteboards').where('createdBy', isEqualTo: uid).get(),
+          fs.collection('whiteboards').where('userId', isEqualTo: uid).get(),
+          fs.collection('whiteboards').where('user_id', isEqualTo: uid).get(),
         ]).catchError((_) => <QuerySnapshot<Map<String, dynamic>>>[]);
 
         final allDocs = <String, QueryDocumentSnapshot<Map<String, dynamic>>>{};
