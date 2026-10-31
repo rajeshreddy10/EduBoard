@@ -190,28 +190,6 @@ export function BoardProvider({ children }: { children: ReactNode }) {
     };
   }, [currentBoard?.id]);
 
-  // Debounced auto-sync to Firestore when canvas changes on Web
-  const autoSyncTimerRef = useRef<NodeJS.Timeout | null>(null);
-  useEffect(() => {
-    if (!currentBoard?.id || !user?.id || strokes.length === 0) return;
-
-    if (autoSyncTimerRef.current) {
-      clearTimeout(autoSyncTimerRef.current);
-    }
-
-    autoSyncTimerRef.current = setTimeout(() => {
-      saveBoard().catch(err => {
-        console.warn('[BoardContext] Auto-sync board notice:', err);
-      });
-    }, 2000);
-
-    return () => {
-      if (autoSyncTimerRef.current) {
-        clearTimeout(autoSyncTimerRef.current);
-      }
-    };
-  }, [strokes, currentBoard?.id, user?.id, saveBoard]);
-
   const addStroke = useCallback((stroke: DrawingStroke) => {
     setStrokes(prev => {
       setUndoStack(u => [...u, prev]);
@@ -381,6 +359,28 @@ export function BoardProvider({ children }: { children: ReactNode }) {
 
     store.addActivity({ type: 'board_edited', description: `Saved history session "${targetBoard.title}"` });
   }, [currentBoard, strokes, boards, user]);
+
+  // Debounced auto-sync to Firestore when canvas changes on Web
+  const autoSyncTimerRef = useRef<NodeJS.Timeout | null>(null);
+  useEffect(() => {
+    if (!currentBoard?.id || !user?.id || strokes.length === 0) return;
+
+    if (autoSyncTimerRef.current) {
+      clearTimeout(autoSyncTimerRef.current);
+    }
+
+    autoSyncTimerRef.current = setTimeout(() => {
+      saveBoard().catch(err => {
+        console.warn('[BoardContext] Auto-sync board notice:', err);
+      });
+    }, 2000);
+
+    return () => {
+      if (autoSyncTimerRef.current) {
+        clearTimeout(autoSyncTimerRef.current);
+      }
+    };
+  }, [strokes, currentBoard?.id, user?.id, saveBoard]);
 
   /**
    * Duplicate creates an INDEPENDENT copy with a NEW id and fresh timestamps.

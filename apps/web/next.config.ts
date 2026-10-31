@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const isGithubActions = process.env.GITHUB_ACTIONS || false;
 const isVercel = Boolean(process.env.VERCEL);
@@ -36,7 +37,7 @@ const nextConfig: NextConfig = {
     ],
   },
   turbopack: {
-    root: "../../",
+    root: path.resolve(__dirname, "../../"),
   },
   poweredByHeader: false,
   allowedDevOrigins: [
