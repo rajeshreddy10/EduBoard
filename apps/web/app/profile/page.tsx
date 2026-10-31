@@ -171,10 +171,7 @@ function ProfileContent() {
     try {
       console.log('[Web Profile] Submitting profile updates to Firebase for UID:', activeUid, payloadToSave);
 
-      // 1. Direct write to Firebase Firestore
-      await userProfileService.updateProfile(activeUid, payloadToSave);
-
-      // 2. Sync to auth context and local storage
+      // Persist to Firebase Firestore & AuthContext
       await updateUserProfile(payloadToSave);
       updateLocalStoreProfile({
         fullName: formData.name,

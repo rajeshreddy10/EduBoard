@@ -117,10 +117,7 @@ export default function ProfileSettings() {
     setUploadError(null);
 
     try {
-      // 1. Direct write to Firebase Firestore
-      await userProfileService.updateProfile(activeUid, updatedData);
-
-      // 2. Sync to auth context and local storage
+      // Persist to Firebase Firestore & AuthContext
       await updateUserProfile(updatedData);
       const updatedUser = { ...user, ...updatedData };
       saveUserToStore(updatedUser);

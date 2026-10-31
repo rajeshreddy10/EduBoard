@@ -460,7 +460,12 @@ export const userProfileService = {
 
     try {
       const avatarRef = ref(storage, `users/${userId}/avatar`);
-      await uploadString(avatarRef, dataUrl, 'data_url');
+      const uploadTask = uploadString(avatarRef, dataUrl, 'data_url');
+      // Enforce 3.5s timeout on storage upload so slow networks/CORS never block profile updates
+      await Promise.race([
+        uploadTask,
+        new Promise((_, reject) => setTimeout(() => reject(new Error('Storage upload timeout')), 3500))
+      ]);
       const downloadUrl = await getDownloadURL(avatarRef);
       return downloadUrl;
     } catch (error) {
@@ -651,11 +656,16 @@ export const userProfileService = {
       // 4. Update Firebase Auth displayName & photoURL if authenticated
       if (auth.currentUser) {
         try {
-          const { updateProfile: fbAuthUpdateProfile } = await import('firebase/auth');
-          await fbAuthUpdateProfile(auth.currentUser, {
-            displayName: cleanPayload.name || auth.currentUser.displayName,
-            photoURL: cleanPayload.avatar || auth.currentUser.photoURL,
-          });
+          const authUpdates: { displayName?: string; photoURL?: string } = {};
+          if (cleanPayload.name) authUpdates.displayName = cleanPayload.name;
+          // Firebase Auth photoURL requires http(s) URL; data URLs throw auth/invalid-photo-url
+          if (cleanPayload.avatar && (cleanPayload.avatar.startsWith('http://') || cleanPayload.avatar.startsWith('https://'))) {
+            authUpdates.photoURL = cleanPayload.avatar;
+          }
+          if (Object.keys(authUpdates).length > 0) {
+            const { updateProfile: fbAuthUpdateProfile } = await import('firebase/auth');
+            await fbAuthUpdateProfile(auth.currentUser, authUpdates);
+          }
         } catch (authErr) {
           console.warn('[Firebase Auth] updateUserProfile notice:', authErr);
         }

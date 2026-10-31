@@ -473,12 +473,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setError(null);
       const activeUid = user?.id || auth.currentUser?.uid;
       if (auth.currentUser) {
-        if (updates.name || updates.avatar) {
-          console.log('[Firebase Auth] Updating Auth profile fields:', updates);
-          await firebaseUpdateProfile(auth.currentUser, {
-            displayName: updates.name || auth.currentUser.displayName,
-            photoURL: updates.avatar || auth.currentUser.photoURL,
-          });
+        try {
+          const authUpdates: { displayName?: string; photoURL?: string } = {};
+          if (updates.name) authUpdates.displayName = updates.name;
+          // Firebase Auth photoURL requires an HTTP/HTTPS URL; data URLs throw auth/invalid-photo-url
+          if (updates.avatar && (updates.avatar.startsWith('http://') || updates.avatar.startsWith('https://'))) {
+            authUpdates.photoURL = updates.avatar;
+          }
+          if (Object.keys(authUpdates).length > 0) {
+            console.log('[Firebase Auth] Updating Auth profile fields:', authUpdates);
+            await firebaseUpdateProfile(auth.currentUser, authUpdates);
+          }
+        } catch (authErr: any) {
+          console.warn('[Firebase Auth] Display profile sync warning (continuing to Firestore):', authErr.message || authErr);
         }
       }
       if (activeUid) {
@@ -487,6 +494,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await userProfileService.updateProfile(activeUid, updates);
       }
       setUser(prev => prev ? { ...prev, ...updates } : null);
+      if (user) {
+        store.setUser({ ...user, ...updates });
+      }
     } catch (err: any) {
       console.error('[Firebase Auth] Update profile error:', err.message);
       setError(err.message);
