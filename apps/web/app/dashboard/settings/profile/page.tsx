@@ -40,13 +40,13 @@ export default function ProfileSettings() {
         setName(combined.name || user?.email?.split('@')[0] || "");
         setUsername(combined.username || user?.email?.split('@')[0] || "");
         setBio(combined.bio || "");
-        setPhone(combined.phone || "");
-        setInstitution(combined.institution || "");
+        setPhone(combined.phone || (combined as any).phoneNumber || (combined as any).phone_number || "");
+        setInstitution(combined.organization || combined.institution || "");
         setLocation(combined.location || "");
         setTeachingPhilosophy(combined.teachingPhilosophy || "");
         setDob(combined.dob || combined.dateOfBirth || "");
         setGender(combined.gender || "");
-        setAvatarPreview(combined.avatar || null);
+        setAvatarPreview(combined.avatar || combined.avatarUrl || null);
       } catch (err) {
         console.warn("Error loading profile from Firestore:", err);
       }
@@ -99,6 +99,7 @@ export default function ProfileSettings() {
       username,
       bio,
       phone,
+      organization: institution,
       institution,
       location,
       teachingPhilosophy,

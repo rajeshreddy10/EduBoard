@@ -89,25 +89,35 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Sync text fields with remote changes if initially empty
+    // Sync text fields whenever account data arrives or switches
     ref.listen<UserProfileModel>(profileProvider, (previous, next) {
-      if (_nameController.text.isEmpty && next.name.isNotEmpty) {
+      final isNewUserOrColdStart = previous == null || previous.id != next.id || previous.id.isEmpty;
+      if (isNewUserOrColdStart && next.id.isNotEmpty) {
         _nameController.text = next.name;
-      }
-      if (_addressController.text.isEmpty && next.address.isNotEmpty) {
         _addressController.text = next.address;
-      }
-      if (_organizationController.text.isEmpty && next.organization.isNotEmpty) {
         _organizationController.text = next.organization;
-      }
-      if (_phoneController.text.isEmpty && next.phone.isNotEmpty) {
         _phoneController.text = next.phone;
-      }
-      if (_locationController.text.isEmpty && next.location.isNotEmpty) {
         _locationController.text = next.location;
-      }
-      if (_bioController.text.isEmpty && next.bio.isNotEmpty) {
         _bioController.text = next.bio;
+      } else {
+        if (_nameController.text.isEmpty && next.name.isNotEmpty) {
+          _nameController.text = next.name;
+        }
+        if (_addressController.text.isEmpty && next.address.isNotEmpty) {
+          _addressController.text = next.address;
+        }
+        if (_organizationController.text.isEmpty && next.organization.isNotEmpty) {
+          _organizationController.text = next.organization;
+        }
+        if (_phoneController.text.isEmpty && next.phone.isNotEmpty) {
+          _phoneController.text = next.phone;
+        }
+        if (_locationController.text.isEmpty && next.location.isNotEmpty) {
+          _locationController.text = next.location;
+        }
+        if (_bioController.text.isEmpty && next.bio.isNotEmpty) {
+          _bioController.text = next.bio;
+        }
       }
     });
 

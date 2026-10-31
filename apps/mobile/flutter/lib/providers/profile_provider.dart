@@ -47,11 +47,11 @@ class ProfileNotifier extends Notifier<UserProfileModel> {
 
   Future<void> _subscribeToUserProfile(String uid) async {
     _profileSub?.cancel();
-    final prof = await _repo.getProfile();
+    final prof = await _repo.getProfile(uid);
     state = prof;
 
     // Real-time synchronization: listen for remote Firestore profile changes
-    _profileSub = _repo.watchProfile().listen((liveProf) {
+    _profileSub = _repo.watchProfile(uid).listen((liveProf) {
       if (liveProf != null) {
         state = liveProf;
       }

@@ -8,9 +8,9 @@ import '../core/services/api_client.dart';
 import '../models/user_profile_model.dart';
 
 abstract class ProfileRepository {
-  Future<UserProfileModel> getProfile();
+  Future<UserProfileModel> getProfile([String? explicitUid]);
   Future<void> updateProfile(UserProfileModel profile);
-  Stream<UserProfileModel?> watchProfile();
+  Stream<UserProfileModel?> watchProfile([String? explicitUid]);
   Future<String?> uploadAvatarBytes(Uint8List bytes, String extension);
 }
 
@@ -44,8 +44,8 @@ class FirebaseProfileRepository implements ProfileRepository {
   String? get _currentUserId => _auth?.currentUser?.uid;
 
   @override
-  Stream<UserProfileModel?> watchProfile() {
-    final uid = _currentUserId;
+  Stream<UserProfileModel?> watchProfile([String? explicitUid]) {
+    final uid = explicitUid ?? _currentUserId;
     final fs = _firestore;
     if (uid == null || fs == null) {
       return Stream.value(null);
@@ -59,8 +59,8 @@ class FirebaseProfileRepository implements ProfileRepository {
   }
 
   @override
-  Future<UserProfileModel> getProfile() async {
-    final uid = _currentUserId;
+  Future<UserProfileModel> getProfile([String? explicitUid]) async {
+    final uid = explicitUid ?? _currentUserId;
     final user = _auth?.currentUser;
     final fs = _firestore;
 
@@ -73,6 +73,24 @@ class FirebaseProfileRepository implements ProfileRepository {
             .timeout(const Duration(seconds: 8));
         if (doc.exists && doc.data() != null) {
           return UserProfileModel.fromJson({'id': doc.id, ...doc.data()!});
+        }
+
+        // Fallback: Query by email to resolve legacy or cross-platform accounts
+        final email = user?.email;
+        if (email != null && email.isNotEmpty) {
+          final querySnap = await fs
+              .collection('users')
+              .where('email', isEqualTo: email.trim().toLowerCase())
+              .limit(1)
+              .get()
+              .timeout(const Duration(seconds: 8));
+          if (querySnap.docs.isNotEmpty) {
+            final matchedDoc = querySnap.docs.first;
+            final data = {'id': uid, ...matchedDoc.data()};
+            // Mirror to users/{uid} for instant subsequent access
+            await fs.collection('users').doc(uid).set(data, SetOptions(merge: true));
+            return UserProfileModel.fromJson(data);
+          }
         }
       } on TimeoutException {
         debugPrint('[Firestore getProfile Error] timed out');

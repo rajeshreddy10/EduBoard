@@ -462,7 +462,26 @@ export const userProfileService = {
       const userRef = doc(db, 'users', userId);
       const snap = await getDoc(userRef);
       if (snap.exists()) {
-        return { id: snap.id, ...snap.data() } as User;
+        const data = snap.data();
+        return {
+          id: snap.id,
+          name: data.full_name || data.name || 'EduBoard User',
+          email: data.email || '',
+          address: data.address || '',
+          organization: data.organization || data.institution || '',
+          institution: data.organization || data.institution || '',
+          phone: data.phone || data.phoneNumber || data.phone_number || '',
+          location: data.location || '',
+          bio: data.bio || '',
+          avatar: data.avatar || data.avatarUrl || data.photoURL || '',
+          role: data.role || 'teacher',
+          username: data.username || data.email?.split('@')[0] || 'user',
+          isVerified: data.isVerified ?? true,
+          isBiometricEnabled: data.isBiometricEnabled || false,
+          createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt || new Date().toISOString(),
+          lastLoginAt: data.lastLoginAt?.toDate?.()?.toISOString() || data.lastLoginAt || new Date().toISOString(),
+          ...data,
+        } as User;
       }
       return null;
     } catch (error: any) {
@@ -510,15 +529,17 @@ export const userProfileService = {
             id: snap.id,
             email: data.email || '',
             name: data.full_name || data.name || 'EduBoard User',
+            address: data.address || '',
+            organization: data.organization || data.institution || '',
+            institution: data.organization || data.institution || '',
+            phone: data.phone || data.phoneNumber || data.phone_number || '',
+            location: data.location || '',
+            bio: data.bio || '',
             role: data.role || 'teacher',
             username: data.username || data.email?.split('@')[0] || 'user',
-            avatar: data.avatar || '',
-            bio: data.bio || '',
-            phone: data.phone || '',
-            institution: data.institution || '',
+            avatar: data.avatar || data.avatarUrl || data.photoURL || '',
             grade: data.grade || '',
             subject: data.subject || (Array.isArray(data.subjects) ? data.subjects.join(', ') : ''),
-            location: data.location || '',
             website: data.website || '',
             dob: data.dob || '',
             gender: data.gender || '',
@@ -530,7 +551,7 @@ export const userProfileService = {
             isBiometricEnabled: data.isBiometricEnabled || false,
             createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt || new Date().toISOString(),
             lastLoginAt: data.lastLoginAt?.toDate?.()?.toISOString() || data.lastLoginAt || new Date().toISOString(),
-            ...data, // preserve additional fields from mobile (department, teachingPhilosophy, etc.)
+            ...data,
           };
           callback(profile);
         } else {
@@ -553,13 +574,26 @@ export const userProfileService = {
         payload.avatar = await this.uploadAvatar(userId, payload.avatar);
       }
 
+      const nowIso = new Date().toISOString();
       const cleanPayload = sanitizePayload({
         ...payload,
         name: payload.name || (payload as any).full_name,
         full_name: payload.name || (payload as any).full_name,
+        address: (payload as any).address,
+        organization: (payload as any).organization || payload.institution,
+        institution: payload.institution || (payload as any).organization,
+        phone: payload.phone || (payload as any).phoneNumber || (payload as any).phone_number,
+        phoneNumber: payload.phone || (payload as any).phoneNumber || (payload as any).phone_number,
+        phone_number: payload.phone || (payload as any).phoneNumber || (payload as any).phone_number,
+        location: payload.location,
+        bio: payload.bio,
+        avatar: payload.avatar,
+        avatarUrl: payload.avatar,
+        photoURL: payload.avatar,
         userId: userId,
         user_id: userId,
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
+        updated_at: nowIso,
       });
 
       // Write strictly to users/{userId}

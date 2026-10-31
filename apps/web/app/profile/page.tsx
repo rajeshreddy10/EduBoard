@@ -76,12 +76,12 @@ function ProfileContent() {
         const data: UserProfileData = {
           name: firestoreUser?.name || user?.name || user?.email?.split('@')[0] || 'User',
           email: user?.email || firestoreUser?.email || '',
-          institution: firestoreUser?.institution || user?.institution || '',
+          institution: firestoreUser?.organization || firestoreUser?.institution || user?.organization || user?.institution || '',
           dateOfBirth: firestoreUser?.dob || firestoreUser?.dateOfBirth || '',
           gender: firestoreUser?.gender || '',
-          avatarUrl: firestoreUser?.avatar || user?.avatar || null,
+          avatarUrl: firestoreUser?.avatar || firestoreUser?.avatarUrl || user?.avatar || null,
           bio: firestoreUser?.bio || '',
-          phone: firestoreUser?.phone || '',
+          phone: firestoreUser?.phone || firestoreUser?.phoneNumber || '',
           location: firestoreUser?.location || '',
           teachingPhilosophy: firestoreUser?.teachingPhilosophy || '',
         };
@@ -162,6 +162,7 @@ function ProfileContent() {
       userProfileService.updateProfile(user.id, {
         name: formData.name,
         email: formData.email,
+        organization: formData.institution,
         institution: formData.institution,
         dob: formData.dateOfBirth,
         gender: formData.gender,
@@ -173,6 +174,7 @@ function ProfileContent() {
       } as any),
       updateUserProfile({
         name: formData.name,
+        organization: formData.institution,
         institution: formData.institution,
         avatar: formData.avatarUrl || undefined,
       }),

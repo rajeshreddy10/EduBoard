@@ -127,7 +127,7 @@ class UserProfileModel {
     return const UserProfileModel(
       id: '',
       email: '',
-      name: 'EduBoard User',
+      name: '',
       address: '',
       organization: '',
       phone: '',

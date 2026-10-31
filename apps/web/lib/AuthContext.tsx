@@ -18,7 +18,7 @@ import {
   updateProfile as firebaseUpdateProfile,
   User as FirebaseUser
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, getDocs, setDoc, collection, query, where, serverTimestamp } from 'firebase/firestore';
 import * as store from '@/lib/store';
 
 interface AuthContextType {
@@ -71,19 +71,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (legacySnap.exists()) legacyData = legacySnap.data();
       }
 
+      // Also query by email if neither authDocSnap nor legacySnap was found
+      let emailQueryData: any = null;
+      if (!authDocSnap.exists() && !legacyData && email) {
+        try {
+          const q = query(collection(db, 'users'), where('email', '==', email.toLowerCase().trim()));
+          const emailSnap = await getDocs(q);
+          if (!emailSnap.empty) {
+            emailQueryData = emailSnap.docs[0].data();
+          }
+        } catch (e) {
+          console.warn('[Firebase Auth] email query note:', e);
+        }
+      }
+
       const authData = authDocSnap.exists() ? authDocSnap.data() : null;
-      userData = { ...legacyData, ...authData };
+      userData = { ...emailQueryData, ...legacyData, ...authData };
 
       const name = userData?.full_name || userData?.name || firebaseUser.displayName || email.split('@')[0] || 'EduBoard User';
       const mergedPayload = {
         name,
         full_name: name,
         email,
+        address: userData?.address || '',
+        organization: userData?.organization || userData?.institution || '',
+        institution: userData?.organization || userData?.institution || '',
+        phone: userData?.phone || userData?.phoneNumber || userData?.phone_number || '',
+        location: userData?.location || '',
+        bio: userData?.bio || '',
         role: userData?.role || 'teacher',
         username: userData?.username || email.split('@')[0] || 'user',
-        avatar: userData?.avatar || firebaseUser.photoURL || '',
-        institution: userData?.institution || '',
-        updatedAt: serverTimestamp()
+        avatar: userData?.avatar || userData?.avatarUrl || firebaseUser.photoURL || '',
+        updatedAt: serverTimestamp(),
+        updated_at: new Date().toISOString(),
       };
 
       await setDoc(doc(db, 'users', uid), mergedPayload, { merge: true });
@@ -97,17 +117,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       id: uid,
       email: email,
       name: name,
+      address: userData?.address || '',
+      organization: userData?.organization || userData?.institution || '',
+      institution: userData?.organization || userData?.institution || '',
+      phone: userData?.phone || userData?.phoneNumber || userData?.phone_number || '',
+      location: userData?.location || '',
+      bio: userData?.bio || '',
       role: userData?.role || 'teacher',
       username: userData?.username || email.split('@')[0] || 'user',
-      avatar: userData?.avatar || firebaseUser.photoURL || '',
+      avatar: userData?.avatar || userData?.avatarUrl || firebaseUser.photoURL || '',
       isVerified: firebaseUser.emailVerified,
       isBiometricEnabled: userData?.isBiometricEnabled || false,
-      createdAt: userData?.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+      createdAt: userData?.createdAt?.toDate?.()?.toISOString() || userData?.createdAt || new Date().toISOString(),
       lastLoginAt: new Date().toISOString(),
-      institution: userData?.institution || '',
-      bio: userData?.bio || '',
-      phone: userData?.phone || '',
-      location: userData?.location || '',
     };
     store.setUser(mapped);
     return mapped;
@@ -220,14 +242,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (userSnap.exists()) {
           firestoreProfile = userSnap.data();
         } else {
-          firestoreProfile = {
-            name: firebaseUser?.displayName || normalizedEmail.split('@')[0],
-            full_name: firebaseUser?.displayName || normalizedEmail.split('@')[0],
-            email: normalizedEmail,
-            role: 'teacher',
-            createdAt: serverTimestamp(),
-            lastLoginAt: serverTimestamp(),
-          };
+          // Check query by email fallback
+          const emailQuery = query(collection(db, 'users'), where('email', '==', normalizedEmail));
+          const emailSnap = await getDocs(emailQuery);
+          if (!emailSnap.empty) {
+            firestoreProfile = emailSnap.docs[0].data();
+          } else {
+            firestoreProfile = {
+              name: firebaseUser?.displayName || normalizedEmail.split('@')[0],
+              full_name: firebaseUser?.displayName || normalizedEmail.split('@')[0],
+              email: normalizedEmail,
+              role: 'teacher',
+              address: '',
+              organization: 'EduBoard',
+              institution: 'EduBoard',
+              phone: '',
+              location: '',
+              bio: '',
+              createdAt: serverTimestamp(),
+              lastLoginAt: serverTimestamp(),
+            };
+          }
           await setDoc(userRef, firestoreProfile, { merge: true });
         }
       } catch (fsErr) {
@@ -238,12 +273,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: activeUid,
         email: normalizedEmail,
         name: firestoreProfile?.full_name || firestoreProfile?.name || firebaseUser?.displayName || normalizedEmail.split('@')[0] || 'EduBoard User',
+        address: firestoreProfile?.address || '',
+        organization: firestoreProfile?.organization || firestoreProfile?.institution || '',
+        institution: firestoreProfile?.organization || firestoreProfile?.institution || '',
+        phone: firestoreProfile?.phone || firestoreProfile?.phoneNumber || firestoreProfile?.phone_number || '',
+        location: firestoreProfile?.location || '',
+        bio: firestoreProfile?.bio || '',
         role: firestoreProfile?.role || 'teacher',
         username: firestoreProfile?.username || normalizedEmail.split('@')[0] || 'user',
-        avatar: firestoreProfile?.avatar || firebaseUser?.photoURL || '',
+        avatar: firestoreProfile?.avatar || firestoreProfile?.avatarUrl || firebaseUser?.photoURL || '',
         isVerified: firebaseUser?.emailVerified ?? true,
         isBiometricEnabled: firestoreProfile?.isBiometricEnabled || false,
-        createdAt: firestoreProfile?.createdAt?.toDate?.()?.toISOString() || new Date().toISOString(),
+        createdAt: firestoreProfile?.createdAt?.toDate?.()?.toISOString() || firestoreProfile?.createdAt || new Date().toISOString(),
         lastLoginAt: new Date().toISOString(),
       };
 

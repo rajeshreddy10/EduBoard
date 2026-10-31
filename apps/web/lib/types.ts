@@ -11,6 +11,8 @@ export interface User {
   avatar?: string;
   bio?: string;
   phone?: string;
+  address?: string;
+  organization?: string;
   institution?: string;
   grade?: string;
   subject?: string;
