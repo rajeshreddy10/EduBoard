@@ -17,6 +17,7 @@ import DashboardLayout from '@/app/dashboard/layout';
 interface UserProfileData {
   name: string;
   email: string;
+  address: string;
   institution: string;
   dateOfBirth: string;
   gender: string;
@@ -45,6 +46,7 @@ function ProfileContent() {
   const [profile, setProfile] = useState<UserProfileData>({
     name: user?.name || user?.email?.split('@')[0] || '',
     email: user?.email || '',
+    address: (user as any)?.address || '',
     institution: user?.institution || '',
     dateOfBirth: '',
     gender: '',
@@ -76,6 +78,7 @@ function ProfileContent() {
         const data: UserProfileData = {
           name: firestoreUser?.name || user?.name || user?.email?.split('@')[0] || 'User',
           email: user?.email || firestoreUser?.email || '',
+          address: firestoreUser?.address || (user as any)?.address || '',
           institution: firestoreUser?.organization || firestoreUser?.institution || user?.organization || user?.institution || '',
           dateOfBirth: firestoreUser?.dob || firestoreUser?.dateOfBirth || '',
           gender: firestoreUser?.gender || '',
@@ -162,6 +165,7 @@ function ProfileContent() {
       userProfileService.updateProfile(user.id, {
         name: formData.name,
         email: formData.email,
+        address: formData.address,
         organization: formData.institution,
         institution: formData.institution,
         dob: formData.dateOfBirth,
@@ -174,6 +178,7 @@ function ProfileContent() {
       } as any),
       updateUserProfile({
         name: formData.name,
+        address: formData.address,
         organization: formData.institution,
         institution: formData.institution,
         avatar: formData.avatarUrl || undefined,
@@ -413,6 +418,26 @@ function ProfileContent() {
                 ) : (
                   <div className="text-xs font-semibold text-[var(--text-primary)] p-3 rounded-xl bg-[var(--bg-tertiary)] border border-[var(--border-primary)]">
                     {profile.institution || 'Not specified'}
+                  </div>
+                )}
+              </div>
+
+              {/* Address */}
+              <div className="space-y-1.5 sm:col-span-2">
+                <label className="text-xs font-semibold text-[var(--text-secondary)] uppercase tracking-wider flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-[var(--color-primary-500)]" /> Address
+                </label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={formData.address}
+                    onChange={e => setFormData({ ...formData, address: e.target.value })}
+                    className="w-full px-3.5 py-2 rounded-xl border border-[var(--border-primary)] bg-[var(--bg-tertiary)] text-xs font-medium text-[var(--text-primary)] focus:outline-none focus:border-[var(--color-primary-500)]"
+                    placeholder="Street address, building, apartment"
+                  />
+                ) : (
+                  <div className="text-xs font-semibold text-[var(--text-primary)] p-3 rounded-xl bg-[var(--bg-tertiary)] border border-[var(--border-primary)]">
+                    {profile.address || 'Not provided'}
                   </div>
                 )}
               </div>

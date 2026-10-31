@@ -39,11 +39,7 @@ interface AuthContextType {
 export function getCanonicalUserId(email: string, firebaseUid?: string): string {
   if (firebaseUid) return firebaseUid;
   if (auth.currentUser?.uid) return auth.currentUser.uid;
-  if (email && email.includes('@')) {
-    const cleanEmail = email.toLowerCase().trim().replace(/[^a-z0-9]/g, '_');
-    return `usr_${cleanEmail}`;
-  }
-  return 'usr_guest';
+  return 'guest';
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);

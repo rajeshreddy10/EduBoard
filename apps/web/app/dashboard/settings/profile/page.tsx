@@ -14,6 +14,7 @@ export default function ProfileSettings() {
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
   const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
   const [institution, setInstitution] = useState("");
   const [location, setLocation] = useState("");
   const [teachingPhilosophy, setTeachingPhilosophy] = useState("");
@@ -41,6 +42,7 @@ export default function ProfileSettings() {
         setUsername(combined.username || user?.email?.split('@')[0] || "");
         setBio(combined.bio || "");
         setPhone(combined.phone || (combined as any).phoneNumber || (combined as any).phone_number || "");
+        setAddress(combined.address || "");
         setInstitution(combined.organization || combined.institution || "");
         setLocation(combined.location || "");
         setTeachingPhilosophy(combined.teachingPhilosophy || "");
@@ -99,6 +101,7 @@ export default function ProfileSettings() {
       username,
       bio,
       phone,
+      address,
       organization: institution,
       institution,
       location,
@@ -266,6 +269,11 @@ export default function ProfileSettings() {
                   <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)]">Location</label>
                   <input className="input py-3 font-semibold" value={location} onChange={e => setLocation(e.target.value)} placeholder="e.g. San Francisco, CA" />
                 </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)]">Address</label>
+                <input className="input py-3 font-semibold" value={address} onChange={e => setAddress(e.target.value)} placeholder="Street address, building, apartment" />
               </div>
 
               <div className="space-y-1.5">
