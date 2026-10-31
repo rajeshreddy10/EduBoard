@@ -275,8 +275,10 @@ export const historyService = {
   },
 
   /** List version snapshots for a board (newest first). */
-  async getBoardVersions(boardId: string, limitTo: number = 20): Promise<Partial<Board>[] & { id?: string; createdAt?: string;
-    createdBy?: string }[]> {
+  async getBoardVersions(boardId: string, limitTo: number = 20): Promise<Partial<Board>[] & {
+    id?: string; createdAt?: string;
+    createdBy?: string
+  }[]> {
     if (!boardId) return [];
     try {
       const snap = await getDocs(query(

@@ -63,6 +63,8 @@ class FirestoreHistoryRepository implements HistoryRepository {
     final Map<String, HistoryItemModel> byId = {};
     StreamSubscription? subOwner;
     StreamSubscription? subCreatedBy;
+    StreamSubscription? subUserId;
+    StreamSubscription? subUserIdSnake;
 
     void emitMerged() {
       if (!controller.isClosed) {
@@ -103,6 +105,24 @@ class FirestoreHistoryRepository implements HistoryRepository {
             .listen(handleSnap, onError: (e) {
           debugPrint('[Firestore History Stream Note] $e');
         });
+
+        subUserId = fs
+            .collection('whiteboards')
+            .where('userId', isEqualTo: uid)
+            .limit(100)
+            .snapshots()
+            .listen(handleSnap, onError: (e) {
+          debugPrint('[Firestore History Stream Note] $e');
+        });
+
+        subUserIdSnake = fs
+            .collection('whiteboards')
+            .where('user_id', isEqualTo: uid)
+            .limit(100)
+            .snapshots()
+            .listen(handleSnap, onError: (e) {
+          debugPrint('[Firestore History Stream Note] $e');
+        });
       } catch (e) {
         debugPrint('[Firestore History Watch Error] $e');
       }
@@ -111,6 +131,8 @@ class FirestoreHistoryRepository implements HistoryRepository {
     controller.onCancel = () {
       subOwner?.cancel();
       subCreatedBy?.cancel();
+      subUserId?.cancel();
+      subUserIdSnake?.cancel();
     };
 
     return controller.stream;
@@ -131,14 +153,17 @@ class FirestoreHistoryRepository implements HistoryRepository {
               .then((q) => q.docs.toList()),
           _guardedGet(fs.collection('whiteboards').where('createdBy', isEqualTo: uid))
               .then((q) => q.docs.toList()),
+          _guardedGet(fs.collection('whiteboards').where('userId', isEqualTo: uid))
+              .then((q) => q.docs.toList()),
+          _guardedGet(fs.collection('whiteboards').where('user_id', isEqualTo: uid))
+              .then((q) => q.docs.toList()),
         ]).catchError((_) => <List<QueryDocumentSnapshot<Map<String, dynamic>>>>[]);
 
-        final ownerDocs = results.isNotEmpty ? results[0] : <QueryDocumentSnapshot<Map<String, dynamic>>>[];
-        final legacyDocs = results.length > 1 ? results[1] : <QueryDocumentSnapshot<Map<String, dynamic>>>[];
-
         final byId = <String, QueryDocumentSnapshot<Map<String, dynamic>>>{};
-        for (final doc in [...ownerDocs, ...legacyDocs]) {
-          byId[doc.id] = doc;
+        for (final docList in results) {
+          for (final doc in docList) {
+            byId[doc.id] = doc;
+          }
         }
 
         if (byId.isNotEmpty) {

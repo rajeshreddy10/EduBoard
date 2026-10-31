@@ -89,8 +89,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Sync text fields whenever account data arrives or switches
+    // Sync text fields whenever account data arrives, switches, or updates from Web in real-time
     ref.listen<UserProfileModel>(profileProvider, (previous, next) {
+      if (_isSaving) return;
       final isNewUserOrColdStart = previous == null || previous.id != next.id || previous.id.isEmpty;
       if (isNewUserOrColdStart && next.id.isNotEmpty) {
         _nameController.text = next.name;
@@ -100,22 +101,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         _locationController.text = next.location;
         _bioController.text = next.bio;
       } else {
-        if (_nameController.text.isEmpty && next.name.isNotEmpty) {
+        if (previous?.name != next.name || _nameController.text.isEmpty) {
           _nameController.text = next.name;
         }
-        if (_addressController.text.isEmpty && next.address.isNotEmpty) {
+        if (previous?.address != next.address || _addressController.text.isEmpty) {
           _addressController.text = next.address;
         }
-        if (_organizationController.text.isEmpty && next.organization.isNotEmpty) {
+        if (previous?.organization != next.organization || _organizationController.text.isEmpty) {
           _organizationController.text = next.organization;
         }
-        if (_phoneController.text.isEmpty && next.phone.isNotEmpty) {
+        if (previous?.phone != next.phone || _phoneController.text.isEmpty) {
           _phoneController.text = next.phone;
         }
-        if (_locationController.text.isEmpty && next.location.isNotEmpty) {
+        if (previous?.location != next.location || _locationController.text.isEmpty) {
           _locationController.text = next.location;
         }
-        if (_bioController.text.isEmpty && next.bio.isNotEmpty) {
+        if (previous?.bio != next.bio || _bioController.text.isEmpty) {
           _bioController.text = next.bio;
         }
       }
