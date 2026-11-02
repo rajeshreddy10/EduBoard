@@ -1,7 +1,7 @@
 # EduBoard: Cross-Platform Educational Whiteboard & Document Studio
 
-[![EduBoard CI/CD Pipeline](https://github.com/rajeshreddy10/EduBoard_PDD/actions/workflows/deploy.yml/badge.svg)](https://github.com/rajeshreddy10/EduBoard_PDD/actions/workflows/deploy.yml)
-[![Deployment: GitHub Pages](https://img.shields.io/badge/Deployment-GitHub%20Pages-blue?logo=github)](https://rajeshreddy10.github.io/EduBoard_PDD/)
+[![EduBoard CI/CD Pipeline](https://github.com/rajeshreddy10/EduBoard/actions/workflows/deploy.yml/badge.svg)](https://github.com/rajeshreddy10/EduBoard/actions/workflows/deploy.yml)
+[![Deployment: GitHub Pages](https://img.shields.io/badge/Deployment-GitHub%20Pages-blue?logo=github)](https://rajeshreddy10.github.io/EduBoard/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Tests: 1,410 Passed](https://img.shields.io/badge/Automated%20Tests-1%2C410%20PASS-brightgreen.svg)](tests/)
 
@@ -109,7 +109,7 @@ EduBoard bridges the gap between traditional tactile blackboards and modern digi
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/rajeshreddy10/EduBoard_PDD.git
+   git clone https://github.com/rajeshreddy10/EduBoard.git
    cd EduBoard_PDD
    ```
 
@@ -322,7 +322,7 @@ Reports are consolidated into `final_reports/FINAL_TEST_SUMMARY.xlsx` and `FINAL
 * Client-side routing is preserved across browser refreshes using `apps/web/app/not-found.tsx` generating `404.html` SPA fallbacks.
 
 ### Live Production URL
-* **GitHub Pages:** [https://rajeshreddy10.github.io/EduBoard_PDD/](https://rajeshreddy10.github.io/EduBoard_PDD/)
+* **GitHub Pages:** [https://rajeshreddy10.github.io/EduBoard/](https://rajeshreddy10.github.io/EduBoard/)
 
 ---
 
