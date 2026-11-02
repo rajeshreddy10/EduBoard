@@ -18,6 +18,43 @@ class _VoiceStroke {
     required this.width,
     this.isEraser = false,
   });
+
+  Map<String, dynamic> toJson() {
+    final hex = '#${(color.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}';
+    return {
+      'tool': isEraser ? 'eraser' : 'pen',
+      'color': hex,
+      'colorHex': hex,
+      'width': width,
+      'strokeWidth': width,
+      'points': points.map((p) => {'x': p.dx, 'y': p.dy, 'pressure': 1.0}).toList(),
+    };
+  }
+
+  factory _VoiceStroke.fromJson(Map<String, dynamic> json) {
+    final ptsList = json['points'] as List<dynamic>?;
+    List<Offset> pts = [];
+    if (ptsList != null) {
+      pts = ptsList
+          .whereType<Map>()
+          .map((m) => Offset((m['x'] as num?)?.toDouble() ?? 0.0, (m['y'] as num?)?.toDouble() ?? 0.0))
+          .toList();
+    }
+    final isEraser = json['tool'] == 'eraser';
+    Color color = Colors.white;
+    final rawColor = json['color'] ?? json['colorHex'];
+    if (rawColor is String && rawColor.contains('#')) {
+      final hex = rawColor.replaceAll('#', '').trim();
+      final parsed = int.tryParse(hex.length == 6 ? 'FF$hex' : hex, radix: 16);
+      if (parsed != null) color = Color(parsed);
+    }
+    return _VoiceStroke(
+      points: pts,
+      color: isEraser ? const Color(0xFF0B0F19) : color,
+      width: (json['width'] as num?)?.toDouble() ?? (json['strokeWidth'] as num?)?.toDouble() ?? (isEraser ? 24.0 : 3.5),
+      isEraser: isEraser,
+    );
+  }
 }
 
 /// Voice Board — Speech to Whiteboard Text with freehand drawing.
@@ -69,6 +106,15 @@ class _VoiceBoardScreenState extends ConsumerState<VoiceBoardScreen> {
     final sid = widget.sessionId?.trim();
     if (sid == null || sid.isEmpty) return;
     final restored = await ref.read(voiceProvider.notifier).loadVoiceSession(sid);
+    if (mounted) {
+      final raw = ref.read(voiceProvider).rawStrokes;
+      if (raw.isNotEmpty) {
+        setState(() {
+          _strokes.clear();
+          _strokes.addAll(raw.map((m) => _VoiceStroke.fromJson(m)));
+        });
+      }
+    }
     if (!restored && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -98,7 +144,8 @@ class _VoiceBoardScreenState extends ConsumerState<VoiceBoardScreen> {
     });
 
     try {
-      await ref.read(voiceProvider.notifier).saveSession();
+      final strokesPayload = _strokes.map((s) => s.toJson()).toList();
+      await ref.read(voiceProvider.notifier).saveSession(strokesPayload);
       if (mounted) {
         setState(() {
           _isSaving = false;
@@ -188,10 +235,16 @@ class _VoiceBoardScreenState extends ConsumerState<VoiceBoardScreen> {
     final state = ref.watch(voiceProvider);
     final notifier = ref.read(voiceProvider.notifier);
 
-    // Auto-scroll when history changes
+    // Auto-scroll when history changes and sync strokes from cloud
     ref.listen<VoiceState>(voiceProvider, (previous, next) {
       if (next.transcriptHistory.length != (previous?.transcriptHistory.length ?? 0)) {
         _scrollToBottom();
+      }
+      if (next.rawStrokes.isNotEmpty && (previous?.rawStrokes.length ?? 0) != next.rawStrokes.length && _strokes.length != next.rawStrokes.length) {
+        setState(() {
+          _strokes.clear();
+          _strokes.addAll(next.rawStrokes.map((m) => _VoiceStroke.fromJson(m)));
+        });
       }
     });
 

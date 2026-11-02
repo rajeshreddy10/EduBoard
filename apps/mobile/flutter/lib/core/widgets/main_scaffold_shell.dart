@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/notifications_provider.dart';
@@ -14,6 +15,7 @@ class MainScaffoldShell extends ConsumerWidget {
   });
 
   void _onItemTapped(int index) {
+    HapticFeedback.selectionClick();
     navigationShell.goBranch(
       index,
       initialLocation: index == navigationShell.currentIndex,
@@ -231,33 +233,47 @@ class MainScaffoldShell extends ConsumerWidget {
       body: navigationShell,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
+          color: colorScheme.surface,
+          border: Border(
+            top: BorderSide(
+              color: colorScheme.onSurface.withValues(alpha: theme.brightness == Brightness.dark ? 0.08 : 0.06),
+              width: 1.0,
+            ),
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 20,
-              offset: const Offset(0, -5),
+              color: Colors.black.withValues(alpha: theme.brightness == Brightness.dark ? 0.25 : 0.04),
+              blurRadius: 18,
+              offset: const Offset(0, -4),
             ),
           ],
         ),
-        child: NavigationBar(
-          selectedIndex: navigationShell.currentIndex,
-          onDestinationSelected: _onItemTapped,
-          height: 70,
-          elevation: 0,
-          backgroundColor: colorScheme.surface,
-          indicatorColor: colorScheme.primary.withValues(alpha: 0.15),
-          destinations: destinations,
+        child: SafeArea(
+          top: false,
+          child: NavigationBar(
+            selectedIndex: navigationShell.currentIndex,
+            onDestinationSelected: _onItemTapped,
+            height: 66,
+            elevation: 0,
+            backgroundColor: Colors.transparent,
+            indicatorColor: colorScheme.primary.withValues(alpha: 0.16),
+            destinations: destinations,
+          ),
         ),
       ),
       floatingActionButton: onStudioBranch
           ? null
           : FloatingActionButton(
-              elevation: 6,
+              elevation: 4,
+              highlightElevation: 8,
               backgroundColor: colorScheme.primary,
               foregroundColor: colorScheme.onPrimary,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              onPressed: () => _openQuickActions(context),
-              child: const Icon(Icons.add_rounded, size: 32),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+              onPressed: () {
+                HapticFeedback.mediumImpact();
+                _openQuickActions(context);
+              },
+              child: const Icon(Icons.add_rounded, size: 30),
             ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );

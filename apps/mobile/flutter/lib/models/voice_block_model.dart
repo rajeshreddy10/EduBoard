@@ -59,10 +59,14 @@ class VoiceBlockModel {
   Map<String, dynamic> toJson() => {
     'id': id,
     'transcript': text,
+    'text': text,
     'speaker': speakerName,
+    'speakerName': speakerName,
     'duration_ms': timestamp.inMilliseconds,
     'position_x': position.dx,
     'position_y': position.dy,
+    'x': position.dx,
+    'y': position.dy,
     'confidence': confidence,
   };
 
@@ -70,8 +74,8 @@ class VoiceBlockModel {
     final text = (json['transcript'] ?? json['text'] ?? '').toString();
     final speaker = (json['speaker'] ?? json['speakerName'] ?? 'Instructor').toString();
     final durMs = asIntOr(json['duration_ms'], 0);
-    final px = asDoubleOr(json['position_x'], 40.0);
-    final py = asDoubleOr(json['position_y'], 160.0);
+    final px = asDoubleOr(json['position_x'] ?? json['x'] ?? (json['position'] is Map ? json['position']['x'] ?? json['position']['dx'] : null), 40.0);
+    final py = asDoubleOr(json['position_y'] ?? json['y'] ?? (json['position'] is Map ? json['position']['y'] ?? json['position']['dy'] : null), 160.0);
     final conf = asDoubleOr(json['confidence'], 0.95);
 
     return VoiceBlockModel(

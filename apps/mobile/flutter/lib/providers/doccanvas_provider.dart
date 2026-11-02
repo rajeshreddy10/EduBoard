@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/doc_annotation_model.dart';
 import '../repositories/document_repository.dart';
+import '../core/utilities/safe_json.dart';
 
 final documentRepositoryProvider = Provider<DocumentRepository>((ref) {
   return FirestoreDocumentRepository();
@@ -70,11 +72,61 @@ class DocCanvasState {
 
 class DocCanvasNotifier extends Notifier<DocCanvasState> {
   DocumentRepository get _repo => ref.read(documentRepositoryProvider);
+  StreamSubscription<Map<String, dynamic>>? _sessionSub;
 
   @override
   DocCanvasState build() {
+    ref.onDispose(() => _sessionSub?.cancel());
     Future.microtask(() => _loadInitial());
     return const DocCanvasState();
+  }
+
+  void _subscribeToSession(String docId) {
+    _sessionSub?.cancel();
+    if (docId.trim().isEmpty) return;
+    _sessionSub = _repo.watchDocSession(docId.trim()).listen((data) {
+      if (data.isEmpty) return;
+      List<DocAnnotationModel> remoteAnnotations = [];
+      if (data['annotations'] is List && (data['annotations'] as List).isNotEmpty) {
+        remoteAnnotations = (data['annotations'] as List)
+            .whereType<Map>()
+            .map((m) => DocAnnotationModel.fromJson(Map<String, dynamic>.from(m)))
+            .toList();
+      } else if (data['strokes'] is List && (data['strokes'] as List).isNotEmpty) {
+        remoteAnnotations = (data['strokes'] as List).whereType<Map>().map((s) {
+          final id = s['id']?.toString() ?? 'ann_${DateTime.now().millisecondsSinceEpoch}';
+          final pts = (s['points'] as List<dynamic>? ?? []).whereType<Map>().map((p) {
+            return Offset(asDoubleOr(p['x'], 0), asDoubleOr(p['y'], 0));
+          }).toList();
+          Color color = const Color(0xFFFFD54F);
+          final rawColor = s['color'];
+          if (rawColor is String && rawColor.contains('#')) {
+            final hex = rawColor.replaceAll('#', '').trim();
+            final parsed = int.tryParse(hex.length == 6 ? 'FF$hex' : hex, radix: 16);
+            if (parsed != null) color = Color(parsed);
+          }
+          final tool = s['tool']?.toString();
+          DocAnnotationType type = DocAnnotationType.pen;
+          if (tool == 'highlighter' || tool == 'highlight') type = DocAnnotationType.highlight;
+          if (tool == 'text') type = DocAnnotationType.text;
+          return DocAnnotationModel(
+            id: id,
+            pageIndex: 1,
+            type: type,
+            points: pts,
+            color: color,
+            strokeWidth: asDoubleOr(s['width'] ?? s['strokeWidth'], 3.0),
+            createdAt: DateTime.now(),
+          );
+        }).toList();
+      }
+
+      if (remoteAnnotations.isNotEmpty) {
+        state = state.copyWith(annotations: remoteAnnotations);
+      }
+    }, onError: (e) {
+      debugPrint('[DocCanvas Stream Note] $e');
+    });
   }
 
   Future<void> _loadInitial() async {
@@ -83,6 +135,7 @@ class DocCanvasNotifier extends Notifier<DocCanvasState> {
     List<DocAnnotationModel> annotations = [];
     if (active != null) {
       annotations = await _repo.getAnnotations(active.id);
+      _subscribeToSession(active.id);
     }
     state = state.copyWith(
       documents: docs,
@@ -93,13 +146,18 @@ class DocCanvasNotifier extends Notifier<DocCanvasState> {
 
   Future<void> loadDocs() async {
     final docs = await _repo.getDocuments();
+    final active = docs.isNotEmpty ? docs.first : null;
+    if (active != null) {
+      _subscribeToSession(active.id);
+    }
     state = state.copyWith(
       documents: docs,
-      activeDocument: docs.isNotEmpty ? docs.first : null,
+      activeDocument: active,
     );
   }
 
   Future<void> selectDocument(DocumentModel doc) async {
+    _subscribeToSession(doc.id);
     final annotations = await _repo.getAnnotations(doc.id);
     state = state.copyWith(
         activeDocument: doc, currentPageIndex: 1, annotations: annotations);

@@ -15,6 +15,8 @@ import { fileImportService, ImportedFileData } from '@/lib/file-import/FileImpor
 import { useAuth } from '@/lib/AuthContext';
 import { useBoard } from '@/lib/BoardContext';
 import { historyService } from '@/lib/services/firebaseData';
+import { db } from '@/lib/firebase';
+import { doc as firestoreDoc, onSnapshot } from 'firebase/firestore';
 import type { Board } from '@/lib/types';
 
 type ToolMode = 'pen' | 'eraser' | 'pointer' | 'text';
@@ -218,10 +220,90 @@ function VoiceBoardContent() {
     return () => { isMounted = false; };
   }, [queryId, user?.id]);
 
+  const lastSyncSigRef = useRef<string>('');
+
+  // Real-time Firestore sync for the active Voice Board across Web and Mobile
+  useEffect(() => {
+    if (!boardId) return;
+    const boardDocRef = firestoreDoc(db, 'whiteboards', boardId);
+    const unsub = onSnapshot(boardDocRef, (snapshot) => {
+      if (!snapshot.exists() || snapshot.metadata.hasPendingWrites) return;
+      const b = snapshot.data();
+      if (!b) return;
+
+      const rawStrokes = b.strokes && Array.isArray(b.strokes) ? b.strokes : null;
+      let loadedStrokes: Stroke[] = [];
+      if (rawStrokes && rawStrokes.length > 0) {
+        loadedStrokes = rawStrokes.map((s: any) => ({
+          ...s,
+          width: s.width || s.strokeWidth || 3,
+          color: s.color || s.colorHex || '#ffffff',
+          tool: s.tool || s.type || 'pen',
+        })) as any;
+      }
+
+      let loadedElements: BoardTextElement[] = [];
+      if (b.elements && Array.isArray(b.elements) && b.elements.length > 0) {
+        loadedElements = b.elements as any;
+      } else if (b.blocks && Array.isArray(b.blocks) && b.blocks.length > 0) {
+        loadedElements = b.blocks.map((blk: any, i: number) => ({
+          id: blk.id || `voice_${Date.now()}_${i}`,
+          text: blk.transcript || blk.text || '',
+          x: blk.position_x ?? blk.x ?? blk.position?.dx ?? (60 + (i * 30) % 200),
+          y: blk.position_y ?? blk.y ?? blk.position?.dy ?? (180 + (i * 90) % 350),
+          fontSize: 24,
+          color: '#ffffff',
+        }));
+      } else if (b.transcript && typeof b.transcript === 'string') {
+        const lines = b.transcript.split('\n').filter((l: string) => l.trim().length > 0);
+        loadedElements = lines.map((l: string, i: number) => ({
+          id: `voice_line_${i}`,
+          text: l.trim(),
+          x: 60 + (i * 30) % 200,
+          y: 180 + (i * 60),
+          fontSize: 24,
+          color: '#ffffff',
+        }));
+      }
+
+      const sig = `${loadedStrokes.length}_${loadedElements.length}_${b.updatedAt || b.updated_at || ''}`;
+      if (sig === lastSyncSigRef.current) return;
+      lastSyncSigRef.current = sig;
+
+      if (loadedStrokes.length > 0 || (rawStrokes && rawStrokes.length === 0 && strokes.length > 0)) {
+        setStrokes(loadedStrokes);
+      }
+      if (loadedElements.length > 0) {
+        setTextElements(loadedElements);
+      }
+      if (b.title && b.title !== 'Voice AI Interactive Board') {
+        setBoardTitle(b.title);
+      }
+    }, (err) => {
+      console.warn('[VoiceBoard] Real-time snapshot listener notice:', err);
+    });
+
+    return () => unsub();
+  }, [boardId]);
+
   /** Unified payload builder for manual + auto saves (identity preserved). */
   const buildBoardPayload = useCallback((): Board => {
     const loaded = originalBoardRef.current;
     const now = new Date();
+    const blocksList = textElements.map((el, i) => ({
+      id: el.id,
+      transcript: el.text,
+      text: el.text,
+      speaker: 'Instructor',
+      speakerName: 'Instructor',
+      duration_ms: (i + 1) * 3000,
+      position_x: el.x,
+      position_y: el.y,
+      x: el.x,
+      y: el.y,
+      confidence: 0.96,
+    }));
+
     return {
       id: boardIdRef.current,
       title: activeDocument ? `Voice Board: ${activeDocument.name}` : (loaded?.title && boardTitle === 'Voice AI Interactive Board' ? loaded.title : (boardTitle || 'Voice AI Interactive Board')),
@@ -236,8 +318,12 @@ function VoiceBoardContent() {
       zoom: 100,
       isInfiniteCanvas: true,
       studio: 'voiceboard',
+      category: 'voiceSession',
       strokes: strokes as any,
       elements: textElements as any,
+      blocks: blocksList as any,
+      transcript: textElements.map((el) => el.text).join('\n'),
+      total_shapes: strokes.length + textElements.length,
       ...(activeDocument ? {
         bgFile: { url: activeDocument.dataUrl || (activeDocument as any).url, type: activeDocument.type },
         activeDocument: activeDocument as any,
@@ -251,6 +337,8 @@ function VoiceBoardContent() {
       const now = new Date();
       const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const boardPayload = buildBoardPayload();
+
+      lastSyncSigRef.current = `${strokes.length}_${textElements.length}_${boardPayload.updatedAt}`;
 
       await saveBoard(boardPayload);
       if (user?.id) {

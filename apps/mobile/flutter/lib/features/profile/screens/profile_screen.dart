@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/utilities/responsive_layout.dart';
@@ -9,7 +10,7 @@ import '../../../providers/auth_provider.dart';
 import '../../../providers/profile_provider.dart';
 import '../widgets/avatar_picker_widget.dart';
 
-/// User profile screen containing only:
+/// User profile screen containing the 7 canonical user fields:
 /// Name, Address, Organization, Phone Number, Location, Bio, and Profile Pic
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -51,6 +52,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }
 
   Future<void> _handleSave() async {
+    HapticFeedback.lightImpact();
     setState(() => _isSaving = true);
     try {
       await ref.read(profileProvider.notifier).saveProfile(
@@ -62,11 +64,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             bio: _bioController.text.trim(),
           );
       if (mounted) {
+        HapticFeedback.mediumImpact();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profile saved to Firebase successfully.'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: const Row(
+              children: [
+                Icon(Icons.cloud_done_rounded, color: Colors.white, size: 20),
+                SizedBox(width: 10),
+                Text('Profile saved and synced across devices.'),
+              ],
+            ),
+            backgroundColor: const Color(0xFF10B981),
             behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           ),
         );
       }
@@ -75,8 +85,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to save profile: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: Theme.of(context).colorScheme.error,
             behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           ),
         );
       }
@@ -129,76 +140,137 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
+        elevation: 0,
+        backgroundColor: colorScheme.surface,
         title: Text(
-          'Profile',
-          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+          'Instructor Profile',
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.3,
+          ),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings_outlined),
             tooltip: 'Settings',
-            onPressed: () => context.push('/settings'),
+            style: IconButton.styleFrom(
+              backgroundColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              context.push('/settings');
+            },
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 14),
         ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          physics: const BouncingScrollPhysics(),
           child: Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: ResponsiveLayout.contentWidth(context)),
               child: Column(
                 children: [
-                  // 1. Profile Picture
+                  const SizedBox(height: 8),
+
+                  // 1. Profile Picture Hero
                   const AvatarPickerWidget(),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 16),
 
                   // Display Name & Email Subtitle
                   Text(
-                    profile.name.isNotEmpty ? profile.name : 'User Profile',
-                    style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                    profile.name.isNotEmpty ? profile.name : 'EduBoard Instructor',
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.5,
+                    ),
                     textAlign: TextAlign.center,
                   ),
-                  if (profile.email.isNotEmpty) ...[
-                    const SizedBox(height: 4),
+                  const SizedBox(height: 4),
+                  if (profile.email.isNotEmpty)
                     Text(
                       profile.email,
                       style: TextStyle(
                         color: colorScheme.onSurface.withValues(alpha: 0.6),
                         fontSize: 13,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                  ],
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.verified_user_rounded, size: 13, color: colorScheme.primary),
+                        const SizedBox(width: 5),
+                        Text(
+                          'Verified Cloud Account',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            color: colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 24),
 
-                  // 2. Profile Details Form (name, address, organization, phone, location, bio)
+                  // 2. Profile Details Form (the 7 canonical fields)
                   Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(22),
                     decoration: BoxDecoration(
                       color: colorScheme.surface,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: colorScheme.onSurface.withValues(alpha: 0.08)),
+                      borderRadius: BorderRadius.circular(22),
+                      border: Border.all(
+                        color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.03),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.person_pin_rounded, size: 20, color: colorScheme.primary),
-                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: colorScheme.primary.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Icon(Icons.badge_rounded, size: 18, color: colorScheme.primary),
+                            ),
+                            const SizedBox(width: 10),
                             Text(
                               'Profile Details',
-                              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -0.3,
+                              ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 18),
+                        const SizedBox(height: 20),
 
                         // Name
                         EduTextField(
                           controller: _nameController,
-                          label: 'Name',
+                          label: 'Full Name',
                           hintText: 'Enter your full name',
                           prefixIcon: Icons.person_outline_rounded,
                         ),
@@ -208,7 +280,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         EduTextField(
                           controller: _addressController,
                           label: 'Address',
-                          hintText: 'Enter your street address',
+                          hintText: 'Enter your campus or residential address',
                           prefixIcon: Icons.home_outlined,
                         ),
                         const SizedBox(height: 16),
@@ -217,8 +289,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         EduTextField(
                           controller: _organizationController,
                           label: 'Organization',
-                          hintText: 'Company, School, or Institute',
-                          prefixIcon: Icons.business_outlined,
+                          hintText: 'Institution, University, or School',
+                          prefixIcon: Icons.account_balance_outlined,
                         ),
                         const SizedBox(height: 16),
 
@@ -244,8 +316,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         // Bio
                         EduTextField(
                           controller: _bioController,
-                          label: 'Bio',
-                          hintText: 'Write a brief description about yourself...',
+                          label: 'Academic Bio',
+                          hintText: 'Specialization, subjects, or department bio...',
                           maxLines: 4,
                           prefixIcon: Icons.notes_rounded,
                         ),
@@ -253,7 +325,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
                         // Save Button
                         EduButton(
-                          label: 'Save Profile',
+                          label: 'Save Profile Changes',
                           icon: Icons.save_rounded,
                           isLoading: _isSaving,
                           onPressed: _handleSave,
@@ -262,23 +334,29 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 24),
 
-                  // Sign Out Button
-                  OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
+                  // 3. Sign Out Button
+                  FilledButton.tonalIcon(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: colorScheme.errorContainer.withValues(alpha: 0.6),
                       foregroundColor: colorScheme.error,
-                      side: BorderSide(color: colorScheme.error.withValues(alpha: 0.4)),
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      minimumSize: const Size(double.infinity, 50),
                     ),
-                    icon: const Icon(Icons.logout_rounded, size: 20),
-                    label: const Text('Sign Out of Workspace'),
+                    icon: const Icon(Icons.logout_rounded, size: 18),
+                    label: const Text(
+                      'Sign Out of Workspace',
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
                     onPressed: () {
+                      HapticFeedback.mediumImpact();
                       ref.read(authProvider.notifier).logout();
                       context.go('/login');
                     },
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 36),
                 ],
               ),
             ),

@@ -7,6 +7,7 @@ export interface ImportedFileData {
   mimeType: string;
   size: number;
   dataUrl?: string;
+  url?: string;
   textContent?: string;
   pages?: string[];
   error?: string;

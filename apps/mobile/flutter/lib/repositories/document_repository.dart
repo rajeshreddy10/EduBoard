@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import '../models/doc_annotation_model.dart';
 import '../core/utilities/safe_json.dart';
@@ -8,6 +10,7 @@ import '../core/utilities/safe_json.dart';
 abstract class DocumentRepository {
   Future<List<DocumentModel>> getDocuments([String? explicitUid]);
   Future<DocumentModel?> loadDocument(String docId);
+  Stream<Map<String, dynamic>> watchDocSession(String docId);
   Future<List<DocAnnotationModel>> getAnnotations(String docId);
   Future<void> saveAnnotation(String docId, DocAnnotationModel annotation);
   Future<void> deleteAnnotation(String docId, String annotationId);
@@ -35,7 +38,29 @@ class FirestoreDocumentRepository implements DocumentRepository {
     }
   }
 
+  FirebaseStorage? get _storage {
+    try {
+      return FirebaseStorage.instance;
+    } catch (_) {
+      return null;
+    }
+  }
+
   String? get _currentUserId => _auth?.currentUser?.uid;
+
+  @override
+  Stream<Map<String, dynamic>> watchDocSession(String docId) {
+    final fs = _firestore;
+    if (fs == null || docId.trim().isEmpty) return Stream.value({});
+    return fs
+        .collection('whiteboards')
+        .doc(docId.trim())
+        .snapshots()
+        .map((snap) => snap.exists && snap.data() != null ? snap.data()! : <String, dynamic>{})
+        .handleError((e) {
+      debugPrint('[Firestore watchDocSession Error] $e');
+    });
+  }
 
   @override
   Future<List<DocumentModel>> getDocuments([String? explicitUid]) async {
@@ -218,6 +243,32 @@ class FirestoreDocumentRepository implements DocumentRepository {
     final nowIso = DateTime.now().toIso8601String();
     final uid = _currentUserId ?? 'guest';
 
+    // Offload local device document file to Firebase Storage so Web can access it
+    String? finalUrl = document.url;
+    if ((finalUrl == null || finalUrl.isEmpty || !finalUrl.startsWith('http')) &&
+        document.filePath != null &&
+        document.filePath!.isNotEmpty) {
+      final file = File(document.filePath!);
+      if (file.existsSync()) {
+        try {
+          final s = _storage;
+          if (s != null) {
+            final cleanName = document.title.replaceAll(RegExp(r'[^\w.-]+'), '_');
+            final storageRef = s.ref().child('documents/$uid/$docId/$cleanName');
+            final uploadTask = await storageRef.putFile(file).timeout(const Duration(seconds: 15));
+            final downloadUrl = await uploadTask.ref.getDownloadURL();
+            if (downloadUrl.isNotEmpty) {
+              finalUrl = downloadUrl;
+            }
+          }
+        } catch (e) {
+          debugPrint('[saveDocSession Storage Upload Note] $e');
+        }
+      }
+    }
+
+    final effectiveDocument = finalUrl != null ? document.copyWith(url: finalUrl) : document;
+
     // Serialize annotations as Web DrawingStroke format so Web renders them
     final strokesForWeb = annotations.map((a) {
       final hexColor = '#${(a.color.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, '0')}';
@@ -234,7 +285,7 @@ class FirestoreDocumentRepository implements DocumentRepository {
 
     final payload = <String, dynamic>{
       'id': docId,
-      'title': document.title,
+      'title': effectiveDocument.title,
       'studio': 'doccanvas',
       'category': 'docAnnotation',
       'updated_at': nowIso,
@@ -243,17 +294,18 @@ class FirestoreDocumentRepository implements DocumentRepository {
       'createdBy': uid,
       'user_id': uid,
       'userId': uid,
-      'activeDocument': document.toJson(),
+      'activeDocument': effectiveDocument.toJson(),
       'bgFile': {
-        'url': document.url ?? document.filePath ?? '',
-        'type': document.fileType,
+        'url': effectiveDocument.url ?? effectiveDocument.filePath ?? '',
+        'type': effectiveDocument.fileType,
       },
       'annotations': annotations.map((a) => a.toJson()).toList(),
       'strokes': strokesForWeb,
+      'total_shapes': annotations.length,
       'content': jsonEncode({
         'annotations': annotations.map((a) => a.toJson()).toList(),
         'strokes': strokesForWeb,
-        'activeDocument': document.toJson(),
+        'activeDocument': effectiveDocument.toJson(),
       }),
     };
 

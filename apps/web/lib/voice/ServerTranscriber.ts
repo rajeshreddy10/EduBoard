@@ -2,7 +2,7 @@
 
 import { LangCode } from '@/lib/i18n';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3001/api' : '/api');
 
 export interface ServerSTTConfig {
   language: LangCode;

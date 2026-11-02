@@ -17,11 +17,13 @@ abstract class VoiceRepository {
   /// Sessions are keyed by a stable session id; identity fields from an
   /// existing doc (owner/creator/timeline) are never overwritten.
   Future<Map<String, dynamic>> loadSavedVoiceSession(String sessionId);
+  Stream<Map<String, dynamic>> watchVoiceSession(String sessionId);
   Future<void> saveVoiceSessionToHistory({
     required String sessionId,
     required String title,
     required List<VoiceBlockModel> blocks,
     required Duration duration,
+    List<Map<String, dynamic>>? strokes,
   });
 }
 
@@ -183,11 +185,26 @@ class LiveVoiceRepository implements VoiceRepository {
   }
 
   @override
+  Stream<Map<String, dynamic>> watchVoiceSession(String sessionId) {
+    final fs = _firestore;
+    if (fs == null || sessionId.trim().isEmpty) return Stream.value({});
+    return fs
+        .collection('whiteboards')
+        .doc(sessionId.trim())
+        .snapshots()
+        .map((snap) => snap.exists && snap.data() != null ? snap.data()! : <String, dynamic>{})
+        .handleError((e) {
+      debugPrint('[Firestore watchVoiceSession Error] $e');
+    });
+  }
+
+  @override
   Future<void> saveVoiceSessionToHistory({
     required String sessionId,
     required String title,
     required List<VoiceBlockModel> blocks,
     required Duration duration,
+    List<Map<String, dynamic>>? strokes,
   }) async {
     final fs = _firestore;
     if (fs == null || sessionId.trim().isEmpty || blocks.isEmpty) return;
@@ -226,7 +243,7 @@ class LiveVoiceRepository implements VoiceRepository {
       'user_id': existing?['owner_id']?.toString() ?? _currentUserId,
       'userId': existing?['owner_id']?.toString() ?? _currentUserId,
       'duration_seconds': duration.inSeconds,
-      'total_shapes': blocks.length,
+      'total_shapes': blocks.length + (strokes?.length ?? (existing?['strokes'] as List?)?.length ?? 0),
       'tags': tags,
       // Full block snapshot with positions so re-opening restores the canvas.
       'blocks': blocks.take(200).map((b) => b.toJson()).toList(),
@@ -242,6 +259,7 @@ class LiveVoiceRepository implements VoiceRepository {
         'color': '#ffffff',
       }).toList(),
       'transcript': blocks.map((b) => b.text).join('\n'),
+      'strokes': strokes ?? existing?['strokes'] ?? [],
     };
 
     try {

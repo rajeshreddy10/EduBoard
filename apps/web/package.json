@@ -8,6 +8,7 @@
     "dev": "next dev -H 0.0.0.0 -p 3000",
     "build": "next build",
     "build:web": "next build",
+    "build:export": "cross-env STATIC_EXPORT=true next build",
     "install:all": "npm install",
     "start": "npx next start",
     "electron": "electron .",

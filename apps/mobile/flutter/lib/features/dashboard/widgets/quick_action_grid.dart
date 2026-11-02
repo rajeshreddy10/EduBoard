@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 class QuickActionGrid extends StatelessWidget {
@@ -47,32 +48,55 @@ class QuickActionGrid extends StatelessWidget {
         crossAxisCount: 2,
         crossAxisSpacing: 12,
         mainAxisSpacing: 12,
-        childAspectRatio: 1.5,
+        childAspectRatio: 1.45,
       ),
       itemCount: actions.length,
       itemBuilder: (context, idx) {
         final a = actions[idx];
+        final isDark = theme.brightness == Brightness.dark;
+
         return Material(
           color: colorScheme.surface,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(18),
+          elevation: isDark ? 2 : 1,
+          shadowColor: Colors.black.withValues(alpha: isDark ? 0.25 : 0.04),
           child: InkWell(
-            borderRadius: BorderRadius.circular(16),
-            onTap: a.onTap,
+            borderRadius: BorderRadius.circular(18),
+            onTap: () {
+              HapticFeedback.lightImpact();
+              a.onTap();
+            },
             child: Container(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(15),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: colorScheme.onSurface.withValues(alpha: 0.08)),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: colorScheme.onSurface.withValues(alpha: isDark ? 0.09 : 0.07),
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(9),
                     decoration: BoxDecoration(
-                      color: a.color.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(10),
+                      gradient: LinearGradient(
+                        colors: [
+                          a.color.withValues(alpha: isDark ? 0.25 : 0.16),
+                          a.color.withValues(alpha: isDark ? 0.10 : 0.06),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: a.color.withValues(alpha: 0.18),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Icon(a.icon, color: a.color, size: 20),
                   ),
@@ -81,12 +105,18 @@ class QuickActionGrid extends StatelessWidget {
                     children: [
                       Text(
                         a.title,
-                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14.5,
+                          letterSpacing: -0.2,
+                        ),
                       ),
+                      const SizedBox(height: 1),
                       Text(
                         a.desc,
                         style: TextStyle(
                           fontSize: 11,
+                          fontWeight: FontWeight.w500,
                           color: colorScheme.onSurface.withValues(alpha: 0.55),
                         ),
                       ),

@@ -23,6 +23,7 @@ class VoiceState {
   final double currentAudioLevel;
   final double confidence;
   final List<String> transcriptHistory;
+  final List<Map<String, dynamic>> rawStrokes;
 
   const VoiceState({
     this.isRecording = false,
@@ -35,6 +36,7 @@ class VoiceState {
     this.currentAudioLevel = 0.0,
     this.confidence = 0.0,
     this.transcriptHistory = const [],
+    this.rawStrokes = const [],
   });
 
   VoiceState copyWith({
@@ -48,6 +50,7 @@ class VoiceState {
     double? currentAudioLevel,
     double? confidence,
     List<String>? transcriptHistory,
+    List<Map<String, dynamic>>? rawStrokes,
   }) {
     return VoiceState(
       isRecording: isRecording ?? this.isRecording,
@@ -60,6 +63,7 @@ class VoiceState {
       currentAudioLevel: currentAudioLevel ?? this.currentAudioLevel,
       confidence: confidence ?? this.confidence,
       transcriptHistory: transcriptHistory ?? this.transcriptHistory,
+      rawStrokes: rawStrokes ?? this.rawStrokes,
     );
   }
 }
@@ -67,6 +71,7 @@ class VoiceState {
 class VoiceNotifier extends Notifier<VoiceState> {
   VoiceRepository get _repo => ref.read(voiceRepositoryProvider);
   StreamSubscription<List<VoiceBlockModel>>? _streamSub;
+  StreamSubscription<Map<String, dynamic>>? _whiteboardSub;
   Timer? _timer;
   final stt.SpeechToText _speech = stt.SpeechToText();
   String _lastSentence = '';
@@ -79,6 +84,7 @@ class VoiceNotifier extends Notifier<VoiceState> {
   VoiceState build() {
     ref.onDispose(() {
       _streamSub?.cancel();
+      _whiteboardSub?.cancel();
       _timer?.cancel();
       try {
         _speech.stop();
@@ -342,7 +348,7 @@ class VoiceNotifier extends Notifier<VoiceState> {
   /// Private lesson history: voice sessions live in the SAME `whiteboards`
   /// collection as drawing boards (category `voiceSession`) so they show up in
   /// the History hub on mobile and Web, and can be re-opened from there.
-  Future<void> _persistVoiceSessionToHistory() async {
+  Future<void> _persistVoiceSessionToHistory([List<Map<String, dynamic>>? strokes]) async {
     try {
       final snapshot = state.blocks;
       final duration = state.elapsed;
@@ -353,13 +359,16 @@ class VoiceNotifier extends Notifier<VoiceState> {
         _sessionId = WhiteboardNotifier.mintBoardId(prefix: 'voiceboard');
       }
       final session = _sessionId;
+      final effectiveStrokes = strokes ?? state.rawStrokes;
       await _repo.saveVoiceSessionToHistory(
         sessionId: session,
         title: 'Voice Session · $stamp',
         blocks: snapshot,
         duration: duration,
+        strokes: effectiveStrokes,
       );
       state = state.copyWith(
+        rawStrokes: effectiveStrokes,
         statusMessage: 'Voice session saved to history (${snapshot.length} blocks · ${duration.inMinutes} min).',
       );
     } catch (e) {
@@ -368,12 +377,63 @@ class VoiceNotifier extends Notifier<VoiceState> {
     }
   }
 
+  void _subscribeToVoiceSession(String sessionId) {
+    _whiteboardSub?.cancel();
+    if (sessionId.trim().isEmpty) return;
+    _whiteboardSub = _repo.watchVoiceSession(sessionId.trim()).listen((data) {
+      if (data.isEmpty) return;
+      List<VoiceBlockModel> blocks = [];
+      final blocksRaw = data['blocks'];
+      if (blocksRaw is List && blocksRaw.isNotEmpty) {
+        blocks = blocksRaw
+            .whereType<Map>()
+            .map((m) => VoiceBlockModel.fromJson(Map<String, dynamic>.from(m)))
+            .toList();
+      } else if (data['elements'] is List && (data['elements'] as List).isNotEmpty) {
+        final elements = data['elements'] as List;
+        int i = 0;
+        blocks = elements.whereType<Map>().map((e) {
+          final text = e['text']?.toString() ?? '';
+          final x = asDoubleOr(e['x'], 60.0 + (i * 30.0) % 200);
+          final y = asDoubleOr(e['y'], 180.0 + (i * 90.0) % 350);
+          i++;
+          return VoiceBlockModel(
+            id: e['id']?.toString() ?? 'voice_${DateTime.now().millisecondsSinceEpoch}_$i',
+            text: text,
+            speakerName: 'Instructor',
+            timestamp: Duration(seconds: i * 5),
+            position: Offset(x, y),
+          );
+        }).toList();
+      }
+
+      List<Map<String, dynamic>> remoteStrokes = [];
+      if (data['strokes'] is List && (data['strokes'] as List).isNotEmpty) {
+        remoteStrokes = (data['strokes'] as List)
+            .whereType<Map>()
+            .map((m) => Map<String, dynamic>.from(m))
+            .toList();
+      }
+
+      if (blocks.isNotEmpty || remoteStrokes.isNotEmpty) {
+        state = state.copyWith(
+          blocks: blocks.isNotEmpty ? blocks : state.blocks,
+          rawStrokes: remoteStrokes.isNotEmpty ? remoteStrokes : state.rawStrokes,
+          transcriptHistory: blocks.isNotEmpty ? blocks.map((b) => b.text).take(20).toList() : state.transcriptHistory,
+        );
+      }
+    }, onError: (e) {
+      debugPrint('[Voice Session Stream Note] $e');
+    });
+  }
+
   /// Re-open a saved voice session from the History hub deep link
   /// (`/voiceboard?id=...`): restores the transcription blocks of the ORIGINAL
   /// session instead of starting an empty canvas.
   Future<bool> loadVoiceSession(String sessionId) async {
     final id = sessionId.trim();
     if (id.isEmpty) return false;
+    _subscribeToVoiceSession(id);
     try {
       final data = await _repo.loadSavedVoiceSession(id);
       List<VoiceBlockModel> blocks = [];
@@ -416,10 +476,19 @@ class VoiceNotifier extends Notifier<VoiceState> {
         }).toList();
       }
 
-      if (blocks.isNotEmpty) {
+      List<Map<String, dynamic>> loadedStrokes = [];
+      if (data['strokes'] is List && (data['strokes'] as List).isNotEmpty) {
+        loadedStrokes = (data['strokes'] as List)
+            .whereType<Map>()
+            .map((m) => Map<String, dynamic>.from(m))
+            .toList();
+      }
+
+      if (blocks.isNotEmpty || loadedStrokes.isNotEmpty) {
         _lastSentence = '';
         state = state.copyWith(
           blocks: blocks,
+          rawStrokes: loadedStrokes,
           transcriptHistory: blocks.map((b) => b.text).take(20).toList(),
           elapsed: Duration(seconds: asIntOr(data['duration_seconds'], state.elapsed.inSeconds)),
           liveText: '',
@@ -509,8 +578,8 @@ class VoiceNotifier extends Notifier<VoiceState> {
   }
 
   /// Explicit save: persists the current voice session to history.
-  Future<void> saveSession() async {
-    await _persistVoiceSessionToHistory();
+  Future<void> saveSession([List<Map<String, dynamic>>? strokes]) async {
+    await _persistVoiceSessionToHistory(strokes);
   }
 }
 

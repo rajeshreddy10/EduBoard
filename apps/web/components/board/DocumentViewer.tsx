@@ -46,8 +46,9 @@ export const DocumentViewer = React.forwardRef<HTMLDivElement, DocumentViewerPro
   const isImage = doc.type === 'image' || doc.mimeType?.startsWith('image/');
   const isPdf = doc.type === 'pdf' || doc.mimeType?.includes('pdf');
 
-  const pdfUrlNoPrint = isPdf && doc.dataUrl
-    ? (doc.dataUrl.includes('#') ? doc.dataUrl : `${doc.dataUrl}#toolbar=0&navpanes=0&scrollbar=1`)
+  const targetUrl = doc.dataUrl || (doc as any).url || '';
+  const pdfUrlNoPrint = isPdf && targetUrl
+    ? (targetUrl.includes('#') ? targetUrl : `${targetUrl}#toolbar=0&navpanes=0&scrollbar=1`)
     : '';
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -178,16 +179,16 @@ export const DocumentViewer = React.forwardRef<HTMLDivElement, DocumentViewerPro
           {/* Document Content */}
           <div className="relative mx-auto max-w-4xl min-h-[70vh] shadow-sm bg-white dark:bg-slate-900 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800">
             <div className={`w-full h-full ${docMode === 'write' ? 'pointer-events-none select-none' : 'pointer-events-auto'}`}>
-              {isImage && doc.dataUrl ? (
+              {isImage && (doc.dataUrl || (doc as any).url) ? (
                 <Image
-                  src={doc.dataUrl}
+                  src={doc.dataUrl || (doc as any).url}
                   alt={doc.name}
                   width={1200}
                   height={800}
                   className="w-full h-auto block select-none"
                   unoptimized
                 />
-              ) : isPdf && doc.dataUrl ? (
+              ) : isPdf && targetUrl ? (
                 <iframe
                   src={pdfUrlNoPrint}
                   title={doc.name}

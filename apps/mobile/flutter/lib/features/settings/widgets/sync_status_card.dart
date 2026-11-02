@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/widgets/app_status_badge.dart';
@@ -20,53 +21,88 @@ class SyncStatusCard extends ConsumerWidget {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colorScheme.onSurface.withValues(alpha: 0.08)),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.cloud_sync_rounded, size: 20, color: colorScheme.primary),
-              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: colorScheme.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(Icons.cloud_sync_rounded, size: 18, color: colorScheme.primary),
+              ),
+              const SizedBox(width: 10),
               Text(
-                'Offline Local Persistence',
-                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                'Persistence & Realtime Sync',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.3,
+                ),
               ),
               const Spacer(),
-              const AppStatusBadge(label: 'HIVE ENGINE', isFilled: true),
+              const AppStatusBadge(label: 'ONLINE', isFilled: true),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Local Cache Status', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                  const Text('Local Cache & Cloud State', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                  const SizedBox(height: 2),
                   Text(
                     'Last synced: ${timeFormat.format(settings.lastSyncTime)}',
                     style: TextStyle(fontSize: 12, color: colorScheme.onSurface.withValues(alpha: 0.55)),
                   ),
                 ],
               ),
-              OutlinedButton.icon(
+              FilledButton.tonalIcon(
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
                 icon: const Icon(Icons.sync_rounded, size: 16),
-                label: const Text('Sync Cache'),
+                label: const Text('Flush & Sync', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
                 onPressed: () {
+                  HapticFeedback.mediumImpact();
                   notifier.triggerSync();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Hive local cache flushed and synchronized.')),
+                    SnackBar(
+                      content: const Row(
+                        children: [
+                          Icon(Icons.check_circle_rounded, color: Colors.white, size: 18),
+                          SizedBox(width: 8),
+                          Text('Cache synchronized with cloud Firestore.'),
+                        ],
+                      ),
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
                   );
                 },
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Text(
-            'Whiteboard strokes, theme tokens, teacher cues, and draggable notes are persisted offline in local Hive storage boxes.',
-            style: TextStyle(fontSize: 11, color: colorScheme.onSurface.withValues(alpha: 0.55)),
+            'DrawSpace whiteboard strokes, DocCanvas annotations, voice transcripts, and user preferences are automatically synced bidirectionally between Android and Web.',
+            style: TextStyle(fontSize: 11, color: colorScheme.onSurface.withValues(alpha: 0.55), height: 1.3),
           ),
         ],
       ),

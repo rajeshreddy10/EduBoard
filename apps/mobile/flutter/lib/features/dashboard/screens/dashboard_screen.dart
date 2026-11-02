@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/utilities/responsive_layout.dart';
 import '../../../core/widgets/edu_image.dart';
+import '../../../models/history_item_model.dart';
 import '../../../providers/history_provider.dart';
 import '../../../providers/notifications_provider.dart';
 import '../../../providers/profile_provider.dart';
 
-/// EduBoard Studio Dashboard - Premium modern workspace
+/// EduBoard Studio Dashboard - Premium 2026 Material Design 3 Workspace
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
@@ -39,8 +41,10 @@ class DashboardScreen extends ConsumerWidget {
       backgroundColor: colorScheme.surface,
       body: SafeArea(
         child: RefreshIndicator(
+          color: colorScheme.primary,
+          backgroundColor: colorScheme.surfaceContainerHighest,
           onRefresh: () async {
-            // Trigger refresh by invalidating providers
+            HapticFeedback.lightImpact();
             ref.invalidate(historyProvider);
             ref.invalidate(profileProvider);
             ref.invalidate(notificationProvider);
@@ -60,142 +64,69 @@ class DashboardScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Header with greeting, profile, icons, badge
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              // Profile picture
-                              Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      colorScheme.primary,
-                                      colorScheme.tertiary,
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: colorScheme.primary.withValues(alpha: 0.3),
-                                      blurRadius: 12,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: EduAvatar(
-                                  imageUrl: profile.avatarUrl,
-                                  name: profile.name,
-                                  radius: 22,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '$greeting, $firstName',
-                                      style: theme.textTheme.titleLarge?.copyWith(
-                                        fontWeight: FontWeight.w800,
-                                        letterSpacing: -0.5,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            colorScheme.primary.withValues(alpha: 0.15),
-                                            colorScheme.tertiary.withValues(alpha: 0.15),
-                                          ],
-                                        ),
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                          color: colorScheme.primary.withValues(alpha: 0.3),
-                                        ),
-                                      ),
-                                      child: Text(
-                                        'EduBoard Studio v3.1',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w800,
-                                          color: colorScheme.primary,
-                                          letterSpacing: 0.5,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              IconButton(
-                                tooltip: 'Search',
-                                icon: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: colorScheme.onSurface.withValues(alpha: 0.08),
-                                    ),
-                                  ),
-                                  child: Icon(
-                                    Icons.search_rounded,
-                                    color: colorScheme.onSurface,
-                                    size: 20,
-                                  ),
-                                ),
-                                onPressed: () {},
-                              ),
-                              IconButton(
-                                tooltip: 'Notifications',
-                                icon: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: colorScheme.onSurface.withValues(alpha: 0.08),
-                                    ),
-                                  ),
-                                  child: Badge(
-                                    isLabelVisible: unreadNotifs > 0,
-                                    label: Text('$unreadNotifs'),
-                                    child: Icon(
-                                      Icons.notifications_outlined,
-                                      color: colorScheme.onSurface,
-                                      size: 20,
-                                    ),
-                                  ),
-                                ),
-                                onPressed: () => context.push('/notifications'),
-                              ),
-                            ],
+                          // 1. Hero Header
+                          _DashboardHeader(
+                            greeting: greeting,
+                            firstName: firstName,
+                            avatarUrl: profile.avatarUrl,
+                            fullName: profile.name,
+                            unreadNotifs: unreadNotifs,
                           ),
                           const SizedBox(height: 24),
-                          // Session Metrics
-                          Text(
-                            'Session Metrics',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -0.3,
-                            ),
+
+                          // 2. Metrics Section
+                          Row(
+                            children: [
+                              Text(
+                                'Workspace Activity',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: -0.3,
+                                ),
+                              ),
+                              const Spacer(),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: colorScheme.primary.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 6,
+                                      height: 6,
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xFF10B981),
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 5),
+                                    Text(
+                                      'Synced',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w700,
+                                        color: colorScheme.primary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 12),
                           Row(
                             children: [
                               Expanded(
                                 child: _MetricCard(
-                                  label: 'Saved Sessions',
+                                  label: 'Saved Boards',
                                   value: '$totalBoards',
                                   icon: Icons.bookmark_rounded,
-                                  gradientColors: [
-                                    const Color(0xFF6366F1).withValues(alpha: 0.8),
-                                    const Color(0xFF8B5CF6).withValues(alpha: 0.9),
+                                  gradientColors: const [
+                                    Color(0xFF6366F1),
+                                    Color(0xFF8B5CF6),
                                   ],
                                   accentColor: const Color(0xFF6366F1),
                                 ),
@@ -203,12 +134,12 @@ class DashboardScreen extends ConsumerWidget {
                               const SizedBox(width: 10),
                               Expanded(
                                 child: _MetricCard(
-                                  label: 'Active Studio Modules',
+                                  label: 'Active Studios',
                                   value: '3',
-                                  icon: Icons.widgets_rounded,
-                                  gradientColors: [
-                                    const Color(0xFF06B6D4).withValues(alpha: 0.8),
-                                    const Color(0xFF3B82F6).withValues(alpha: 0.9),
+                                  icon: Icons.layers_rounded,
+                                  gradientColors: const [
+                                    Color(0xFF06B6D4),
+                                    Color(0xFF3B82F6),
                                   ],
                                   accentColor: const Color(0xFF06B6D4),
                                 ),
@@ -216,12 +147,12 @@ class DashboardScreen extends ConsumerWidget {
                               const SizedBox(width: 10),
                               Expanded(
                                 child: _MetricCard(
-                                  label: "Today's Resource Activity",
+                                  label: 'Total Time',
                                   value: '${totalHoursStr}h',
-                                  icon: Icons.trending_up_rounded,
-                                  gradientColors: [
-                                    const Color(0xFF10B981).withValues(alpha: 0.8),
-                                    const Color(0xFF34D399).withValues(alpha: 0.9),
+                                  icon: Icons.timelapse_rounded,
+                                  gradientColors: const [
+                                    Color(0xFF10B981),
+                                    Color(0xFF059669),
                                   ],
                                   accentColor: const Color(0xFF10B981),
                                 ),
@@ -229,52 +160,83 @@ class DashboardScreen extends ConsumerWidget {
                             ],
                           ),
                           const SizedBox(height: 28),
-                          // Core Studios
-                          Text(
-                            'Core Studios',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -0.3,
-                            ),
+
+                          // 3. Core Studios
+                          Row(
+                            children: [
+                              Text(
+                                'Core Creation Studios',
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: -0.3,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: colorScheme.surfaceContainerHighest,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  'M3 Engine',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w800,
+                                    color: colorScheme.onSurface.withValues(alpha: 0.6),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 14),
                           _StudioCard(
                             title: 'DrawSpace Whiteboard',
-                            description: 'Interactive teaching canvas with teacher notes, progressive reveal, references, and drawing tools',
-                            features: const ['Infinite Canvas', 'Layer Management', 'Real-time Sync'],
-                            gradientColors: [
-                              const Color(0xFF38BDF8).withValues(alpha: 0.9),
-                              const Color(0xFF6366F1).withValues(alpha: 0.9),
+                            description: 'Interactive infinite digital canvas with teacher cues, layers, real-time sync, and drawing instruments',
+                            features: const ['Infinite Canvas', 'Layer Control', 'Real-time Sync'],
+                            gradientColors: const [
+                              Color(0xFF38BDF8),
+                              Color(0xFF6366F1),
                             ],
                             icon: Icons.gesture_rounded,
-                            onTap: () => context.go('/normal-board'),
+                            onTap: () {
+                              HapticFeedback.lightImpact();
+                              context.go('/normal-board');
+                            },
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 14),
                           _StudioCard(
                             title: 'Voice Board AI',
-                            description: 'Speech-to-text transcription, deduplication, voice controls, AI summaries',
-                            features: const ['Live Transcription', 'AI Summaries', 'Voice Commands'],
-                            gradientColors: [
-                              const Color(0xFF34D399).withValues(alpha: 0.9),
-                              const Color(0xFF10B981).withValues(alpha: 0.9),
+                            description: 'Speech-to-text live transcription, intelligent deduplication, voice commands, and AI lesson summaries',
+                            features: const ['Live Speech-to-Text', 'AI Summaries', 'Voice Commands'],
+                            gradientColors: const [
+                              Color(0xFF34D399),
+                              Color(0xFF10B981),
                             ],
                             icon: Icons.mic_rounded,
-                            onTap: () => context.go('/voice-control'),
+                            onTap: () {
+                              HapticFeedback.lightImpact();
+                              context.go('/voice-control');
+                            },
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 14),
                           _StudioCard(
                             title: 'DocCanvas Annotator',
-                            description: 'PDF, Word, PPT annotation and markup with advanced tools',
-                            features: const ['Multi-format', 'Smart Markup', 'Export Tools'],
-                            gradientColors: [
-                              const Color(0xFFF43F5E).withValues(alpha: 0.9),
-                              const Color(0xFFEC4899).withValues(alpha: 0.9),
+                            description: 'PDF, slide decks, and image markup studio with highlighters, pens, stamps, and instant exports',
+                            features: const ['Document Import', 'Smart Highlighting', 'Export Ready'],
+                            gradientColors: const [
+                              Color(0xFFFB7185),
+                              Color(0xFFE11D48),
                             ],
                             icon: Icons.description_rounded,
-                            onTap: () => context.push('/gesture-board'),
+                            onTap: () {
+                              HapticFeedback.lightImpact();
+                              context.push('/gesture-board');
+                            },
                           ),
                           const SizedBox(height: 28),
-                          // Recent Sessions
+
+                          // 4. Recent Sessions
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -285,14 +247,19 @@ class DashboardScreen extends ConsumerWidget {
                                   letterSpacing: -0.3,
                                 ),
                               ),
-                              TextButton(
-                                onPressed: () => context.go('/dashboard/boards'),
+                              TextButton.icon(
+                                onPressed: () {
+                                  HapticFeedback.selectionClick();
+                                  context.go('/dashboard/boards');
+                                },
                                 style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  visualDensity: VisualDensity.compact,
                                 ),
-                                child: const Text(
+                                icon: const Icon(Icons.arrow_forward_rounded, size: 16),
+                                label: const Text(
                                   'View All',
-                                  style: TextStyle(fontWeight: FontWeight.w700),
+                                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
                                 ),
                               ),
                             ],
@@ -300,7 +267,8 @@ class DashboardScreen extends ConsumerWidget {
                           const SizedBox(height: 10),
                           const _RecentSessionsHorizontal(),
                           const SizedBox(height: 28),
-                          // Quick Access Tools
+
+                          // 5. Quick Access Tools
                           Text(
                             'Quick Access Tools',
                             style: theme.textTheme.titleMedium?.copyWith(
@@ -308,7 +276,7 @@ class DashboardScreen extends ConsumerWidget {
                               letterSpacing: -0.3,
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 14),
                           _QuickAccessGrid(),
                           const SizedBox(height: 100),
                         ],
@@ -321,6 +289,150 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _DashboardHeader extends StatelessWidget {
+  final String greeting;
+  final String firstName;
+  final String? avatarUrl;
+  final String fullName;
+  final int unreadNotifs;
+
+  const _DashboardHeader({
+    required this.greeting,
+    required this.firstName,
+    this.avatarUrl,
+    required this.fullName,
+    required this.unreadNotifs,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // Profile picture with modern gradient border
+        Container(
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              colors: [
+                colorScheme.primary,
+                colorScheme.tertiary,
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: colorScheme.primary.withValues(alpha: 0.25),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(2.5),
+          child: EduAvatar(
+            imageUrl: avatarUrl,
+            name: fullName,
+            radius: 22,
+          ),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '$greeting, $firstName',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          colorScheme.primary.withValues(alpha: 0.12),
+                          colorScheme.tertiary.withValues(alpha: 0.12),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: colorScheme.primary.withValues(alpha: 0.25),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.verified_rounded,
+                          size: 11,
+                          color: colorScheme.primary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'EduBoard Studio 2026',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            color: colorScheme.primary,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        // Notifications Button
+        IconButton(
+          tooltip: 'Notifications',
+          style: IconButton.styleFrom(
+            backgroundColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
+            padding: const EdgeInsets.all(10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+              side: BorderSide(
+                color: colorScheme.onSurface.withValues(alpha: 0.08),
+              ),
+            ),
+          ),
+          icon: Badge(
+            isLabelVisible: unreadNotifs > 0,
+            label: Text('$unreadNotifs'),
+            backgroundColor: colorScheme.error,
+            textColor: Colors.white,
+            child: Icon(
+              Icons.notifications_outlined,
+              color: colorScheme.onSurface,
+              size: 20,
+            ),
+          ),
+          onPressed: () {
+            HapticFeedback.lightImpact();
+            context.push('/notifications');
+          },
+        ),
+      ],
     );
   }
 }
@@ -346,26 +458,24 @@ class _MetricCard extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: LinearGradient(
-          colors: [
-            colorScheme.surface,
-            colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        borderRadius: BorderRadius.circular(18),
+        color: colorScheme.surface,
         border: Border.all(
-          color: accentColor.withValues(alpha: 0.3),
+          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: accentColor.withValues(alpha: 0.15),
+            color: accentColor.withValues(alpha: 0.08),
             blurRadius: 12,
             offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
@@ -375,19 +485,23 @@ class _MetricCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              gradient: LinearGradient(colors: gradientColors),
+              gradient: LinearGradient(
+                colors: gradientColors,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 BoxShadow(
-                  color: accentColor.withValues(alpha: 0.4),
+                  color: accentColor.withValues(alpha: 0.35),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
               ],
             ),
-            child: Icon(icon, color: Colors.white, size: 18),
+            child: Icon(icon, color: Colors.white, size: 16),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Text(
             value,
             style: theme.textTheme.titleLarge?.copyWith(
@@ -401,9 +515,9 @@ class _MetricCard extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: 10,
+              fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: colorScheme.onSurface.withValues(alpha: 0.7),
+              color: colorScheme.onSurface.withValues(alpha: 0.65),
               height: 1.2,
             ),
           ),
@@ -434,145 +548,154 @@ class _StudioCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final primaryColor = gradientColors.first;
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(18),
+        borderRadius: BorderRadius.circular(22),
+        child: Ink(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            gradient: LinearGradient(
-              colors: [
-                colorScheme.surface,
-                colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            borderRadius: BorderRadius.circular(22),
+            color: colorScheme.surface,
             border: Border.all(
-              color: gradientColors.first.withValues(alpha: 0.4),
-              width: 1.5,
+              color: primaryColor.withValues(alpha: 0.28),
+              width: 1.2,
             ),
             boxShadow: [
               BoxShadow(
-                color: gradientColors.first.withValues(alpha: 0.2),
-                blurRadius: 16,
+                color: primaryColor.withValues(alpha: 0.08),
+                blurRadius: 18,
                 offset: const Offset(0, 6),
+              ),
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: gradientColors),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: gradientColors.first.withValues(alpha: 0.5),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Icon(icon, color: Colors.white, size: 24),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.3,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          description,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: colorScheme.onSurface.withValues(alpha: 0.7),
-                            height: 1.4,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: features
-                    .map(
-                      (f) => Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        decoration: BoxDecoration(
-                          color: gradientColors.first.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: gradientColors.first.withValues(alpha: 0.3),
-                          ),
-                        ),
-                        child: Text(
-                          f,
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: gradientColors.first,
-                          ),
-                        ),
-                      ),
-                    )
-                    .toList(),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: gradientColors),
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: gradientColors.first.withValues(alpha: 0.4),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Open Studio',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 14,
-                        letterSpacing: 0.3,
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: gradientColors,
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: primaryColor.withValues(alpha: 0.35),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Icon(icon, color: Colors.white, size: 22),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.3,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            description,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: colorScheme.onSurface.withValues(alpha: 0.7),
+                              height: 1.35,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    SizedBox(width: 8),
-                    Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 18),
                   ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 14),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: features
+                      .map(
+                        (f) => Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: primaryColor.withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: primaryColor.withValues(alpha: 0.22),
+                            ),
+                          ),
+                          child: Text(
+                            f,
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w700,
+                              color: primaryColor,
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 11),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: gradientColors,
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                    boxShadow: [
+                      BoxShadow(
+                        color: primaryColor.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Launch Studio',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 13.5,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 16),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -607,34 +730,42 @@ class _RecentSessionsHorizontal extends ConsumerWidget {
     if (historyItems.isEmpty) {
       return Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(28),
         decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(16),
+          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: colorScheme.onSurface.withValues(alpha: 0.08),
+            color: colorScheme.outlineVariant.withValues(alpha: 0.4),
           ),
         ),
         child: Column(
           children: [
-            Icon(
-              Icons.history_rounded,
-              size: 48,
-              color: colorScheme.onSurface.withValues(alpha: 0.3),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: colorScheme.primary.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.folder_open_rounded,
+                size: 32,
+                color: colorScheme.primary,
+              ),
             ),
             const SizedBox(height: 12),
             Text(
-              'No sessions yet',
+              'No Saved Boards Yet',
               style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w800,
               ),
             ),
             const SizedBox(height: 4),
             Text(
-              'Start creating in any studio to see them here',
+              'Create or annotate on any studio above to see your history here',
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,
-                color: colorScheme.onSurface.withValues(alpha: 0.5),
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
           ],
@@ -645,7 +776,7 @@ class _RecentSessionsHorizontal extends ConsumerWidget {
     final recentItems = historyItems.take(5).toList();
 
     return SizedBox(
-      height: 200,
+      height: 205,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
@@ -657,35 +788,31 @@ class _RecentSessionsHorizontal extends ConsumerWidget {
             color: Colors.transparent,
             child: InkWell(
               onTap: () {
-                if (item.category.name.contains('whiteboard')) {
-                  context.go('/drawspace');
-                } else if (item.category.name.contains('voice')) {
-                  context.go('/voiceboard');
-                } else {
-                  context.push('/doccanvas');
+                HapticFeedback.lightImpact();
+                switch (item.category) {
+                  case HistoryCategory.voiceSession:
+                    context.push('/voiceboard?id=${Uri.encodeComponent(item.id)}');
+                  case HistoryCategory.docAnnotation:
+                    context.push('/doccanvas?id=${Uri.encodeComponent(item.id)}');
+                  case HistoryCategory.whiteboard:
+                  case HistoryCategory.all:
+                    context.push('/drawspace?id=${Uri.encodeComponent(item.id)}');
                 }
               },
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
-                width: 280,
+              borderRadius: BorderRadius.circular(18),
+              child: Ink(
+                width: 270,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  gradient: LinearGradient(
-                    colors: [
-                      colorScheme.surface,
-                      colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
+                  borderRadius: BorderRadius.circular(18),
+                  color: colorScheme.surface,
                   border: Border.all(
-                    color: colorScheme.primary.withValues(alpha: 0.3),
+                    color: colorScheme.outlineVariant.withValues(alpha: 0.5),
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 10,
+                      offset: const Offset(0, 3),
                     ),
                   ],
                 ),
@@ -702,13 +829,29 @@ class _RecentSessionsHorizontal extends ConsumerWidget {
                               color: colorScheme.primary.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: Icon(item.icon, color: colorScheme.primary, size: 18),
+                            child: Icon(item.icon, color: colorScheme.primary, size: 16),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: colorScheme.surfaceContainerHighest,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              item.category.name,
+                              style: TextStyle(
+                                fontSize: 9.5,
+                                fontWeight: FontWeight.w700,
+                                color: colorScheme.onSurface.withValues(alpha: 0.7),
+                              ),
+                            ),
                           ),
                           const Spacer(),
                           Text(
                             _formatRelativeTime(item.modifiedAt),
                             style: TextStyle(
-                              fontSize: 11,
+                              fontSize: 10.5,
                               color: colorScheme.onSurface.withValues(alpha: 0.5),
                               fontWeight: FontWeight.w600,
                             ),
@@ -724,7 +867,7 @@ class _RecentSessionsHorizontal extends ConsumerWidget {
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
                       Text(
                         item.summary,
                         maxLines: 2,
@@ -736,51 +879,27 @@ class _RecentSessionsHorizontal extends ConsumerWidget {
                         ),
                       ),
                       const Spacer(),
-                      Wrap(
-                        spacing: 6,
-                        runSpacing: 4,
-                        children: (item.tags.take(2).toList())
-                            .map(
-                              (tag) => Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: colorScheme.secondary.withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  tag,
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w700,
-                                    color: colorScheme.secondary,
-                                  ),
-                                ),
-                              ),
-                            )
-                            .toList(),
-                      ),
-                      const SizedBox(height: 10),
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        padding: const EdgeInsets.symmetric(vertical: 7),
                         decoration: BoxDecoration(
-                          color: colorScheme.primary.withValues(alpha: 0.12),
+                          color: colorScheme.primary.withValues(alpha: 0.08),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color: colorScheme.primary.withValues(alpha: 0.3),
+                            color: colorScheme.primary.withValues(alpha: 0.2),
                           ),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.play_arrow_rounded, color: colorScheme.primary, size: 16),
-                            const SizedBox(width: 6),
+                            const SizedBox(width: 4),
                             Text(
-                              'Resume',
+                              'Resume Session',
                               style: TextStyle(
                                 color: colorScheme.primary,
                                 fontWeight: FontWeight.w800,
-                                fontSize: 12,
+                                fontSize: 11.5,
                               ),
                             ),
                           ],
@@ -806,39 +925,57 @@ class _QuickAccessGrid extends StatelessWidget {
     final tools = [
       _ToolData(
         icon: Icons.history_rounded,
-        label: 'Workspace History',
+        label: 'History Hub',
         color: const Color(0xFF6366F1),
-        onTap: (context) => context.go('/history'),
+        onTap: (context) {
+          HapticFeedback.selectionClick();
+          context.go('/history');
+        },
       ),
       _ToolData(
         icon: Icons.notifications_rounded,
         label: 'Notifications',
         color: const Color(0xFFF59E0B),
-        onTap: (context) => context.push('/notifications'),
+        onTap: (context) {
+          HapticFeedback.selectionClick();
+          context.push('/notifications');
+        },
       ),
       _ToolData(
         icon: Icons.person_rounded,
-        label: 'Profile Settings',
+        label: 'My Profile',
         color: const Color(0xFF06B6D4),
-        onTap: (context) => context.go('/profile'),
+        onTap: (context) {
+          HapticFeedback.selectionClick();
+          context.go('/profile');
+        },
       ),
       _ToolData(
         icon: Icons.palette_rounded,
         label: 'Theme Studio',
         color: const Color(0xFFA855F7),
-        onTap: (context) => context.push('/appearance'),
+        onTap: (context) {
+          HapticFeedback.selectionClick();
+          context.push('/appearance');
+        },
       ),
       _ToolData(
         icon: Icons.settings_rounded,
-        label: 'System Settings',
+        label: 'Settings',
         color: const Color(0xFF64748B),
-        onTap: (context) => context.push('/settings'),
+        onTap: (context) {
+          HapticFeedback.selectionClick();
+          context.push('/settings');
+        },
       ),
       _ToolData(
-        icon: Icons.help_rounded,
+        icon: Icons.help_outline_rounded,
         label: 'Help Center',
         color: const Color(0xFF10B981),
-        onTap: (context) => context.push('/help'),
+        onTap: (context) {
+          HapticFeedback.selectionClick();
+          context.push('/help');
+        },
       ),
     ];
 
@@ -849,7 +986,7 @@ class _QuickAccessGrid extends StatelessWidget {
         crossAxisCount: 3,
         crossAxisSpacing: 10,
         mainAxisSpacing: 10,
-        childAspectRatio: 0.9,
+        childAspectRatio: 0.95,
       ),
       itemCount: tools.length,
       itemBuilder: (context, idx) {
@@ -858,24 +995,19 @@ class _QuickAccessGrid extends StatelessWidget {
           color: Colors.transparent,
           child: InkWell(
             onTap: () => tool.onTap(context),
-            borderRadius: BorderRadius.circular(14),
-            child: Container(
+            borderRadius: BorderRadius.circular(16),
+            child: Ink(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14),
-                gradient: LinearGradient(
-                  colors: [
-                    colorScheme.surface,
-                    colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                  ],
-                ),
+                borderRadius: BorderRadius.circular(16),
+                color: colorScheme.surface,
                 border: Border.all(
-                  color: tool.color.withValues(alpha: 0.3),
+                  color: colorScheme.outlineVariant.withValues(alpha: 0.5),
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: tool.color.withValues(alpha: 0.15),
-                    blurRadius: 10,
-                    offset: const Offset(0, 3),
+                    color: tool.color.withValues(alpha: 0.08),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
@@ -888,7 +1020,7 @@ class _QuickAccessGrid extends StatelessWidget {
                       color: tool.color.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(tool.icon, color: tool.color, size: 24),
+                    child: Icon(tool.icon, color: tool.color, size: 22),
                   ),
                   const SizedBox(height: 8),
                   Padding(
@@ -896,13 +1028,12 @@ class _QuickAccessGrid extends StatelessWidget {
                     child: Text(
                       tool.label,
                       textAlign: TextAlign.center,
-                      maxLines: 2,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                         color: colorScheme.onSurface,
-                        height: 1.2,
                       ),
                     ),
                   ),

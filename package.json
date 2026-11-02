@@ -12,6 +12,7 @@
     "dev:api": "npm run dev --prefix apps/api",
     "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
     "build:web": "npm run build --prefix apps/web",
+    "build:export": "npm run build:export --prefix apps/web",
     "build:api": "npm run build --prefix apps/api",
     "build": "npm run build:web",
     "start:web": "npm run start --prefix apps/web",

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -198,12 +199,33 @@ class DocViewerPlaceholder extends ConsumerWidget {
           ),
         );
       } else if (doc.url != null && doc.url!.isNotEmpty) {
+        if (doc.url!.startsWith('data:image')) {
+          try {
+            final base64String = doc.url!.split(',').last;
+            final bytes = base64Decode(base64String);
+            return Center(
+              child: InteractiveViewer(
+                maxScale: 4.0,
+                child: Image.memory(
+                  bytes,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, __, ___) => const Center(
+                    child: Text('Could not render image bytes', style: TextStyle(color: Colors.white)),
+                  ),
+                ),
+              ),
+            );
+          } catch (_) {}
+        }
         return Center(
-          child: Image.network(
-            doc.url!,
-            fit: BoxFit.contain,
-            errorBuilder: (_, __, ___) => const Center(
-              child: Text('Could not load image from URL', style: TextStyle(color: Colors.white)),
+          child: InteractiveViewer(
+            maxScale: 4.0,
+            child: Image.network(
+              doc.url!,
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) => const Center(
+                child: Text('Could not load image from URL', style: TextStyle(color: Colors.white)),
+              ),
             ),
           ),
         );

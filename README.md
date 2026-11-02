@@ -43,6 +43,18 @@ EduBoard bridges the gap between traditional tactile blackboards and modern digi
 
 ---
 
+## Screenshots & Interface Showcase
+
+| Desktop DrawSpace Whiteboard | Desktop Collaborative Classroom |
+|:---:|:---:|
+| ![DrawSpace Whiteboard](apps/web/public/screenshots/desktop-board.png) | ![Collaborative Classroom](apps/web/public/screenshots/desktop-classroom.png) |
+
+| Mobile Whiteboard Studio | Mobile Lecture & Document View |
+|:---:|:---:|
+| ![Mobile Whiteboard](apps/web/public/screenshots/mobile-board.png) | ![Mobile Lecture View](apps/web/public/screenshots/mobile-lecture.png) |
+
+---
+
 ## Tech Stack
 
 ### Frontend (Web Application)

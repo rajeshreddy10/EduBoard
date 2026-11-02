@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum EduButtonVariant { primary, secondary, outline, text, danger }
+enum EduButtonVariant { primary, secondary, outline, text, danger, tonal }
 
 /// Reusable interactive button with micro-animations and loading state
 class EduButton extends StatelessWidget {
@@ -112,6 +112,17 @@ class EduButton extends StatelessWidget {
             backgroundColor: colorScheme.error,
             foregroundColor: colorScheme.onError,
             elevation: 0,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          ),
+          child: childContent,
+        );
+        break;
+      case EduButtonVariant.tonal:
+        button = FilledButton.tonal(
+          onPressed: isLoading ? null : onPressed,
+          style: FilledButton.styleFrom(
+            backgroundColor: colorScheme.secondaryContainer,
+            foregroundColor: colorScheme.onSecondaryContainer,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           ),
           child: childContent,

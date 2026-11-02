@@ -36,3 +36,4 @@ async function backup() {
 }
 
 backup().then(() => process.exit(0)).catch(e => { console.error('Backup failed:', e); process.exit(1); });
+

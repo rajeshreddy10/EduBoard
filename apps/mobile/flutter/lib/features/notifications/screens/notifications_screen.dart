@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/utilities/responsive_layout.dart';
@@ -6,7 +7,7 @@ import '../../../providers/notifications_provider.dart';
 import '../widgets/notification_filter_chips.dart';
 import '../widgets/notification_tile.dart';
 
-/// Full notifications center screen with unread filters and quick actions
+/// Full notifications center screen with unread filters - 2026 Material Design 3
 class NotificationsScreen extends ConsumerWidget {
   const NotificationsScreen({super.key});
 
@@ -21,15 +22,24 @@ class NotificationsScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
+        elevation: 0,
+        backgroundColor: colorScheme.surface,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.canPop() ? context.pop() : context.go('/dashboard'),
+          tooltip: 'Back',
+          onPressed: () {
+            HapticFeedback.lightImpact();
+            context.canPop() ? context.pop() : context.go('/dashboard');
+          },
         ),
         title: Row(
           children: [
             Text(
               'Notifications',
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.3,
+              ),
             ),
             if (state.unreadCount > 0) ...[
               const SizedBox(width: 8),
@@ -37,11 +47,11 @@ class NotificationsScreen extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: colorScheme.primary,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   '${state.unreadCount} new',
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white),
                 ),
               ),
             ],
@@ -50,9 +60,12 @@ class NotificationsScreen extends ConsumerWidget {
         actions: [
           if (state.unreadCount > 0)
             TextButton.icon(
-              icon: const Icon(Icons.done_all_rounded, size: 18),
-              label: const Text('Mark all read'),
-              onPressed: notifier.markAllAsRead,
+              icon: const Icon(Icons.done_all_rounded, size: 16),
+              label: const Text('Mark all read', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                notifier.markAllAsRead();
+              },
             ),
           const SizedBox(width: 8),
         ],
@@ -66,29 +79,44 @@ class NotificationsScreen extends ConsumerWidget {
               child: Column(
                 children: [
                   const NotificationFilterChips(),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
                   Expanded(
                     child: items.isEmpty
                         ? Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.notifications_off_outlined, size: 52, color: colorScheme.onSurface.withValues(alpha: 0.3)),
-                                const SizedBox(height: 12),
-                                Text(
-                                  'All caught up!',
-                                  style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurface.withValues(alpha: 0.7)),
+                                Container(
+                                  padding: const EdgeInsets.all(20),
+                                  decoration: BoxDecoration(
+                                    color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.notifications_off_outlined,
+                                    size: 48,
+                                    color: colorScheme.onSurface.withValues(alpha: 0.35),
+                                  ),
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'All Caught Up!',
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
                                 Text(
                                   'No pending notifications in this category.',
-                                  style: TextStyle(fontSize: 12, color: colorScheme.onSurface.withValues(alpha: 0.5)),
+                                  style: TextStyle(fontSize: 12, color: colorScheme.onSurface.withValues(alpha: 0.55)),
                                 ),
                               ],
                             ),
                           )
-                        : ListView.builder(
+                        : ListView.separated(
+                            physics: const BouncingScrollPhysics(),
                             itemCount: items.length,
+                            separatorBuilder: (_, __) => const SizedBox(height: 8),
                             itemBuilder: (context, idx) {
                               return NotificationTile(item: items[idx]);
                             },

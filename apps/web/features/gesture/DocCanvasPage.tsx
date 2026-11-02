@@ -20,6 +20,8 @@ import { LASER_COLOR_MAP, LaserColorMode } from '@/components/board/Presentation
 import { useAuth } from '@/lib/AuthContext';
 import { useBoard } from '@/lib/BoardContext';
 import { historyService } from '@/lib/services/firebaseData';
+import { db } from '@/lib/firebase';
+import { doc as firestoreDoc, onSnapshot } from 'firebase/firestore';
 import type { Board } from '@/lib/types';
 
 type DocTool = 'pen' | 'text' | 'eraser' | 'highlight' | 'laser' | 'magnify' | 'pointer';
@@ -147,7 +149,7 @@ function DocCanvasContent() {
         } else if ((b as any).annotations && Array.isArray((b as any).annotations)) {
           loadedStrokes = (b as any).annotations.map((a: any) => ({
             id: a.id || `ann_${Date.now()}`,
-            tool: a.type === 'highlight' ? 'highlighter' : 'pen',
+            tool: a.type === 'highlight' ? 'highlight' : 'pen',
             width: a.strokeWidth || 3,
             color: a.color ? (typeof a.color === 'string' ? a.color : `#${(a.color & 0xFFFFFF).toString(16)}`) : '#ffd54f',
             points: (a.points || []).map((p: any) => ({ x: p.x || p.dx || 0, y: p.y || p.dy || 0 })),
@@ -192,6 +194,70 @@ function DocCanvasContent() {
     loadSavedDocCanvasBoard();
     return () => { isMounted = false; };
   }, [queryId, user?.id]);
+
+  const lastSyncSigRef = useRef<string>('');
+
+  // Real-time Firestore sync for the active DocCanvas across Web and Mobile
+  useEffect(() => {
+    if (!boardId) return;
+    const boardDocRef = firestoreDoc(db, 'whiteboards', boardId);
+    const unsub = onSnapshot(boardDocRef, (snapshot) => {
+      if (!snapshot.exists() || snapshot.metadata.hasPendingWrites) return;
+      const b = snapshot.data();
+      if (!b) return;
+
+      const rawStrokes = b.strokes && Array.isArray(b.strokes) ? b.strokes : null;
+      let loadedStrokes: Stroke[] = [];
+      if (rawStrokes && rawStrokes.length > 0) {
+        loadedStrokes = rawStrokes.map((s: any) => ({
+          ...s,
+          width: s.width || s.strokeWidth || 3,
+          color: s.color || s.colorHex || '#ffffff',
+          tool: s.tool || s.type || 'pen',
+        })) as any;
+      } else if (b.annotations && Array.isArray(b.annotations)) {
+        loadedStrokes = b.annotations.map((a: any) => ({
+          id: a.id || `ann_${Date.now()}`,
+          tool: a.type === 'highlight' ? 'highlight' : 'pen',
+          width: a.strokeWidth || 3,
+          color: a.color ? (typeof a.color === 'string' ? a.color : `#${(a.color & 0xFFFFFF).toString(16)}`) : '#ffd54f',
+          points: (a.points || []).map((p: any) => ({ x: p.x || p.dx || 0, y: p.y || p.dy || 0 })),
+        }));
+      }
+
+      let loadedElements: BoardTextElement[] = [];
+      if (b.elements && Array.isArray(b.elements)) {
+        loadedElements = b.elements as any;
+      }
+
+      const sig = `${loadedStrokes.length}_${loadedElements.length}_${b.updatedAt || b.updated_at || ''}_${b.activeDocument?.name || b.title || ''}`;
+      if (sig === lastSyncSigRef.current) return;
+      lastSyncSigRef.current = sig;
+
+      if (loadedStrokes.length > 0 || (rawStrokes && rawStrokes.length === 0 && strokes.length > 0)) {
+        setStrokes(loadedStrokes);
+      }
+      if (loadedElements.length > 0) {
+        setTextElements(loadedElements);
+      }
+      if (b.title && b.title !== 'DocCanvas Annotator') {
+        setBoardTitle(b.title);
+      }
+      const docObj = b.activeDocument || (b.bgFile ? { id: `doc_${Date.now()}`, name: b.title || 'Document', url: b.bgFile.url, dataUrl: b.bgFile.url, type: b.bgFile.type, mimeType: b.bgFile.type === 'pdf' ? 'application/pdf' : 'image/png', size: 0 } : null);
+      if (docObj) {
+        setDoc((prev) => {
+          if (!prev || (prev as any).url !== (docObj as any).url || prev.name !== docObj.name) {
+            return docObj as ImportedFileData;
+          }
+          return prev;
+        });
+      }
+    }, (err) => {
+      console.warn('[DocCanvas] Real-time snapshot listener notice:', err);
+    });
+
+    return () => unsub();
+  }, [boardId]);
 
   const showStatus = useCallback((message: string, duration = 2500) => {
     if (!isMountedRef.current) return;
@@ -243,6 +309,16 @@ function DocCanvasContent() {
   const buildBoardPayload = useCallback((): Board => {
     const loaded = originalBoardRef.current;
     const now = new Date();
+    const annotationsList = strokes.map((s) => ({
+      id: s.id,
+      pageIndex: 1,
+      type: s.tool === 'highlight' ? 'highlight' : 'pen',
+      strokeWidth: s.width,
+      color: s.color,
+      createdAt: now.toISOString(),
+      points: s.points.map((p) => ({ x: p.x, y: p.y })),
+    }));
+
     return {
       id: boardIdRef.current,
       title: doc ? `DocCanvas: ${doc.name}` : (loaded?.title && boardTitle === 'DocCanvas Annotator' ? loaded.title : (boardTitle || 'DocCanvas Annotator')),
@@ -257,8 +333,11 @@ function DocCanvasContent() {
       zoom: 100,
       isInfiniteCanvas: true,
       studio: 'doccanvas',
+      category: 'docAnnotation',
       strokes: strokes as any,
       elements: textElements as any,
+      annotations: annotationsList as any,
+      total_shapes: strokes.length + textElements.length,
       ...(doc ? {
         bgFile: { url: doc.dataUrl || (doc as any).url, type: doc.type },
         activeDocument: doc as any,
@@ -272,6 +351,8 @@ function DocCanvasContent() {
       const now = new Date();
       const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const boardPayload = buildBoardPayload();
+
+      lastSyncSigRef.current = `${strokes.length}_${textElements.length}_${boardPayload.updatedAt}_${doc?.name || boardTitle}`;
 
       await saveBoard(boardPayload);
       if (user?.id) {

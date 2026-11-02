@@ -134,6 +134,34 @@ class DocumentModel {
     this.url,
   });
 
+  DocumentModel copyWith({
+    String? id,
+    String? title,
+    String? author,
+    int? totalPages,
+    String? category,
+    String? previewExcerpt,
+    DateTime? updatedAt,
+    String? filePath,
+    String? fileType,
+    String? fileContent,
+    String? url,
+  }) {
+    return DocumentModel(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      author: author ?? this.author,
+      totalPages: totalPages ?? this.totalPages,
+      category: category ?? this.category,
+      previewExcerpt: previewExcerpt ?? this.previewExcerpt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      filePath: filePath ?? this.filePath,
+      fileType: fileType ?? this.fileType,
+      fileContent: fileContent ?? this.fileContent,
+      url: url ?? this.url,
+    );
+  }
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'title': title,
@@ -152,18 +180,20 @@ class DocumentModel {
 
   factory DocumentModel.fromJson(Map<String, dynamic> json, [String? id]) {
     final type = json['fileType']?.toString() ?? json['type']?.toString() ?? 'doc';
+    final url = json['url']?.toString() ?? json['dataUrl']?.toString();
+    final content = json['fileContent']?.toString() ?? json['textContent']?.toString();
     return DocumentModel(
       id: id ?? json['id']?.toString() ?? 'doc_${DateTime.now().millisecondsSinceEpoch}',
       title: json['title']?.toString() ?? json['name']?.toString() ?? 'Untitled Document',
       author: json['author']?.toString() ?? json['createdBy']?.toString() ?? 'Instructor',
       totalPages: asIntOr(json['totalPages'] ?? json['page_count'] ?? json['pageCount'], 1),
       category: json['category']?.toString() ?? 'Lecture Document',
-      previewExcerpt: json['description']?.toString() ?? json['previewExcerpt']?.toString() ?? 'Interactive pedagogical document',
+      previewExcerpt: json['description']?.toString() ?? json['previewExcerpt']?.toString() ?? (content != null && content.isNotEmpty ? content.substring(0, content.length.clamp(0, 160)) : 'Interactive pedagogical document'),
       updatedAt: asDateOr(json['updated_at'] ?? json['updatedAt'], DateTime.now()),
       filePath: json['filePath']?.toString(),
       fileType: type,
-      fileContent: json['fileContent']?.toString(),
-      url: json['url']?.toString(),
+      fileContent: content,
+      url: url,
     );
   }
 }

@@ -1,22 +1,26 @@
 import type { NextConfig } from "next";
 import path from "path";
+import fs from "fs";
 
-const isGithubActions = process.env.GITHUB_ACTIONS || false;
+const isGithubActions = Boolean(process.env.GITHUB_ACTIONS);
 const isVercel = Boolean(process.env.VERCEL);
+const cnameFile = path.resolve(__dirname, "public/CNAME");
+const hasCustomDomain = fs.existsSync(cnameFile) && fs.readFileSync(cnameFile, "utf-8").trim().length > 0;
 const repoName = process.env.GITHUB_REPOSITORY ? process.env.GITHUB_REPOSITORY.split('/')[1] : '';
-const basePath = isGithubActions && repoName && !isVercel ? `/${repoName}` : (process.env.NEXT_PUBLIC_BASE_PATH || '');
+const isUserPage = repoName.toLowerCase().endsWith('.github.io');
 
-/**
- * Deployment strategy for the Firebase-backed app:
- *
- * - GitHub Pages (CI): `output: 'export'` produces a fully static bundle.
- *   User-created board ids are dynamic, so board deep links are resolved
- *   client-side (static studio routes with `?id=` + app/not-found fallback).
- * - Vercel / Node hosts: dynamic rendering. `/dashboard/boards/[id]` is
- *   server-rendered on demand, so every board deep link resolves.
- * - Local builds: dynamic rendering so `next start` and board routes work.
- */
-const isStaticExport = Boolean(isGithubActions) && !isVercel;
+// Base path configuration:
+// 1. If explicitly defined in environment (e.g. NEXT_PUBLIC_BASE_PATH), honor it.
+// 2. If running on GitHub Actions without a custom domain and not a user page (<user>.github.io), prefix with /<repoName>.
+// 3. Otherwise (custom domain, user page, Vercel, or local development), use empty string root ('').
+let basePath = '';
+if (process.env.NEXT_PUBLIC_BASE_PATH !== undefined) {
+  basePath = process.env.NEXT_PUBLIC_BASE_PATH;
+} else if (isGithubActions && !isVercel && !hasCustomDomain && !isUserPage && repoName) {
+  basePath = `/${repoName}`;
+}
+
+const isStaticExport = Boolean(process.env.STATIC_EXPORT === 'true' || process.env.NEXT_EXPORT === 'true' || isGithubActions) && !isVercel;
 
 const nextConfig: NextConfig = {
   ...(isStaticExport ? { output: 'export' as const } : {}),
@@ -25,9 +29,6 @@ const nextConfig: NextConfig = {
   // Expose the computed basePath to client code (deep-link fallback in not-found).
   env: {
     NEXT_PUBLIC_BASE_PATH: basePath,
-    // Tells dynamic board pages which build mode they compile for: static
-    // exports must NOT prerender unbounded board ids (the 404.html SPA
-    // fallback resolves them), dynamic hosts render every id on demand.
     NEXT_PUBLIC_STATIC_EXPORT: isStaticExport ? 'true' : 'false',
   },
   images: {
