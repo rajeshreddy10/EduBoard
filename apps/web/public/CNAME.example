@@ -1,6 +1,0 @@
-# To use a custom domain on GitHub Pages:
-# 1. Rename this file to `CNAME` (remove the `.example` extension)
-# 2. Replace the example domain below with your domain:
-# example.com
-# 3. Commit and push to main. GitHub Pages and Next.js will automatically route to the root base path.
-
