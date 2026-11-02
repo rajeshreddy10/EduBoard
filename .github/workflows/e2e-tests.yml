@@ -80,3 +80,4 @@ jobs:
           echo "| Board Canvas | Creation, Stroke Serialization, Undo/Redo | PASS |" >> $GITHUB_STEP_SUMMARY
           echo "| File Pipeline | Import (PDF/Image), Annotation, Export | PASS |" >> $GITHUB_STEP_SUMMARY
           echo "| Session Cleanup | Sign Out & Cache Flush | PASS |" >> $GITHUB_STEP_SUMMARY
+

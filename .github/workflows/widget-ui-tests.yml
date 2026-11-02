@@ -62,3 +62,4 @@ jobs:
           echo "- **Widget Hierarchy**: Validated splash, home dashboard, and navigation" >> $GITHUB_STEP_SUMMARY
           echo "- **Theme Compatibility**: Material 3 (Light/Dark) verified" >> $GITHUB_STEP_SUMMARY
           echo "- **Status**: PASSED" >> $GITHUB_STEP_SUMMARY
+

@@ -94,3 +94,4 @@ jobs:
           echo "- **CodeQL Static Analysis**: Completed across JS/TS and Python" >> $GITHUB_STEP_SUMMARY
           echo "- **Secret Scanning**: Scanned git history for exposed credentials" >> $GITHUB_STEP_SUMMARY
           echo "- **Firebase Security Rules**: Checked `firestore.rules` and `storage.rules`" >> $GITHUB_STEP_SUMMARY
+

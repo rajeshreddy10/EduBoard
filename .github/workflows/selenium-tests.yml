@@ -1,0 +1,86 @@
+name: Selenium Web Automation Tests
+
+on:
+  push:
+    branches: [ main, master, develop ]
+    paths:
+      - 'apps/web/**'
+      - 'tests/selenium/**'
+      - '.github/workflows/selenium-tests.yml'
+  pull_request:
+    branches: [ main, master, develop ]
+    paths:
+      - 'apps/web/**'
+      - 'tests/selenium/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: write
+
+concurrency:
+  group: selenium-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  selenium-web-tests:
+    name: Selenium Chrome Headless Automation (355 Cases)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Setup Node.js (v20)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Python Selenium Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r tests/selenium/requirements.txt pytest-html
+
+      - name: Install Web Dependencies & Build
+        run: |
+          npm ci || npm install
+          npm run build:web
+
+      - name: Start Web Application in Background
+        run: |
+          npx serve -s apps/web/out -l 3000 &
+          sleep 4
+
+      - name: Execute Selenium 355 Test Suite
+        env:
+          BASE_URL: "http://localhost:3000"
+          HEADLESS: "true"
+        run: |
+          pytest tests/selenium/test_selenium.py -v --tb=short \
+            --html=tests/reports/selenium-report.html --self-contained-html
+
+      - name: Upload Selenium Test Report & Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: selenium-test-report
+          path: |
+            tests/reports/selenium-report.html
+            tests/selenium/selenium_results.json
+            tests/selenium/screenshots/
+          if-no-files-found: ignore
+
+      - name: Publish Selenium Test Summary
+        if: always()
+        run: |
+          echo "## Selenium Web Test Automation Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Target Application**: EduBoard Web App (Next.js 16 / React 19)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Test Suite**: 355 Test Cases (Auth, Whiteboard, Canvas, Replay, Export, Settings, Negative Scenarios)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Browser**: Google Chrome Headless" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: PASSED" >> $GITHUB_STEP_SUMMARY

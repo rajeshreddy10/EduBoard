@@ -74,3 +74,4 @@ jobs:
           echo "- **Target**: https://rajeshreddy10.github.io/EduBoard/" >> $GITHUB_STEP_SUMMARY
           echo "- **Latency SLA Threshold**: < 2000ms" >> $GITHUB_STEP_SUMMARY
           echo "- **Throughput & Error Budget**: Zero packet drops, HTTP 200 response" >> $GITHUB_STEP_SUMMARY
+

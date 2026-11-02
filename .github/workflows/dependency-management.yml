@@ -49,3 +49,4 @@ jobs:
           echo "- **Web NPM Stack**: Next.js 16, React 19, Lucide, Tailwind" >> $GITHUB_STEP_SUMMARY
           echo "- **Flutter Stack**: Flutter 3.24+, Riverpod 2.6+, GoRouter 14+" >> $GITHUB_STEP_SUMMARY
           echo "- **Status**: All dependencies resolved and pinned to reproducible targets" >> $GITHUB_STEP_SUMMARY
+
