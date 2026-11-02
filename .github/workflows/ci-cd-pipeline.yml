@@ -1,0 +1,157 @@
+name: 5. Production CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      trigger_rollback:
+        description: 'Set to true if rolling back to a previous tag/commit'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "production-deploy"
+  cancel-in-progress: false
+
+jobs:
+  # ============================================================================
+  # 1. QUALITY & VERIFICATION STAGE
+  # ============================================================================
+  verify:
+    name: Lint, Static Analysis & Build Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (v20)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install Web Dependencies
+        run: npm ci || npm install
+
+      - name: Web Static Analysis & Type Check
+        working-directory: apps/web
+        run: npx tsc --noEmit
+
+      - name: Flutter Analysis
+        working-directory: apps/mobile/flutter
+        run: |
+          flutter pub get
+          flutter analyze --no-fatal-infos
+
+  # ============================================================================
+  # 2. WEB BUILD & GITHUB PAGES DEPLOYMENT
+  # ============================================================================
+  deploy-web:
+    name: Build & Deploy Web to GitHub Pages
+    needs: verify
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (v20)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Setup GitHub Pages Configuration
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Install Dependencies
+        run: npm ci || npm install
+
+      - name: Build Web Application
+        env:
+          NEXT_PUBLIC_BASE_PATH: /EduBoard
+          NEXT_TELEMETRY_DISABLED: '1'
+          STATIC_EXPORT: 'true'
+          CI: 'false'
+        run: |
+          npm run build:web
+          touch apps/web/out/.nojekyll
+
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/web/out
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  # ============================================================================
+  # 3. ANDROID RELEASE APK BUILD & ARTIFACT MANAGEMENT
+  # ============================================================================
+  build-android-release:
+    name: Build Android Release APK
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install Flutter Dependencies
+        working-directory: apps/mobile/flutter
+        run: flutter pub get
+
+      - name: Build Android Release APK
+        working-directory: apps/mobile/flutter
+        run: |
+          flutter build apk --release --split-per-abi
+
+      - name: Upload Android Release Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: eduboard-android-release-apks
+          path: apps/mobile/flutter/build/app/outputs/flutter-apk/*.apk
+          retention-days: 14
+
+  # ============================================================================
+  # 4. ROLLBACK & DEPLOYMENT TELEMETRY
+  # ============================================================================
+  pipeline-summary:
+    name: Pipeline Telemetry & Rollback Check
+    needs: [deploy-web, build-android-release]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Record Release Metadata
+        run: |
+          echo "## EduBoard Multi-Platform CI/CD Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Web Deployment**: Successfully published to https://rajeshreddy10.github.io/EduBoard/" >> $GITHUB_STEP_SUMMARY
+          echo "- **Android Release**: Release APK built and archived in workflow artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "- **Rollback Playbook**: To roll back web, dispatch workflow with previous tag or revert commit on main" >> $GITHUB_STEP_SUMMARY

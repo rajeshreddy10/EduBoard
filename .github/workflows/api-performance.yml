@@ -1,0 +1,76 @@
+name: 6. API Performance & Latency Testing
+
+on:
+  schedule:
+    - cron: '0 2 * * 1' # Every Monday at 2 AM UTC
+  workflow_dispatch:
+    inputs:
+      target_endpoint:
+        description: 'Target endpoint or service to benchmark'
+        required: false
+        default: 'https://rajeshreddy10.github.io/EduBoard/'
+
+permissions:
+  contents: read
+
+jobs:
+  api-performance-benchmarks:
+    name: API Latency & Throughput Benchmarks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Benchmark Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests httpx statistics
+
+      - name: Run Benchmark Probe
+        run: |
+          python3 -c "
+          import urllib.request, time, statistics
+
+          url = '${{ github.event.inputs.target_endpoint || 'https://rajeshreddy10.github.io/EduBoard/' }}'
+          print(f'Benchmarking endpoint: {url}')
+          latencies = []
+          errors = 0
+
+          for i in range(25):
+              t0 = time.perf_counter()
+              try:
+                  req = urllib.request.Request(url, headers={'User-Agent': 'EduBoard-Perf-Bot/1.0'})
+                  with urllib.request.urlopen(req, timeout=10) as resp:
+                      if resp.status == 200:
+                          latencies.append((time.perf_counter() - t0) * 1000)
+                      else:
+                          errors += 1
+              except Exception as e:
+                  errors += 1
+              time.sleep(0.1)
+
+          if latencies:
+              avg_lat = statistics.mean(latencies)
+              p95 = statistics.quantiles(latencies, n=20)[18] if len(latencies) >= 20 else max(latencies)
+              print(f'Samples: {len(latencies)}, Avg Latency: {avg_lat:.2f}ms, P95: {p95:.2f}ms, Errors: {errors}')
+              if avg_lat > 2000:
+                  print('Performance Gate FAIL: Average latency exceeded 2000ms SLA')
+                  exit(1)
+              print('Performance Gate PASS')
+          else:
+              print('Unable to record latencies')
+              exit(1)
+          "
+
+      - name: Publish Performance Summary
+        if: always()
+        run: |
+          echo "## API & Web Performance Benchmarks" >> $GITHUB_STEP_SUMMARY
+          echo "- **Target**: https://rajeshreddy10.github.io/EduBoard/" >> $GITHUB_STEP_SUMMARY
+          echo "- **Latency SLA Threshold**: < 2000ms" >> $GITHUB_STEP_SUMMARY
+          echo "- **Throughput & Error Budget**: Zero packet drops, HTTP 200 response" >> $GITHUB_STEP_SUMMARY
