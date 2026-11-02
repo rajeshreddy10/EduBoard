@@ -13,33 +13,7 @@
 
 EduBoard bridges the gap between traditional tactile blackboards and modern digital pedagogy—featuring stylus pressure sensitivity, progressive lesson reveals, teacher teleprompter notes, and cross-platform state synchronization without intrusive auto-save disruption.
 
----
 
-## Key Features
-
-### 1. DrawSpace Canvas (`/normal-board`)
-* **Vector Drawing Engine**: Freehand pen, smart eraser, and geometric shape tools (Lines, Rectangles, Circles, Arrows, Triangles) powered by high-frequency vector interpolation.
-* **Stylus & Pressure Sensitivity**: Full hardware support for digitizers and active pens (e.g., S-Pen, Apple Pencil, Wacom), adjusting stroke width dynamically with tip pressure.
-* **Curated Pedagogical Palette**: High-contrast, colorblind-friendly colors (Ink, Ruby, Amber, Emerald, Azure, Violet) alongside custom RGBA color selection.
-* **Progressive Step Reveal**: Lesson stage manager allowing teachers to group complex equations or diagrams into sequential reveal steps, eliminating student cognitive overload.
-* **Reference Drawer (70/30 Split)**: Side-by-side dockable drawer allowing educators to inspect lesson notes, textbooks, and diagrams while simultaneously drawing on the main canvas.
-* **Teacher Teleprompter**: Private, student-hidden notes overlay pinned to active board coordinates.
-
-### 2. DocCanvas Studio (`/gesture-board`)
-* **Universal Document Compatibility**: Native parsing and rendering for PDF, DOCX, PPTX, TXT, and high-resolution images.
-* **Direct Page Surface Annotation**: Highlight, annotate, and stamp notes directly on rendered document pages with smooth page scrolling and jumping.
-* **Multi-Format Export**: Export annotated coursework to searchable PDF, SVG, PNG, or JSON session formats.
-* **Optimized Mobile Experience**: Streamlined for Android tablets and phones with unnecessary math/replay bloat removed for maximum annotation responsiveness.
-
-### 3. Voice Board (`/voice-control`)
-* **Real-Time Speech-to-Text**: Low-latency transcription engine converting spoken lectures into structured whiteboard text live on screen.
-* **Clean Distraction-Free Canvas**: Completely solid, wallpaper-free background ensuring maximum legibility for transcribed notes.
-* **Anti-Duplication Filter**: Intelligent stream-deduplication ensuring no repeated sentences, hallucinated filler words, or recognition echoes.
-* **Synchronous Multi-Modal Teaching**: Write or draw on the whiteboard while speaking simultaneously.
-
-### 4. Cross-Platform Architecture & Manual Save Guarantee
-* **Zero Accidental Saves**: Autosave removed across all board modules—boards persist strictly when the educator presses the **Save** button.
-* **Exact State Reopening**: Saved board IDs, timestamps, and exact vector strokes load identically across both Web and Android.
 
 ## Tech Stack
 
