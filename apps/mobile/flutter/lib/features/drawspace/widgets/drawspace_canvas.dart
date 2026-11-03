@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../models/doc_annotation_model.dart';
 import '../../../models/whiteboard_stroke_model.dart';
 import '../../../providers/whiteboard_provider.dart';
 import 'drawspace_painter.dart';
@@ -387,24 +390,69 @@ class _DrawSpaceCanvasState extends ConsumerState<DrawSpaceCanvas> {
             ..rotateZ(rotation),
           alignment: Alignment.center,
           child: RepaintBoundary(
-            child: CustomPaint(
-              size: Size.infinite,
-              painter: DrawSpacePainter(
-                strokes: state.strokes,
-                currentStroke: _activeStroke,
-                textElements: state.textElements,
-                laserPosition: state.laserPosition,
-                laserColor: state.laserColor,
-                spotlightPosition: state.spotlightPosition,
-                spotlightRadius: state.spotlightRadius,
-                revealFraction: state.revealFraction,
-                pointerPosition: state.pointerPosition,
-                pointerStyle: state.pointerStyle,
-              ),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                if (state.referenceDocument != null &&
+                    ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp'].contains(state.referenceDocument!.fileType.toLowerCase()))
+                  Center(
+                    child: Opacity(
+                      opacity: 0.92,
+                      child: _buildCanvasBackgroundImage(state.referenceDocument!),
+                    ),
+                  ),
+                CustomPaint(
+                  size: Size.infinite,
+                  painter: DrawSpacePainter(
+                    strokes: state.strokes,
+                    currentStroke: _activeStroke,
+                    textElements: state.textElements,
+                    laserPosition: state.laserPosition,
+                    laserColor: state.laserColor,
+                    spotlightPosition: state.spotlightPosition,
+                    spotlightRadius: state.spotlightRadius,
+                    revealFraction: state.revealFraction,
+                    pointerPosition: state.pointerPosition,
+                    pointerStyle: state.pointerStyle,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildCanvasBackgroundImage(DocumentModel doc) {
+    if (doc.url != null && doc.url!.startsWith('data:image')) {
+      try {
+        final base64String = doc.url!.split(',').last;
+        final bytes = base64Decode(base64String);
+        return Image.memory(
+          bytes,
+          fit: BoxFit.contain,
+          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+        );
+      } catch (_) {}
+    }
+
+    if (doc.filePath != null && File(doc.filePath!).existsSync()) {
+      return Image.file(
+        File(doc.filePath!),
+        fit: BoxFit.contain,
+        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+      );
+    }
+
+    if (doc.url != null && doc.url!.startsWith('http')) {
+      return Image.network(
+        doc.url!,
+        fit: BoxFit.contain,
+        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+      );
+    }
+
+    return const SizedBox.shrink();
   }
 }

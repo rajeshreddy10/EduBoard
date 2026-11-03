@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/constants/app_constants.dart';
 import '../core/services/storage_service.dart';
+import '../models/doc_annotation_model.dart';
 import '../models/whiteboard_stroke_model.dart';
 import '../repositories/whiteboard_repository.dart';
 
@@ -48,6 +49,7 @@ class WhiteboardState {
   final int stepIndex;
   final List<String> stepTitles;
   final bool isStepRevealActive;
+  final DocumentModel? referenceDocument;
 
   const WhiteboardState({
     this.activeTool = WhiteboardTool.pen,
@@ -97,6 +99,7 @@ class WhiteboardState {
       'Step 5: Lesson Summary & Reflection',
     ],
     this.isStepRevealActive = false,
+    this.referenceDocument,
   });
 
   WhiteboardState copyWith({
@@ -135,6 +138,8 @@ class WhiteboardState {
     int? stepIndex,
     List<String>? stepTitles,
     bool? isStepRevealActive,
+    DocumentModel? referenceDocument,
+    bool clearReferenceDocument = false,
   }) {
     return WhiteboardState(
       activeTool: activeTool ?? this.activeTool,
@@ -171,6 +176,9 @@ class WhiteboardState {
       stepIndex: stepIndex ?? this.stepIndex,
       stepTitles: stepTitles ?? this.stepTitles,
       isStepRevealActive: isStepRevealActive ?? this.isStepRevealActive,
+      referenceDocument: clearReferenceDocument
+          ? null
+          : (referenceDocument ?? this.referenceDocument),
     );
   }
 }
@@ -242,6 +250,25 @@ class WhiteboardNotifier extends Notifier<WhiteboardState> {
     // (History convention) — never rename or re-stamp the record.
     final metaTitle = meta['title']?.toString().trim() ?? '';
     final metaDescription = meta['description']?.toString().trim() ?? '';
+
+    DocumentModel? loadedDoc;
+    if (meta['activeDocument'] is Map) {
+      loadedDoc = DocumentModel.fromJson(Map<String, dynamic>.from(meta['activeDocument'] as Map), boardId);
+    } else if (meta['bgFile'] is Map) {
+      final bg = meta['bgFile'] as Map;
+      loadedDoc = DocumentModel(
+        id: 'bg_$boardId',
+        title: metaTitle.isNotEmpty ? metaTitle : 'Board Document',
+        author: 'Instructor',
+        totalPages: 1,
+        category: 'Document',
+        previewExcerpt: 'Document background for whiteboard',
+        updatedAt: DateTime.now(),
+        fileType: bg['type']?.toString() ?? 'image',
+        url: bg['url']?.toString(),
+      );
+    }
+
     state = state.copyWith(
       activeBoardId: boardId,
       strokes: strokes,
@@ -251,6 +278,8 @@ class WhiteboardNotifier extends Notifier<WhiteboardState> {
       undoneTextElements: [],
       boardTitle: metaTitle.isNotEmpty ? metaTitle : boardTitleForNewBoard(boardId),
       boardDescription: metaDescription,
+      referenceDocument: loadedDoc,
+      isReferenceOpen: loadedDoc != null ? true : state.isReferenceOpen,
       saveStatus: '',
       clearSaveStatus: true,
     );
@@ -544,6 +573,11 @@ class WhiteboardNotifier extends Notifier<WhiteboardState> {
   }
   void toggleNotesPanel() => state = state.copyWith(isNotesOpen: !state.isNotesOpen);
   void toggleReferencePanel() => state = state.copyWith(isReferenceOpen: !state.isReferenceOpen);
+  void setReferenceDocument(DocumentModel? doc) => state = state.copyWith(
+        referenceDocument: doc,
+        isReferenceOpen: doc != null ? true : state.isReferenceOpen,
+      );
+  void clearReferenceDocument() => state = state.copyWith(clearReferenceDocument: true);
   void togglePresentationMode() => state = state.copyWith(isPresentationMode: !state.isPresentationMode);
 
   void addTeacherNote(String title, String content) {

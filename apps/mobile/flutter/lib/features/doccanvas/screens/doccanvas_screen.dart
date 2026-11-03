@@ -94,13 +94,8 @@ class _DocCanvasScreenState extends ConsumerState<DocCanvasScreen> {
     }
   }
 
-  /// Request storage permission and open the file picker.
-  Future<void> _openFilePicker() async {
-    final status = await Permission.storage.request();
-    if (status.isPermanentlyDenied) {
-      if (mounted) _showPermissionDeniedDialog();
-      return;
-    }
+  /// Open the file type selection sheet to pick files from device.
+  void _openFilePicker() {
     _showFileTypeSheet();
   }
 
@@ -120,39 +115,64 @@ class _DocCanvasScreenState extends ConsumerState<DocCanvasScreen> {
       final name = picked.name;
       final ext = (picked.extension ?? name.split('.').last).toLowerCase();
 
+      Uint8List? rawBytes;
+      try {
+        rawBytes = await picked.readAsBytes();
+      } catch (_) {}
+
+      if ((rawBytes == null || rawBytes.isEmpty) && path != null) {
+        try {
+          final file = File(path);
+          if (file.existsSync()) {
+            rawBytes = await file.readAsBytes();
+          }
+        } catch (_) {}
+      }
+
       String? content;
       int pageCount = 1;
       String category = 'Document';
+      String? dataUrl;
+      String? effectivePath = path;
 
-      if (['txt', 'md', 'csv', 'json', 'log', 'html', 'py'].contains(ext)) {
+      if (['txt', 'md', 'csv', 'json', 'log', 'html', 'py', 'dart', 'js', 'ts'].contains(ext)) {
         category = 'Text Document';
-        if (path != null && File(path).existsSync()) {
+        if (rawBytes != null && rawBytes.isNotEmpty) {
+          content = utf8.decode(rawBytes, allowMalformed: true);
+        } else if (path != null && File(path).existsSync()) {
           try {
             content = await File(path).readAsString();
-            pageCount = (content.split('\n').length / 32).ceil().clamp(1, 100);
           } catch (_) {}
         }
-        if (content == null) {
-          try {
-            final rawBytes = await picked.readAsBytes();
-            if (rawBytes.isNotEmpty) {
-              content = utf8.decode(rawBytes);
-              pageCount = (content.split('\n').length / 32).ceil().clamp(1, 100);
-            }
-          } catch (_) {}
-        }
+        pageCount = ((content?.split('\n').length ?? 1) / 30).ceil().clamp(1, 100);
       } else if (['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp'].contains(ext)) {
         category = 'Image Document';
         pageCount = 1;
+        if (rawBytes != null && rawBytes.isNotEmpty) {
+          dataUrl = 'data:image/$ext;base64,${base64Encode(rawBytes)}';
+          try {
+            final tempFile = File('${Directory.systemTemp.path}/doc_${DateTime.now().millisecondsSinceEpoch}.$ext');
+            await tempFile.writeAsBytes(rawBytes);
+            effectivePath = tempFile.path;
+          } catch (_) {}
+        }
       } else if (ext == 'pdf') {
         category = 'PDF Document';
         pageCount = 5;
+        if (rawBytes != null && rawBytes.isNotEmpty) {
+          dataUrl = 'data:application/pdf;base64,${base64Encode(rawBytes)}';
+          try {
+            final tempFile = File('${Directory.systemTemp.path}/doc_${DateTime.now().millisecondsSinceEpoch}.pdf');
+            await tempFile.writeAsBytes(rawBytes);
+            effectivePath = tempFile.path;
+          } catch (_) {}
+        }
       } else if (['doc', 'docx'].contains(ext)) {
         category = 'Word Document';
-        pageCount = 3;
+        pageCount = 4;
       } else if (['ppt', 'pptx'].contains(ext)) {
         category = 'Presentation';
-        pageCount = 4;
+        pageCount = 5;
       }
 
       final newDoc = DocumentModel(
@@ -165,14 +185,16 @@ class _DocCanvasScreenState extends ConsumerState<DocCanvasScreen> {
             ? content.substring(0, content.length.clamp(0, 160))
             : '$category loaded from storage.',
         updatedAt: DateTime.now(),
-        filePath: path,
+        filePath: effectivePath,
         fileType: ext,
         fileContent: content,
+        url: dataUrl,
       );
 
       ref.read(docCanvasProvider.notifier).addUploadedDocument(newDoc);
 
       if (mounted) {
+        HapticFeedback.lightImpact();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('$name opened successfully'),
