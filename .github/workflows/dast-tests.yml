@@ -77,3 +77,4 @@ jobs:
           echo "- **Total Checks**: 350 Vulnerability Tests" >> $GITHUB_STEP_SUMMARY
           echo "- **Coverage**: OWASP Top 10, SQL Injection, Cross-Site Scripting (XSS), Security Headers, CORS, CSRF, Token Hygiene" >> $GITHUB_STEP_SUMMARY
           echo "- **Status**: PASSED (Zero High/Critical Vulnerabilities Detected)" >> $GITHUB_STEP_SUMMARY
+

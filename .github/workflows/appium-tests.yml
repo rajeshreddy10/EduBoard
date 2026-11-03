@@ -76,3 +76,4 @@ jobs:
           echo "- **Test Suite**: 355 Test Cases (Auth, DrawSpace, DocCanvas, VoiceBoard, Navigation, Settings)" >> $GITHUB_STEP_SUMMARY
           echo "- **Framework**: Appium Python Client + UiAutomator2 + Pytest" >> $GITHUB_STEP_SUMMARY
           echo "- **Status**: PASSED" >> $GITHUB_STEP_SUMMARY
+
