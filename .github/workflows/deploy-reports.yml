@@ -50,3 +50,4 @@ jobs:
           echo "## GitHub Pages Reports Deployment Complete" >> $GITHUB_STEP_SUMMARY
           echo "- **Status**: Successfully deployed to GitHub Pages" >> $GITHUB_STEP_SUMMARY
           echo "- **Live Report URL**: [https://${{ github.repository_owner }}.github.io/EduBoard/reports/latest/execution-report.html](https://${{ github.repository_owner }}.github.io/EduBoard/reports/latest/execution-report.html)" >> $GITHUB_STEP_SUMMARY
+

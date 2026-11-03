@@ -109,3 +109,4 @@ jobs:
             echo "Execution Date: $(date -u)" >> $GITHUB_STEP_SUMMARY
             echo "Report URL: https://${{ github.repository_owner }}.github.io/EduBoard/reports/latest/execution-report.html" >> $GITHUB_STEP_SUMMARY
           fi
+
