@@ -53,6 +53,10 @@ jobs:
         run: |
           npm run build:web
           touch apps/web/out/.nojekyll
+          if [ -d "reports" ]; then
+            echo "Copying reports to static export directory..."
+            cp -r reports apps/web/out/
+          fi
 
       - name: Upload GitHub Pages Artifact
         uses: actions/upload-pages-artifact@v3

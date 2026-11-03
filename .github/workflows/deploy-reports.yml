@@ -1,0 +1,52 @@
+name: Deploy Test Reports to GitHub Pages
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_number:
+        description: 'Build number to publish (default: latest)'
+        required: false
+        default: 'latest'
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  deploy-reports:
+    name: Publish HTML Reports to GitHub Pages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Report Dependencies
+        run: pip install openpyxl
+
+      - name: Regenerate Reports If Needed
+        env:
+          GITHUB_RUN_NUMBER: ${{ github.event.inputs.build_number || github.run_number }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python tests/appium/generate_reports.py
+
+      - name: Deploy Reports to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./reports
+          destination_dir: reports
+          keep_files: true
+
+      - name: Report Deployment Summary
+        run: |
+          echo "## GitHub Pages Reports Deployment Complete" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: Successfully deployed to GitHub Pages" >> $GITHUB_STEP_SUMMARY
+          echo "- **Live Report URL**: [https://${{ github.repository_owner }}.github.io/EduBoard/reports/latest/execution-report.html](https://${{ github.repository_owner }}.github.io/EduBoard/reports/latest/execution-report.html)" >> $GITHUB_STEP_SUMMARY
