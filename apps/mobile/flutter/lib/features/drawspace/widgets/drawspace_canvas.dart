@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,13 +34,36 @@ class _DrawSpaceCanvasState extends ConsumerState<DrawSpaceCanvas> {
   double _liveScale = 1.0;
   double _liveRotation = 0.0;
   Offset _livePan = Offset.zero;
+  Size _currentCanvasSize = const Size(1920, 1080);
+  Offset _lastScreenFocalPoint = Offset.zero;
+
+  Offset _toCanvasCoords(Offset screenPoint, Size size) {
+    final state = ref.read(whiteboardProvider);
+    final scale = _gestureActive ? _liveScale : state.scale;
+    final panOffset = _gestureActive ? _livePan : state.panOffset;
+    final rotation = _gestureActive ? _liveRotation : state.rotation;
+
+    final center = Offset(size.width / 2, size.height / 2);
+    final dx1 = screenPoint.dx - center.dx - panOffset.dx;
+    final dy1 = screenPoint.dy - center.dy - panOffset.dy;
+
+    final cosR = math.cos(-rotation);
+    final sinR = math.sin(-rotation);
+    final dx2 = dx1 * cosR - dy1 * sinR;
+    final dy2 = dx1 * sinR + dy1 * cosR;
+
+    final invScale = scale > 0.05 ? (1.0 / scale) : 1.0;
+    return Offset(center.dx + dx2 * invScale, center.dy + dy2 * invScale);
+  }
 
   void _onScaleStart(ScaleStartDetails details) {
     final state = ref.read(whiteboardProvider);
-    _lastFocalPoint = details.localFocalPoint;
+    final canvasPoint = _toCanvasCoords(details.localFocalPoint, _currentCanvasSize);
+    _lastFocalPoint = canvasPoint;
+    _lastScreenFocalPoint = details.localFocalPoint;
 
-    // Multi-touch or pan/select/spotlight mode
-    if (details.pointerCount > 1 || state.activeTool == WhiteboardTool.pan || state.activeTool == WhiteboardTool.selection) {
+    // Multi-touch or pan mode
+    if (details.pointerCount > 1 || state.activeTool == WhiteboardTool.pan) {
       _gestureActive = true;
       _gestureStartScale = state.scale;
       _gestureStartRotation = state.rotation;
@@ -49,29 +73,34 @@ class _DrawSpaceCanvasState extends ConsumerState<DrawSpaceCanvas> {
       return;
     }
 
+    if (state.activeTool == WhiteboardTool.eraser) {
+      ref.read(whiteboardProvider.notifier).eraseAt(canvasPoint, 26.0 / (state.scale > 0 ? state.scale : 1.0));
+      HapticFeedback.selectionClick();
+      return;
+    }
+
     if (state.activeTool == WhiteboardTool.laser) {
-      ref.read(whiteboardProvider.notifier).setLaserPosition(details.localFocalPoint);
+      ref.read(whiteboardProvider.notifier).setLaserPosition(canvasPoint);
       HapticFeedback.lightImpact();
       return;
     }
 
     if (state.activeTool == WhiteboardTool.pointer) {
-      ref.read(whiteboardProvider.notifier).setPointerPosition(details.localFocalPoint);
+      ref.read(whiteboardProvider.notifier).setPointerPosition(canvasPoint);
       HapticFeedback.selectionClick();
       return;
     }
 
     if (state.activeTool == WhiteboardTool.spotlight) {
-      ref.read(whiteboardProvider.notifier).setSpotlightPosition(details.localFocalPoint);
+      ref.read(whiteboardProvider.notifier).setSpotlightPosition(canvasPoint);
       HapticFeedback.selectionClick();
       return;
     }
 
     if (state.activeTool == WhiteboardTool.text || state.activeTool == WhiteboardTool.selection) {
-      // Check if tapping an existing text element
       WhiteboardTextElement? hitText;
       for (final t in state.textElements.reversed) {
-        final dist = (t.position - details.localFocalPoint).distance;
+        final dist = (t.position - canvasPoint).distance;
         if (dist < 80) {
           hitText = t;
           break;
@@ -79,20 +108,16 @@ class _DrawSpaceCanvasState extends ConsumerState<DrawSpaceCanvas> {
       }
       if (hitText != null) {
         ref.read(whiteboardProvider.notifier).selectTextElement(hitText.id);
-        _showAddTextModal(context, details.localFocalPoint, hitText);
+        _showAddTextModal(context, canvasPoint, hitText);
         return;
       } else if (state.activeTool == WhiteboardTool.text) {
-        _showAddTextModal(context, details.localFocalPoint);
+        _showAddTextModal(context, canvasPoint);
         return;
       }
     }
 
-    if (state.activeTool == WhiteboardTool.eraser) {
-      HapticFeedback.selectionClick();
-    }
-
-    // Begin drawing stroke
-    final point = StrokePoint(details.localFocalPoint.dx, details.localFocalPoint.dy);
+    // Begin drawing stroke with exact canvas coordinate
+    final point = StrokePoint(canvasPoint.dx, canvasPoint.dy);
     _activeStroke = WhiteboardStroke(
       id: 'stroke_${DateTime.now().millisecondsSinceEpoch}',
       points: [point],
@@ -106,14 +131,11 @@ class _DrawSpaceCanvasState extends ConsumerState<DrawSpaceCanvas> {
 
   void _onScaleUpdate(ScaleUpdateDetails details) {
     final state = ref.read(whiteboardProvider);
+    final canvasPoint = _toCanvasCoords(details.localFocalPoint, _currentCanvasSize);
 
     if (_gestureActive) {
-      // Update live local transform — pinch to zoom, pan.
-      // Scale/rotation from [ScaleUpdateDetails] are cumulative relative to
-      // the gesture start, so they must be based against the start values,
-      // not compounded onto the live ones.
-      final delta = details.localFocalPoint - _lastFocalPoint;
-      _lastFocalPoint = details.localFocalPoint;
+      final delta = details.localFocalPoint - _lastScreenFocalPoint;
+      _lastScreenFocalPoint = details.localFocalPoint;
       setState(() {
         _livePan += delta;
         _liveScale = (_gestureStartScale * details.scale).clamp(0.25, 6.0);
@@ -122,23 +144,28 @@ class _DrawSpaceCanvasState extends ConsumerState<DrawSpaceCanvas> {
       return;
     }
 
+    if (state.activeTool == WhiteboardTool.eraser) {
+      ref.read(whiteboardProvider.notifier).eraseAt(canvasPoint, 26.0 / (state.scale > 0 ? state.scale : 1.0));
+      return;
+    }
+
     if (state.activeTool == WhiteboardTool.laser) {
-      ref.read(whiteboardProvider.notifier).setLaserPosition(details.localFocalPoint);
+      ref.read(whiteboardProvider.notifier).setLaserPosition(canvasPoint);
       return;
     }
 
     if (state.activeTool == WhiteboardTool.pointer) {
-      ref.read(whiteboardProvider.notifier).setPointerPosition(details.localFocalPoint);
+      ref.read(whiteboardProvider.notifier).setPointerPosition(canvasPoint);
       return;
     }
 
     if (state.activeTool == WhiteboardTool.spotlight) {
-      ref.read(whiteboardProvider.notifier).setSpotlightPosition(details.localFocalPoint);
+      ref.read(whiteboardProvider.notifier).setSpotlightPosition(canvasPoint);
       return;
     }
 
     if (_activeStroke != null) {
-      final point = StrokePoint(details.localFocalPoint.dx, details.localFocalPoint.dy);
+      final point = StrokePoint(canvasPoint.dx, canvasPoint.dy);
       setState(() {
         _activeStroke = _activeStroke!.copyWith(
           points: [..._activeStroke!.points, point],
@@ -152,8 +179,6 @@ class _DrawSpaceCanvasState extends ConsumerState<DrawSpaceCanvas> {
 
     if (_gestureActive) {
       _gestureActive = false;
-      // Single commit into the provider per gesture instead of per pointer
-      // sample — the heavy rebuild happens once, after the fingers lift.
       ref.read(whiteboardProvider.notifier).updateTransform(
             scale: _liveScale,
             panOffset: _livePan,
@@ -162,8 +187,9 @@ class _DrawSpaceCanvasState extends ConsumerState<DrawSpaceCanvas> {
       return;
     }
 
+    if (state.activeTool == WhiteboardTool.eraser) return;
+
     if (state.activeTool == WhiteboardTool.laser) {
-      // Fade out after configured duration
       _laserTimer?.cancel();
       _laserTimer = Timer(Duration(seconds: state.laserDurationSeconds), () {
         if (mounted) {
@@ -369,13 +395,14 @@ class _DrawSpaceCanvasState extends ConsumerState<DrawSpaceCanvas> {
   Widget build(BuildContext context) {
     final state = ref.watch(whiteboardProvider);
 
-    // During an active pan/pinch gesture we render from the local live
-    // transform (fast path, no Riverpod rebuilds); otherwise from state.
     final scale = _gestureActive ? _liveScale : state.scale;
     final panOffset = _gestureActive ? _livePan : state.panOffset;
     final rotation = _gestureActive ? _liveRotation : state.rotation;
 
-    return GestureDetector(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        _currentCanvasSize = Size(constraints.maxWidth, constraints.maxHeight);
+        return GestureDetector(
       onScaleStart: _onScaleStart,
       onScaleUpdate: _onScaleUpdate,
       onScaleEnd: _onScaleEnd,
@@ -417,6 +444,8 @@ class _DrawSpaceCanvasState extends ConsumerState<DrawSpaceCanvas> {
           ),
         ),
       ),
+    );
+      },
     );
   }
 

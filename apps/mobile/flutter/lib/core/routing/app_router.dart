@@ -208,72 +208,79 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/normal-board',
         parentNavigatorKey: _rootNavigatorKey,
-        pageBuilder: (context, state) => AppPageTransitions.slideUp(
-          key: state.pageKey,
-          child: DrawSpaceScreen(
-            boardId: state.uri.queryParameters['id'],
-          ),
-        ),
+        pageBuilder: (context, state) {
+          final id = state.uri.queryParameters['id'] ?? state.uri.queryParameters['boardId'] ?? (state.extra is Map ? ((state.extra as Map)['id'] ?? (state.extra as Map)['boardId'])?.toString() : (state.extra is String ? state.extra as String : null));
+          return AppPageTransitions.slideUp(
+            key: state.pageKey,
+            child: DrawSpaceScreen(boardId: id),
+          );
+        },
       ),
       GoRoute(
         path: '/drawspace',
         parentNavigatorKey: _rootNavigatorKey,
-        pageBuilder: (context, state) => AppPageTransitions.slideUp(
-          key: state.pageKey,
-          child: DrawSpaceScreen(
-            boardId: state.uri.queryParameters['id'],
-          ),
-        ),
+        pageBuilder: (context, state) {
+          final id = state.uri.queryParameters['id'] ?? state.uri.queryParameters['boardId'] ?? (state.extra is Map ? ((state.extra as Map)['id'] ?? (state.extra as Map)['boardId'])?.toString() : (state.extra is String ? state.extra as String : null));
+          return AppPageTransitions.slideUp(
+            key: state.pageKey,
+            child: DrawSpaceScreen(boardId: id),
+          );
+        },
       ),
       GoRoute(
         path: '/voice-control',
         parentNavigatorKey: _rootNavigatorKey,
-        pageBuilder: (context, state) => AppPageTransitions.slideUp(
-          key: state.pageKey,
-          child: VoiceBoardScreen(
-            sessionId: state.uri.queryParameters['id'],
-          ),
-        ),
+        pageBuilder: (context, state) {
+          final id = state.uri.queryParameters['id'] ?? state.uri.queryParameters['sessionId'] ?? (state.extra is Map ? ((state.extra as Map)['id'] ?? (state.extra as Map)['sessionId'])?.toString() : (state.extra is String ? state.extra as String : null));
+          return AppPageTransitions.slideUp(
+            key: state.pageKey,
+            child: VoiceBoardScreen(sessionId: id),
+          );
+        },
       ),
       GoRoute(
         path: '/voiceboard',
         parentNavigatorKey: _rootNavigatorKey,
-        pageBuilder: (context, state) => AppPageTransitions.slideUp(
-          key: state.pageKey,
-          child: VoiceBoardScreen(
-            sessionId: state.uri.queryParameters['id'],
-          ),
-        ),
+        pageBuilder: (context, state) {
+          final id = state.uri.queryParameters['id'] ?? state.uri.queryParameters['sessionId'] ?? (state.extra is Map ? ((state.extra as Map)['id'] ?? (state.extra as Map)['sessionId'])?.toString() : (state.extra is String ? state.extra as String : null));
+          return AppPageTransitions.slideUp(
+            key: state.pageKey,
+            child: VoiceBoardScreen(sessionId: id),
+          );
+        },
       ),
       GoRoute(
         path: '/gesture-board',
         parentNavigatorKey: _rootNavigatorKey,
-        pageBuilder: (context, state) => AppPageTransitions.slideUp(
-          key: state.pageKey,
-          child: DocCanvasScreen(
-            documentId: state.uri.queryParameters['id'],
-          ),
-        ),
+        pageBuilder: (context, state) {
+          final id = state.uri.queryParameters['id'] ?? state.uri.queryParameters['docId'] ?? state.uri.queryParameters['documentId'] ?? (state.extra is Map ? ((state.extra as Map)['id'] ?? (state.extra as Map)['docId'])?.toString() : (state.extra is String ? state.extra as String : null));
+          return AppPageTransitions.slideUp(
+            key: state.pageKey,
+            child: DocCanvasScreen(documentId: id),
+          );
+        },
       ),
       GoRoute(
         path: '/document-studio',
         parentNavigatorKey: _rootNavigatorKey,
-        pageBuilder: (context, state) => AppPageTransitions.slideUp(
-          key: state.pageKey,
-          child: DocCanvasScreen(
-            documentId: state.uri.queryParameters['id'],
-          ),
-        ),
+        pageBuilder: (context, state) {
+          final id = state.uri.queryParameters['id'] ?? state.uri.queryParameters['docId'] ?? state.uri.queryParameters['documentId'] ?? (state.extra is Map ? ((state.extra as Map)['id'] ?? (state.extra as Map)['docId'])?.toString() : (state.extra is String ? state.extra as String : null));
+          return AppPageTransitions.slideUp(
+            key: state.pageKey,
+            child: DocCanvasScreen(documentId: id),
+          );
+        },
       ),
       GoRoute(
         path: '/doccanvas',
         parentNavigatorKey: _rootNavigatorKey,
-        pageBuilder: (context, state) => AppPageTransitions.slideUp(
-          key: state.pageKey,
-          child: DocCanvasScreen(
-            documentId: state.uri.queryParameters['id'],
-          ),
-        ),
+        pageBuilder: (context, state) {
+          final id = state.uri.queryParameters['id'] ?? state.uri.queryParameters['docId'] ?? state.uri.queryParameters['documentId'] ?? (state.extra is Map ? ((state.extra as Map)['id'] ?? (state.extra as Map)['docId'])?.toString() : (state.extra is String ? state.extra as String : null));
+          return AppPageTransitions.slideUp(
+            key: state.pageKey,
+            child: DocCanvasScreen(documentId: id),
+          );
+        },
       ),
       GoRoute(
         path: '/dashboard/boards',

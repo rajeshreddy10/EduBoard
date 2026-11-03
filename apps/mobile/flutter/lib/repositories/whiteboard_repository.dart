@@ -186,15 +186,29 @@ class LiveWhiteboardRepository implements WhiteboardRepository {
                 .whereType<Map>()
                 .map((s) => _mapMapToStroke(Map<String, dynamic>.from(s)))
                 .toList();
+          } else if (data['annotations'] is List && (data['annotations'] as List).isNotEmpty) {
+            final annList = data['annotations'] as List;
+            return annList
+                .whereType<Map>()
+                .map((s) => _mapMapToStroke(Map<String, dynamic>.from(s)))
+                .toList();
+          } else if (data['shapes'] is List && (data['shapes'] as List).isNotEmpty) {
+            final shapesList = data['shapes'] as List;
+            return shapesList
+                .whereType<Map>()
+                .map((s) => _mapMapToStroke(Map<String, dynamic>.from(s)))
+                .toList();
           } else if (data['content'] is String && (data['content'] as String).trim().isNotEmpty) {
             try {
               final parsed = jsonDecode(data['content'] as String);
-              if (parsed is Map && parsed['strokes'] is List) {
-                final list = parsed['strokes'] as List;
-                return list
-                    .whereType<Map>()
-                    .map((s) => _mapMapToStroke(Map<String, dynamic>.from(s)))
-                    .toList();
+              if (parsed is Map) {
+                final list = (parsed['strokes'] ?? parsed['annotations'] ?? parsed['shapes']) as List?;
+                if (list != null && list.isNotEmpty) {
+                  return list
+                      .whereType<Map>()
+                      .map((s) => _mapMapToStroke(Map<String, dynamic>.from(s)))
+                      .toList();
+                }
               } else if (parsed is List) {
                 return parsed
                     .whereType<Map>()

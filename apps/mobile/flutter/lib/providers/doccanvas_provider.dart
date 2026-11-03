@@ -22,20 +22,24 @@ class DocCanvasState {
   final int activeMode; // 0: Scroll, 1: Annotate, 2: Draw, 3: Text
   final Color activeHighlighterColor;
   final List<DocAnnotationModel> undoneAnnotations;
+  final bool isLoading;
+  final String? errorMessage;
 
   const DocCanvasState({
     this.documents = const [],
     this.activeDocument,
     this.currentPageIndex = 1,
     this.annotations = const [],
-    this.activeAnnotationTool = DocAnnotationType.highlight,
+    this.activeAnnotationTool = DocAnnotationType.pen,
     this.isHighlighterActive = false,
     this.isMagnifierActive = false,
     this.magnifierPosition = const Offset(160, 240),
     this.magnifierScale = 2.0,
-    this.activeMode = 0,
-    this.activeHighlighterColor = const Color(0xFFFFEB3B),
+    this.activeMode = 1,
+    this.activeHighlighterColor = const Color(0xFF3B82F6),
     this.undoneAnnotations = const [],
+    this.isLoading = false,
+    this.errorMessage,
   });
 
   DocCanvasState copyWith({
@@ -51,6 +55,9 @@ class DocCanvasState {
     int? activeMode,
     Color? activeHighlighterColor,
     List<DocAnnotationModel>? undoneAnnotations,
+    bool? isLoading,
+    String? errorMessage,
+    bool clearErrorMessage = false,
   }) {
     return DocCanvasState(
       documents: documents ?? this.documents,
@@ -66,6 +73,8 @@ class DocCanvasState {
       activeHighlighterColor:
           activeHighlighterColor ?? this.activeHighlighterColor,
       undoneAnnotations: undoneAnnotations ?? this.undoneAnnotations,
+      isLoading: isLoading ?? this.isLoading,
+      errorMessage: clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
     );
   }
 }
@@ -130,18 +139,42 @@ class DocCanvasNotifier extends Notifier<DocCanvasState> {
   }
 
   Future<void> _loadInitial() async {
-    final docs = await _repo.getDocuments();
-    final active = docs.isNotEmpty ? docs.first : null;
-    List<DocAnnotationModel> annotations = [];
-    if (active != null) {
-      annotations = await _repo.getAnnotations(active.id);
-      _subscribeToSession(active.id);
+    if (state.activeDocument != null) return;
+    state = state.copyWith(isLoading: true, clearErrorMessage: true);
+    try {
+      final docs = await _repo.getDocuments();
+      if (state.activeDocument == null) {
+        final active = docs.isNotEmpty
+            ? docs.first
+            : DocumentModel(
+                id: 'doc_',
+                title: 'Blank Document Canvas',
+                author: 'Instructor',
+                totalPages: 1,
+                category: 'Lecture Notes',
+                previewExcerpt: 'Interactive pedagogical canvas ready for writing and problem solving.',
+                updatedAt: DateTime.now(),
+                fileType: 'doc',
+              );
+        List<DocAnnotationModel> annotations = [];
+        if (active.id.isNotEmpty && !active.id.startsWith('doc_')) {
+          annotations = await _repo.getAnnotations(active.id);
+          _subscribeToSession(active.id);
+        }
+        state = state.copyWith(
+          documents: docs,
+          activeDocument: active,
+          annotations: annotations,
+          activeAnnotationTool: DocAnnotationType.pen,
+          isLoading: false,
+        );
+      } else {
+        state = state.copyWith(documents: docs, isLoading: false);
+      }
+    } catch (e) {
+      debugPrint('[DocCanvas _loadInitial Warning] ');
+      state = state.copyWith(isLoading: false);
     }
-    state = state.copyWith(
-      documents: docs,
-      activeDocument: active,
-      annotations: annotations,
-    );
   }
 
   Future<void> loadDocs() async {
@@ -160,21 +193,43 @@ class DocCanvasNotifier extends Notifier<DocCanvasState> {
     _subscribeToSession(doc.id);
     final annotations = await _repo.getAnnotations(doc.id);
     state = state.copyWith(
-        activeDocument: doc, currentPageIndex: 1, annotations: annotations);
+      activeDocument: doc,
+      currentPageIndex: 1,
+      annotations: annotations,
+      activeAnnotationTool: DocAnnotationType.pen,
+      isLoading: false,
+    );
   }
 
   /// Deep-link support: open a SPECIFIC document from History/boards.
   Future<bool> selectDocumentById(String documentId) async {
     final id = documentId.trim();
     if (id.isEmpty) return false;
+    state = state.copyWith(isLoading: true, clearErrorMessage: true);
+
+    DocumentModel? doc;
     final match = state.documents.where((d) => d.id == id).toList();
-    DocumentModel? doc = match.isNotEmpty ? match.first : null;
-    doc ??= await _repo.loadDocument(id);
-    if (doc != null) {
-      await selectDocument(doc);
-      return true;
+    if (match.isNotEmpty) {
+      doc = match.first;
     }
-    return false;
+    doc ??= await _repo.loadDocument(id);
+
+    if (doc == null) {
+      // Create fallback academic document model so editing canvas is never blocked!
+      doc = DocumentModel(
+        id: id,
+        title: id.replaceAll('_', ' ').replaceAll('-', ' '),
+        author: 'Instructor',
+        totalPages: 1,
+        category: 'Document Session',
+        previewExcerpt: 'Ready for interactive annotations and problem solving.',
+        updatedAt: DateTime.now(),
+        fileType: 'doc',
+      );
+    }
+
+    await selectDocument(doc);
+    return true;
   }
 
   void setPageIndex(int page) {

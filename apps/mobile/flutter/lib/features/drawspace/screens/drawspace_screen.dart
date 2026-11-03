@@ -32,13 +32,21 @@ class _DrawSpaceScreenState extends ConsumerState<DrawSpaceScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _applyPendingBoard());
   }
 
+  @override
+  void didUpdateWidget(covariant DrawSpaceScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.boardId != oldWidget.boardId && widget.boardId != null && widget.boardId!.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _applyPendingBoard());
+    }
+  }
+
   /// Consumes the deep-linked board id: persist it as the last-active board so
   /// an interrupted session resumes the SAME board on next launch.
   Future<void> _applyPendingBoard() async {
     final bid = widget.boardId?.trim();
     if (bid == null || bid.isEmpty) return;
     await StorageService.put(AppConstants.whiteboardBox, 'active_board_id', bid);
-    await ref.read(whiteboardProvider.notifier).setActiveBoard(bid);
+    await ref.read(whiteboardProvider.notifier).setActiveBoard(bid, forceReload: true);
   }
 
   void _openStrokeSettings() {
@@ -173,6 +181,18 @@ class _DrawSpaceScreenState extends ConsumerState<DrawSpaceScreen> {
                 ),
                 const SizedBox(width: 8),
 
+                // Reset / Fit Screen
+                _DarkHeaderPill(
+                  icon: Icons.aspect_ratio_rounded,
+                  label: 'Fit Screen',
+                  isActive: false,
+                  onTap: () {
+                    notifier.resetTransform();
+                    HapticFeedback.selectionClick();
+                  },
+                ),
+                const SizedBox(width: 8),
+
                 // Group Step Pill
                 _DarkHeaderPill(
                   icon: Icons.add_rounded,
@@ -188,19 +208,63 @@ class _DrawSpaceScreenState extends ConsumerState<DrawSpaceScreen> {
 
             // ── Main Body with Canvas & Floating Panels ────────────────────
             Expanded(
-              child: Stack(
-                children: [
-                  // Drawing Canvas (with optional Reference Drawer)
-                  Row(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final isWideScreen = constraints.maxWidth >= 800;
+
+                  return Stack(
                     children: [
-                      if (state.isReferenceOpen)
-                        const Expanded(flex: 3, child: ReferenceDrawer()),
-                      Expanded(
-                        flex: state.isReferenceOpen ? 7 : 10,
-                        child: const DrawSpaceCanvas(),
+                      // Drawing Canvas
+                      if (isWideScreen && state.isReferenceOpen)
+                        const Row(
+                          children: [
+                            SizedBox(
+                              width: 340,
+                              child: ReferenceDrawer(),
+                            ),
+                            Expanded(
+                              child: DrawSpaceCanvas(),
+                            ),
+                          ],
+                        )
+                      else
+                        const Positioned.fill(
+                          child: DrawSpaceCanvas(),
+                        ),
+
+                      // Floating Glass Reference Drawer for Mobile screens (<800px)
+                      if (!isWideScreen && state.isReferenceOpen)
+                        Positioned(
+                          top: 8,
+                          bottom: 8,
+                          left: 8,
+                          width: (constraints.maxWidth - 16).clamp(280.0, 360.0),
+                          child: const Material(
+                            elevation: 16,
+                            borderRadius: BorderRadius.all(Radius.circular(24)),
+                            color: Colors.transparent,
+                            child: ReferenceDrawer(),
+                          ),
+                        ),
+
+                  // Loading Overlay Indicator
+                  if (state.isLoading)
+                    Container(
+                      color: const Color(0xFF0B0F19).withValues(alpha: 0.75),
+                      child: const Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircularProgressIndicator(color: Color(0xFF6366F1), strokeWidth: 2.5),
+                            SizedBox(height: 14),
+                            Text(
+                              'Loading board content...',
+                              style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
+                    ),
 
                   // ── Top-Right Floating Card: Teacher Teleprompter ────────
                   Positioned(
@@ -399,11 +463,13 @@ class _DrawSpaceScreenState extends ConsumerState<DrawSpaceScreen> {
                       ),
                     ),
                 ],
-              ),
-            ),
-          ],
+              );
+            },
+          ),
         ),
-      ),
+      ],
+    ),
+  ),
     );
   }
 }

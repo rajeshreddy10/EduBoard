@@ -111,16 +111,43 @@ class FirestoreDocumentRepository implements DocumentRepository {
     final fs = _firestore;
     if (fs == null || docId.trim().isEmpty) return null;
     try {
-      final docSnap = await fs.collection('whiteboards').doc(docId.trim()).get();
+      final docSnap = await fs
+          .collection('whiteboards')
+          .doc(docId.trim())
+          .get()
+          .timeout(const Duration(seconds: 8));
+
       if (docSnap.exists && docSnap.data() != null) {
         final data = docSnap.data()!;
         if (data['activeDocument'] is Map) {
           return DocumentModel.fromJson(Map<String, dynamic>.from(data['activeDocument'] as Map), docId);
         }
+        if (data['bgFile'] is Map) {
+          final bg = data['bgFile'] as Map;
+          return DocumentModel(
+            id: 'bg_',
+            title: data['title']?.toString() ?? 'Lecture Document',
+            author: data['createdBy']?.toString() ?? 'Instructor',
+            totalPages: asIntOr(data['totalPages'], 1),
+            category: 'Document',
+            previewExcerpt: data['description']?.toString() ?? 'Lecture Document for canvas annotations',
+            updatedAt: DateTime.now(),
+            fileType: bg['type']?.toString() ?? 'doc',
+            url: bg['url']?.toString(),
+          );
+        }
+        if (data['content'] is String && (data['content'] as String).trim().isNotEmpty) {
+          try {
+            final parsed = jsonDecode(data['content'] as String);
+            if (parsed is Map && parsed['activeDocument'] is Map) {
+              return DocumentModel.fromJson(Map<String, dynamic>.from(parsed['activeDocument'] as Map), docId);
+            }
+          } catch (_) {}
+        }
         return DocumentModel.fromJson(data, docId);
       }
     } catch (e) {
-      debugPrint('[loadDocument Note] $e');
+      debugPrint('[loadDocument Note] ');
     }
     return null;
   }
@@ -146,7 +173,25 @@ class FirestoreDocumentRepository implements DocumentRepository {
               .toList();
         }
 
-        // Case B: Document has 'strokes' array (drawn on Web!)
+        // Case B: Document has 'content' JSON string (unified Web save)
+        if (data['content'] is String && (data['content'] as String).trim().isNotEmpty) {
+          try {
+            final parsed = jsonDecode(data['content'] as String);
+            if (parsed is Map) {
+              if (parsed['annotations'] is List && (parsed['annotations'] as List).isNotEmpty) {
+                return (parsed['annotations'] as List)
+                    .whereType<Map>()
+                    .map((m) => DocAnnotationModel.fromJson(Map<String, dynamic>.from(m)))
+                    .toList();
+              }
+              if (parsed['strokes'] is List && (parsed['strokes'] as List).isNotEmpty) {
+                data['strokes'] = parsed['strokes'];
+              }
+            }
+          } catch (_) {}
+        }
+
+        // Case C: Document has 'strokes' array (drawn on Web!)
         if (data['strokes'] is List && (data['strokes'] as List).isNotEmpty) {
           final list = data['strokes'] as List;
           return list.whereType<Map>().map((s) {

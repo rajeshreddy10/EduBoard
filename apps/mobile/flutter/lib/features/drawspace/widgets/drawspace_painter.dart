@@ -173,6 +173,10 @@ class DrawSpacePainter extends CustomPainter {
       return;
     }
 
+    final effectiveColor = (stroke.tool != WhiteboardTool.eraser && stroke.color.computeLuminance() < 0.12)
+        ? const Color(0xFFF1F5F9)
+        : stroke.color;
+
     final paint = Paint()
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round
@@ -185,28 +189,28 @@ class DrawSpacePainter extends CustomPainter {
         paint.strokeWidth = stroke.strokeWidth * 2;
         break;
       case WhiteboardTool.pencil:
-        paint.color = stroke.color.withValues(alpha: 0.65);
+        paint.color = effectiveColor.withValues(alpha: 0.65);
         paint.strokeWidth = stroke.strokeWidth * 0.75;
         break;
       case WhiteboardTool.brush:
-        paint.color = stroke.color;
+        paint.color = effectiveColor;
         paint.strokeWidth = stroke.strokeWidth * 2.5;
         paint.strokeCap = StrokeCap.round;
         paint.maskFilter = const MaskFilter.blur(BlurStyle.normal, 1.5);
         break;
       case WhiteboardTool.marker:
-        paint.color = stroke.color.withValues(alpha: 0.85);
+        paint.color = effectiveColor.withValues(alpha: 0.85);
         paint.strokeWidth = stroke.strokeWidth * 3.0;
         paint.strokeCap = StrokeCap.square;
         break;
       case WhiteboardTool.highlighter:
-        paint.color = stroke.color.withValues(alpha: 0.38);
+        paint.color = effectiveColor.withValues(alpha: 0.38);
         paint.strokeWidth = stroke.strokeWidth * 6.0;
         paint.strokeCap = StrokeCap.square;
-        paint.blendMode = BlendMode.multiply;
+        paint.blendMode = BlendMode.screen;
         break;
       default:
-        paint.color = stroke.color;
+        paint.color = effectiveColor;
         paint.strokeWidth = stroke.strokeWidth;
         break;
     }

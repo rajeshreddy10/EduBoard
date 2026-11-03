@@ -46,8 +46,6 @@ class _DocCanvasScreenState extends ConsumerState<DocCanvasScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final id = widget.documentId?.trim();
       if (id == null || id.isEmpty) return;
-      await Future<void>.delayed(const Duration(milliseconds: 600));
-      if (!mounted) return;
       final ok = await ref.read(docCanvasProvider.notifier).selectDocumentById(id);
       if (ok && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -55,6 +53,14 @@ class _DocCanvasScreenState extends ConsumerState<DocCanvasScreen> {
         );
       }
     });
+  }
+
+  @override
+  void didUpdateWidget(covariant DocCanvasScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.documentId != oldWidget.documentId && widget.documentId != null && widget.documentId!.isNotEmpty) {
+      ref.read(docCanvasProvider.notifier).selectDocumentById(widget.documentId!);
+    }
   }
 
   Future<void> _handleSave() async {
@@ -523,85 +529,30 @@ class _DocCanvasScreenState extends ConsumerState<DocCanvasScreen> {
 
                       // Document and Canvas Viewer
                       Expanded(
-                        child: state.activeDocument == null
-                            ? Center(
-                                // Blank Canvas prompt card matching screenshot 2
-                                child: Container(
-                                  margin: const EdgeInsets.symmetric(horizontal: 20),
-                                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF131823),
-                                    borderRadius: BorderRadius.circular(24),
-                                    border: Border.all(color: const Color(0xFF262F40), width: 1.2),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.4),
-                                        blurRadius: 16,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Row(
+                        child: Stack(
+                          children: [
+                            const Positioned.fill(child: DocViewerPlaceholder()),
+                            const Positioned.fill(child: DocAnnotationLayer()),
+                            const MagnifierOverlay(),
+                            if (state.isLoading)
+                              Container(
+                                color: const Color(0xFF0B0F19).withValues(alpha: 0.75),
+                                child: const Center(
+                                  child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      const Icon(
-                                        Icons.description_outlined,
-                                        color: Color(0xFF8B5CF6),
-                                        size: 20,
-                                      ),
-                                      const SizedBox(width: 10),
-                                      const Flexible(
-                                        child: Text(
-                                          'Blank Canvas — Draw directly or import a document',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 14),
-                                      Material(
-                                        color: Colors.transparent,
-                                        child: InkWell(
-                                          onTap: _openFilePicker,
-                                          borderRadius: BorderRadius.circular(16),
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                            decoration: BoxDecoration(
-                                              color: const Color(0xFF6366F1),
-                                              borderRadius: BorderRadius.circular(16),
-                                            ),
-                                            child: const Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Icon(Icons.file_upload_outlined, color: Colors.white, size: 14),
-                                                SizedBox(width: 4),
-                                                Text(
-                                                  'Open File',
-                                                  style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 11.5,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
+                                      CircularProgressIndicator(color: Color(0xFF3B82F6), strokeWidth: 2.5),
+                                      SizedBox(height: 14),
+                                      Text(
+                                        'Loading document annotations...',
+                                        style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600),
                                       ),
                                     ],
                                   ),
                                 ),
-                              )
-                            : const Stack(
-                                children: [
-                                  Positioned.fill(child: DocViewerPlaceholder()),
-                                  Positioned.fill(child: DocAnnotationLayer()),
-                                  MagnifierOverlay(),
-                                ],
                               ),
+                          ],
+                        ),
                       ),
                     ],
                   ),

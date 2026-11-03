@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,8 +9,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../models/doc_annotation_model.dart';
 import '../../../providers/whiteboard_provider.dart';
 
-/// Modern 2026 Material 3 Reference Dock (30/70 Split Screen)
-/// Supports real device file picking (PDF, Images, Docs, Code) and instant canvas synchronization.
+/// Modern 2026 Material 3 Reference & Knowledge Dock
+/// Features:
+/// - Floating Glassmorphic Panel (22px rounded corners, blur, subtle border)
+/// - Universal Search across references, citations, linked files, and AI derivations
+/// - Dynamic category chips (All, Physics, Circuits, Calculus, Chemistry, AI Notes)
+/// - 5 Collapsible sections with smooth expand/collapse animations
+/// - Academic Citations (IEEE, APA, MLA) with 1-tap "Copy" and "Insert into Whiteboard"
+/// - AI Derivations & Formulas with 1-tap canvas placement
+/// - Real device file import (PDF, DOCX, Images, Text, Code)
+/// - Responsive for phones (overlay dock) and tablets (side docking)
 class ReferenceDrawer extends ConsumerStatefulWidget {
   const ReferenceDrawer({super.key});
 
@@ -18,10 +27,40 @@ class ReferenceDrawer extends ConsumerStatefulWidget {
 }
 
 class _ReferenceDrawerState extends ConsumerState<ReferenceDrawer> {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
   int _selectedCategoryIndex = 0;
   int _currentPage = 1;
 
-  final List<String> _categories = ['All', 'Physics', 'Circuits', 'Calculus', 'Chemistry'];
+  // Collapsible section state
+  bool _isReferencesExpanded = true;
+  bool _isCitationsExpanded = true;
+  bool _isAiDerivationsExpanded = true;
+  bool _isLinkedFilesExpanded = true;
+  bool _isSourcesExpanded = false;
+
+  final List<String> _categories = [
+    'All',
+    'Physics',
+    'Circuits',
+    'Calculus',
+    'Chemistry',
+    'AI Notes',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      setState(() => _searchQuery = _searchController.text.trim().toLowerCase());
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   Future<void> _pickAndOpenFile() async {
     try {
@@ -94,7 +133,7 @@ class _ReferenceDrawerState extends ConsumerState<ReferenceDrawer> {
         category: category,
         previewExcerpt: content != null
             ? content.substring(0, content.length.clamp(0, 180))
-            : '$category loaded into Reference Dock and rendered on Whiteboard.',
+            : '$category loaded into Reference Dock and synchronized on canvas.',
         updatedAt: DateTime.now(),
         filePath: effectivePath,
         fileType: ext,
@@ -109,7 +148,7 @@ class _ReferenceDrawerState extends ConsumerState<ReferenceDrawer> {
         HapticFeedback.lightImpact();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('$name is now active in Reference Dock and on Canvas'),
+            content: Text('$name is active in Reference Dock and on Canvas'),
             backgroundColor: const Color(0xFF059669),
             duration: const Duration(seconds: 2),
           ),
@@ -144,461 +183,235 @@ class _ReferenceDrawerState extends ConsumerState<ReferenceDrawer> {
     HapticFeedback.selectionClick();
   }
 
+  void _insertCitationIntoCanvas(String citation) {
+    ref.read(whiteboardProvider.notifier).insertTextCard(citation);
+    HapticFeedback.lightImpact();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Citation placed on Whiteboard as text card'),
+        backgroundColor: Color(0xFF2563EB),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _copyCitationToClipboard(String citation) {
+    Clipboard.setData(ClipboardData(text: citation));
+    HapticFeedback.selectionClick();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Citation copied to clipboard'),
+        duration: Duration(seconds: 1),
+      ),
+    );
+  }
+
+  void _insertDerivationIntoCanvas(String title, String formula) {
+    final text = '[$title]\n$formula';
+    ref.read(whiteboardProvider.notifier).insertTextCard(text);
+    HapticFeedback.lightImpact();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Placed "$title" onto Whiteboard'),
+        backgroundColor: const Color(0xFF059669),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  bool _matchesFilter(String text, String category) {
+    final selectedCat = _categories[_selectedCategoryIndex];
+    if (selectedCat != 'All' && category.toLowerCase() != selectedCat.toLowerCase()) {
+      return false;
+    }
+    if (_searchQuery.isEmpty) return true;
+    return text.toLowerCase().contains(_searchQuery) || category.toLowerCase().contains(_searchQuery);
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(whiteboardProvider);
     final doc = state.referenceDocument;
-    final showOnCanvas = state.showDocOnCanvas;
 
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF0A0E17),
-        border: Border(
-          right: BorderSide(color: Color(0xFF1E293B), width: 1.5),
-        ),
-      ),
-      child: SafeArea(
-        child: Column(
-          children: [
-            // ── Modern Sleek Header ──────────────────────────────────────────
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              decoration: const BoxDecoration(
-                color: Color(0xFF111827),
-                border: Border(bottom: BorderSide(color: Color(0xFF1F2937), width: 1)),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(7),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF3B82F6), Color(0xFF8B5CF6)],
-                      ),
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF3B82F6).withValues(alpha: 0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(Icons.auto_stories_rounded, color: Colors.white, size: 16),
-                  ),
-                  const SizedBox(width: 10),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Reference Dock',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.3,
-                          ),
-                        ),
-                        Text(
-                          '30/70 Split View • Live on Canvas',
-                          style: TextStyle(
-                            color: Color(0xFF94A3B8),
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close_rounded, color: Color(0xFF94A3B8), size: 20),
-                    tooltip: 'Close Reference Dock',
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    onPressed: () {
-                      ref.read(whiteboardProvider.notifier).toggleReferencePanel();
-                    },
-                  ),
-                ],
-              ),
-            ),
-
-            // ── Primary Action Controls ──────────────────────────────────────
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: const BoxDecoration(
-                color: Color(0xFF0F172A),
-                border: Border(bottom: BorderSide(color: Color(0xFF1E293B), width: 1)),
-              ),
-              child: Row(
-                children: [
-                  // Open File Button with gradient
-                  Expanded(
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: _pickAndOpenFile,
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF2563EB), Color(0xFF4F46E5)],
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF2563EB).withValues(alpha: 0.35),
-                                blurRadius: 10,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.file_upload_outlined, color: Colors.white, size: 16),
-                              SizedBox(width: 6),
-                              Text(
-                                'Import File',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11.5,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-
-                  // Toggle Canvas Overlay Pill
-                  if (doc != null)
-                    Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          ref.read(whiteboardProvider.notifier).toggleShowDocOnCanvas();
-                          HapticFeedback.selectionClick();
-                        },
-                        borderRadius: BorderRadius.circular(12),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: showOnCanvas
-                                ? const Color(0xFF10B981).withValues(alpha: 0.15)
-                                : const Color(0xFF334155).withValues(alpha: 0.3),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: showOnCanvas ? const Color(0xFF10B981) : const Color(0xFF475569),
-                              width: 1,
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                showOnCanvas ? Icons.visibility_rounded : Icons.visibility_off_rounded,
-                                color: showOnCanvas ? const Color(0xFF34D399) : const Color(0xFF94A3B8),
-                                size: 15,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                showOnCanvas ? 'On Canvas' : 'Dock Only',
-                                style: TextStyle(
-                                  color: showOnCanvas ? const Color(0xFF34D399) : const Color(0xFF94A3B8),
-                                  fontSize: 10.5,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-
-            // ── Main Body: Active Document View or Interactive Library ───────
-            Expanded(
-              child: doc != null ? _buildActiveDocView(doc) : _buildModernLibraryView(),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActiveDocView(DocumentModel doc) {
-    final ext = doc.fileType.toLowerCase();
-    final isImage = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'].contains(ext);
-    final isText = ['txt', 'md', 'csv', 'json', 'log', 'py', 'dart', 'js', 'html'].contains(ext);
-
-    return Column(
-      children: [
-        // Active Document Info Card
-        Container(
-          margin: const EdgeInsets.all(10),
-          padding: const EdgeInsets.all(12),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(22),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        child: Container(
           decoration: BoxDecoration(
-            color: const Color(0xFF131823),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFF262F40), width: 1.2),
+            color: const Color(0xFF0F172A).withValues(alpha: 0.94),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: const Color(0xFF1E293B), width: 1.2),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.5),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  _buildExtBadge(ext),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          doc.title,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          '${doc.category} • ${doc.totalPages} Pages',
-                          style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10),
-                        ),
-                      ],
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 18),
-                    tooltip: 'Remove from Dock',
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    onPressed: () {
-                      ref.read(whiteboardProvider.notifier).clearReferenceDocument();
-                      HapticFeedback.lightImpact();
-                    },
-                  ),
-                ],
-              ),
-              if (doc.totalPages > 1) ...[
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              // ── 1. Modern Header ──────────────────────────────────────────
+              _buildHeader(context, doc),
+
+              // ── 2. Top Action Controls ────────────────────────────────────
+              _buildActionsBar(context, state),
+
+              // ── 3. Live Search Bar ────────────────────────────────────────
+              _buildSearchBar(),
+
+              // ── 4. Category Chips ─────────────────────────────────────────
+              _buildCategoryChips(),
+
+              const Divider(color: Color(0xFF1E293B), height: 1),
+
+              // ── 5. Scrollable Content Body ────────────────────────────────
+              Expanded(
+                child: ListView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   children: [
-                    InkWell(
-                      onTap: _currentPage > 1 ? () => setState(() => _currentPage--) : null,
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1E293B),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.chevron_left_rounded, size: 16, color: _currentPage > 1 ? Colors.white : Colors.white24),
-                            const Text('Prev', style: TextStyle(color: Colors.white, fontSize: 10.5)),
-                          ],
-                        ),
-                      ),
+                    // A. Active Document Glass Card (if any)
+                    if (doc != null) ...[
+                      _buildActiveDocumentCard(context, doc, state),
+                      const SizedBox(height: 16),
+                    ],
+
+                    // B. Curated Academic References
+                    _buildSectionHeader(
+                      title: 'Core References',
+                      badge: 'Textbooks & Notes',
+                      icon: Icons.menu_book_rounded,
+                      isExpanded: _isReferencesExpanded,
+                      onToggle: () => setState(() => _isReferencesExpanded = !_isReferencesExpanded),
                     ),
-                    Text(
-                      'Page $_currentPage / ${doc.totalPages}',
-                      style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 11, fontWeight: FontWeight.bold),
+                    if (_isReferencesExpanded) ..._buildReferencesSection(),
+
+                    const SizedBox(height: 16),
+
+                    // C. Academic Citations (IEEE, APA, MLA)
+                    _buildSectionHeader(
+                      title: 'Citations & Bib',
+                      badge: 'IEEE • APA • MLA',
+                      icon: Icons.format_quote_rounded,
+                      isExpanded: _isCitationsExpanded,
+                      onToggle: () => setState(() => _isCitationsExpanded = !_isCitationsExpanded),
                     ),
-                    InkWell(
-                      onTap: _currentPage < doc.totalPages ? () => setState(() => _currentPage++) : null,
-                      borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1E293B),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          children: [
-                            const Text('Next', style: TextStyle(color: Colors.white, fontSize: 10.5)),
-                            Icon(Icons.chevron_right_rounded, size: 16, color: _currentPage < doc.totalPages ? Colors.white : Colors.white24),
-                          ],
-                        ),
-                      ),
+                    if (_isCitationsExpanded) ..._buildCitationsSection(),
+
+                    const SizedBox(height: 16),
+
+                    // D. AI References & Formulas
+                    _buildSectionHeader(
+                      title: 'AI References & Proofs',
+                      badge: 'Math • Equations',
+                      icon: Icons.auto_awesome_rounded,
+                      isExpanded: _isAiDerivationsExpanded,
+                      onToggle: () => setState(() => _isAiDerivationsExpanded = !_isAiDerivationsExpanded),
                     ),
+                    if (_isAiDerivationsExpanded) ..._buildAiDerivationsSection(),
+
+                    const SizedBox(height: 16),
+
+                    // E. Linked Files & Problem Sets
+                    _buildSectionHeader(
+                      title: 'Linked Files & Sheets',
+                      badge: 'PDF • Images',
+                      icon: Icons.attach_file_rounded,
+                      isExpanded: _isLinkedFilesExpanded,
+                      onToggle: () => setState(() => _isLinkedFilesExpanded = !_isLinkedFilesExpanded),
+                    ),
+                    if (_isLinkedFilesExpanded) ..._buildLinkedFilesSection(),
+
+                    const SizedBox(height: 16),
+
+                    // F. External Sources & Repositories
+                    _buildSectionHeader(
+                      title: 'Course Sources',
+                      badge: 'MIT OCW • Stanford',
+                      icon: Icons.open_in_new_rounded,
+                      isExpanded: _isSourcesExpanded,
+                      onToggle: () => setState(() => _isSourcesExpanded = !_isSourcesExpanded),
+                    ),
+                    if (_isSourcesExpanded) ..._buildSourcesSection(),
+
+                    const SizedBox(height: 24),
                   ],
                 ),
-              ],
+              ),
             ],
           ),
         ),
-
-        // Live Viewer Area
-        Expanded(
-          child: Container(
-            margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF0F172A),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFF1E293B)),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: isImage
-                ? _buildImageDockViewer(doc)
-                : isText
-                    ? _buildTextDockViewer(doc)
-                    : _buildAcademicDockViewer(doc),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildExtBadge(String ext) {
-    Color bg = const Color(0xFF2563EB);
-    IconData icon = Icons.description_rounded;
-
-    if (ext == 'pdf') {
-      bg = const Color(0xFFEF4444);
-      icon = Icons.picture_as_pdf_rounded;
-    } else if (['jpg', 'jpeg', 'png', 'webp', 'gif'].contains(ext)) {
-      bg = const Color(0xFFA855F7);
-      icon = Icons.image_rounded;
-    } else if (['txt', 'md', 'py', 'js', 'dart'].contains(ext)) {
-      bg = const Color(0xFF10B981);
-      icon = Icons.code_rounded;
-    } else if (['doc', 'docx'].contains(ext)) {
-      bg = const Color(0xFF3B82F6);
-      icon = Icons.description_rounded;
-    } else if (['ppt', 'pptx'].contains(ext)) {
-      bg = const Color(0xFFF97316);
-      icon = Icons.slideshow_rounded;
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(6),
-      decoration: BoxDecoration(
-        color: bg.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(8),
       ),
-      child: Icon(icon, color: bg, size: 18),
     );
   }
 
-  Widget _buildImageDockViewer(DocumentModel doc) {
-    if (doc.url != null && doc.url!.startsWith('data:image')) {
-      try {
-        final base64String = doc.url!.split(',').last;
-        final bytes = base64Decode(base64String);
-        return InteractiveViewer(
-          maxScale: 6.0,
-          child: Center(child: Image.memory(bytes, fit: BoxFit.contain)),
-        );
-      } catch (_) {}
-    }
-
-    if (doc.filePath != null && File(doc.filePath!).existsSync()) {
-      return InteractiveViewer(
-        maxScale: 6.0,
-        child: Center(child: Image.file(File(doc.filePath!), fit: BoxFit.contain)),
-      );
-    }
-
-    return const Center(
-      child: Text('Image Active in Dock', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
-    );
-  }
-
-  Widget _buildTextDockViewer(DocumentModel doc) {
-    final text = doc.fileContent ?? doc.previewExcerpt;
-    final lines = text.split('\n');
-    const linesPerPage = 28;
-    final start = ((_currentPage - 1) * linesPerPage).clamp(0, lines.length);
-    final end = (start + linesPerPage).clamp(0, lines.length);
-    final pageLines = lines.sublist(start, end);
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(10),
-      itemCount: pageLines.length,
-      itemBuilder: (ctx, i) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 1.5),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: 24,
-                child: Text(
-                  '${start + i + 1}',
-                  style: const TextStyle(color: Color(0xFF475569), fontSize: 9.5, fontFamily: 'monospace'),
-                ),
-              ),
-              Expanded(
-                child: Text(
-                  pageLines[i],
-                  style: const TextStyle(color: Color(0xFFE2E8F0), fontSize: 11, height: 1.35),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildAcademicDockViewer(DocumentModel doc) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  // ── Header Widget ──────────────────────────────────────────────────────────
+  Widget _buildHeader(BuildContext context, DocumentModel? doc) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Color(0xFF1E293B), width: 1)),
+      ),
+      child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(7),
             decoration: BoxDecoration(
-              color: const Color(0xFF131823),
+              gradient: const LinearGradient(
+                colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFF262F40)),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF6366F1).withValues(alpha: 0.35),
+                  blurRadius: 8,
+                ),
+              ],
             ),
+            child: const Icon(Icons.auto_stories_rounded, color: Colors.white, size: 18),
+          ),
+          const SizedBox(width: 10),
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Page $_currentPage Concept & Equations',
-                  style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 11.5, fontWeight: FontWeight.bold),
+                  'Knowledge Dock',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13.5,
+                    letterSpacing: 0.3,
+                  ),
                 ),
-                const SizedBox(height: 6),
                 Text(
-                  doc.fileContent ?? doc.previewExcerpt,
-                  style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 11, height: 1.45),
+                  'References • Citations • Linked Files',
+                  style: TextStyle(color: Color(0xFF94A3B8), fontSize: 10.5),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E293B).withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFF334155)),
-            ),
-            child: const Row(
-              children: [
-                Icon(Icons.draw_rounded, color: Color(0xFFF59E0B), size: 16),
-                SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    'Rendered on canvas: Annotate, solve, and write directly on top of this sheet.',
-                    style: TextStyle(color: Color(0xFF94A3B8), fontSize: 10),
-                  ),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                ref.read(whiteboardProvider.notifier).toggleReferencePanel();
+                HapticFeedback.selectionClick();
+              },
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E293B),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-              ],
+                child: const Icon(Icons.close_rounded, color: Color(0xFF94A3B8), size: 16),
+              ),
             ),
           ),
         ],
@@ -606,203 +419,731 @@ class _ReferenceDrawerState extends ConsumerState<ReferenceDrawer> {
     );
   }
 
-  Widget _buildModernLibraryView() {
-    final sampleResources = [
-      _DockResource(
-        title: 'Physics Mechanics Notes.pdf',
-        category: 'Physics',
-        ext: 'pdf',
-        color: const Color(0xFFEF4444),
-        icon: Icons.picture_as_pdf_rounded,
-        pages: 5,
-        preview: 'Classical Mechanics Problem Set:\n\n1. Calculate projectile range with launch angle theta and air drag.\n2. Angular momentum conservation: L = r x p = I * omega.\n3. Friction force on 30 deg incline: f_k = mu_k * N = mu_k * m * g * cos(theta).\n\nGraph free-body diagrams and solve equations on the whiteboard.',
-      ),
-      _DockResource(
-        title: 'Circuit Analysis Diagram.png',
-        category: 'Circuits',
-        ext: 'png',
-        color: const Color(0xFF38BDF8),
-        icon: Icons.image_rounded,
-        pages: 1,
-        preview: 'RLC Circuit Schematic Diagram:\n\nAnalyze nodes A, B, and C under sinusoidal excitation. Verify Kirchhoff Current Law summation at junction.',
-      ),
-      _DockResource(
-        title: 'Calculus Formulas.docx',
-        category: 'Calculus',
-        ext: 'docx',
-        color: const Color(0xFF818CF8),
-        icon: Icons.description_rounded,
-        pages: 4,
-        preview: 'Calculus Theorems & Derivatives:\n\n- d/dx [sin(x)] = cos(x)\n- d/dx [ln(x)] = 1/x\n- Fundamental Theorem of Calculus: d/dx Integral [f(t) dt from a to x] = f(x)\n- Integration by parts: Integral [u dv] = u*v - Integral [v du].',
-      ),
-      _DockResource(
-        title: 'Organic Chemistry Lab.txt',
-        category: 'Chemistry',
-        ext: 'txt',
-        color: const Color(0xFF10B981),
-        icon: Icons.article_rounded,
-        pages: 3,
-        preview: 'Chemistry Titration Guide:\n1. Prepare 0.1M standard acid.\n2. Record burrette volume reading at equivalence.\n3. Calculate molarity: M1*V1 = M2*V2.',
-      ),
-    ];
+  // ── Actions Bar ────────────────────────────────────────────────────────────
+  Widget _buildActionsBar(BuildContext context, WhiteboardState state) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
+      child: Row(
+        children: [
+          // Import File Button
+          Expanded(
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: _pickAndOpenFile,
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 10),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF2563EB), Color(0xFF3B82F6)],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF2563EB).withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.file_upload_outlined, color: Colors.white, size: 16),
+                      SizedBox(width: 6),
+                      Text(
+                        'Import File',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
 
-    final filtered = _selectedCategoryIndex == 0
-        ? sampleResources
-        : sampleResources.where((r) => r.category == _categories[_selectedCategoryIndex]).toList();
+          // Canvas Underlay Toggle Pill
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                ref.read(whiteboardProvider.notifier).toggleShowDocOnCanvas();
+                HapticFeedback.selectionClick();
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                decoration: BoxDecoration(
+                  color: state.showDocOnCanvas
+                      ? const Color(0xFF059669).withValues(alpha: 0.2)
+                      : const Color(0xFF1E293B),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: state.showDocOnCanvas
+                        ? const Color(0xFF10B981)
+                        : const Color(0xFF334155),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      state.showDocOnCanvas ? Icons.layers_rounded : Icons.layers_clear_rounded,
+                      color: state.showDocOnCanvas ? const Color(0xFF34D399) : const Color(0xFF94A3B8),
+                      size: 15,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      state.showDocOnCanvas ? 'On Canvas' : 'Dock Only',
+                      style: TextStyle(
+                        color: state.showDocOnCanvas ? const Color(0xFF34D399) : const Color(0xFF94A3B8),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Category Pills
-        SizedBox(
-          height: 38,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            itemCount: _categories.length,
-            itemBuilder: (ctx, i) {
-              final isSel = _selectedCategoryIndex == i;
-              return GestureDetector(
+  // ── Search Bar ─────────────────────────────────────────────────────────────
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 6, 14, 8),
+      child: Container(
+        height: 38,
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E293B).withValues(alpha: 0.8),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFF334155), width: 1),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Row(
+          children: [
+            const Icon(Icons.search_rounded, color: Color(0xFF94A3B8), size: 16),
+            const SizedBox(width: 8),
+            Expanded(
+              child: TextField(
+                controller: _searchController,
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+                decoration: const InputDecoration(
+                  hintText: 'Search references, formulas, citations...',
+                  hintStyle: TextStyle(color: Color(0xFF64748B), fontSize: 11.5),
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+            ),
+            if (_searchController.text.isNotEmpty)
+              GestureDetector(
+                onTap: () => _searchController.clear(),
+                child: const Icon(Icons.cancel_rounded, color: Color(0xFF94A3B8), size: 15),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Category Chips Bar ─────────────────────────────────────────────────────
+  Widget _buildCategoryChips() {
+    return Container(
+      height: 34,
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        itemCount: _categories.length,
+        itemBuilder: (ctx, idx) {
+          final isSelected = _selectedCategoryIndex == idx;
+          return Padding(
+            padding: const EdgeInsets.only(right: 6),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
                 onTap: () {
-                  setState(() => _selectedCategoryIndex = i);
+                  setState(() => _selectedCategoryIndex = idx);
                   HapticFeedback.selectionClick();
                 },
+                borderRadius: BorderRadius.circular(16),
                 child: Container(
-                  margin: const EdgeInsets.only(right: 6),
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 5),
                   decoration: BoxDecoration(
-                    color: isSel ? const Color(0xFF2563EB) : const Color(0xFF1E293B),
+                    color: isSelected ? const Color(0xFF6366F1) : const Color(0xFF1E293B),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: isSel ? const Color(0xFF60A5FA) : const Color(0xFF334155),
+                      color: isSelected ? const Color(0xFF818CF8) : const Color(0xFF334155),
                       width: 1,
                     ),
                   ),
-                  child: Center(
-                    child: Text(
-                      _categories[i],
-                      style: TextStyle(
-                        color: isSel ? Colors.white : const Color(0xFF94A3B8),
-                        fontSize: 10.5,
-                        fontWeight: isSel ? FontWeight.bold : FontWeight.w500,
-                      ),
+                  child: Text(
+                    _categories[idx],
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : const Color(0xFFCBD5E1),
+                      fontSize: 11,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                     ),
                   ),
                 ),
-              );
-            },
-          ),
-        ),
-
-        const Padding(
-          padding: EdgeInsets.fromLTRB(14, 10, 14, 6),
-          child: Text(
-            'QUICK LESSON MATERIALS',
-            style: TextStyle(
-              color: Color(0xFF64748B),
-              fontSize: 9.5,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.6,
+              ),
             ),
-          ),
-        ),
-
-        // Material Cards
-        Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            itemCount: filtered.length,
-            itemBuilder: (ctx, i) {
-              final res = filtered[i];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () {
-                      _loadSampleDocument(
-                        res.title,
-                        res.ext,
-                        res.category,
-                        res.pages,
-                        res.preview,
-                      );
-                    },
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF131823),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFF262F40)),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: res.color.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(res.icon, color: res.color, size: 18),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  res.title,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 11.5,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  '${res.category} • Tap to solve on Canvas',
-                                  style: const TextStyle(
-                                    color: Color(0xFF94A3B8),
-                                    fontSize: 10,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFF64748B), size: 12),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
+          );
+        },
+      ),
     );
   }
-}
 
-class _DockResource {
-  final String title;
-  final String category;
-  final String ext;
-  final Color color;
-  final IconData icon;
-  final int pages;
-  final String preview;
+  // ── Active Document Card ───────────────────────────────────────────────────
+  Widget _buildActiveDocumentCard(BuildContext context, DocumentModel doc, WhiteboardState state) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.5), width: 1.2),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF3B82F6).withValues(alpha: 0.15),
+            blurRadius: 10,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2563EB).withValues(alpha: 0.25),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  doc.fileType.toUpperCase(),
+                  style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 10, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  doc.title,
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                icon: const Icon(Icons.close_rounded, color: Color(0xFF94A3B8), size: 16),
+                tooltip: 'Unlink from Canvas',
+                onPressed: () {
+                  ref.read(whiteboardProvider.notifier).clearReferenceDocument();
+                  HapticFeedback.selectionClick();
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            doc.previewExcerpt,
+            style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 11, height: 1.35),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (doc.totalPages > 1) ...[
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Page $_currentPage of ${doc.totalPages}',
+                  style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11, fontWeight: FontWeight.bold),
+                ),
+                Row(
+                  children: [
+                    IconButton(
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      icon: const Icon(Icons.chevron_left_rounded, color: Colors.white, size: 20),
+                      onPressed: _currentPage > 1 ? () => setState(() => _currentPage--) : null,
+                    ),
+                    const SizedBox(width: 10),
+                    IconButton(
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      icon: const Icon(Icons.chevron_right_rounded, color: Colors.white, size: 20),
+                      onPressed: _currentPage < doc.totalPages ? () => setState(() => _currentPage++) : null,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
 
-  _DockResource({
-    required this.title,
-    required this.category,
-    required this.ext,
-    required this.color,
-    required this.icon,
-    required this.pages,
-    required this.preview,
-  });
+  // ── Collapsible Section Header ─────────────────────────────────────────────
+  Widget _buildSectionHeader({
+    required String title,
+    required String badge,
+    required IconData icon,
+    required bool isExpanded,
+    required VoidCallback onToggle,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onToggle,
+        borderRadius: BorderRadius.circular(10),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
+          child: Row(
+            children: [
+              Icon(icon, color: const Color(0xFF818CF8), size: 16),
+              const SizedBox(width: 8),
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12.5,
+                  letterSpacing: 0.2,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E293B),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  badge,
+                  style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 9.5, fontWeight: FontWeight.w600),
+                ),
+              ),
+              const Spacer(),
+              Icon(
+                isExpanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+                color: const Color(0xFF94A3B8),
+                size: 18,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ── Section 1: Curated Academic References ─────────────────────────────────
+  List<Widget> _buildReferencesSection() {
+    final items = [
+      (
+        title: 'Halliday & Resnick: Electromagnetism',
+        category: 'Physics',
+        snippet: 'Gauss Law: ∮ E·dA = Q_enc / ε₀ • Maxwell displacement current.',
+        ext: 'pdf',
+        pages: 8,
+      ),
+      (
+        title: 'Sedra & Smith: Microelectronic Circuits',
+        category: 'Circuits',
+        snippet: 'Small-signal analysis, MOSFET transconductance gm = 2ID/VOV.',
+        ext: 'pdf',
+        pages: 6,
+      ),
+      (
+        title: 'Stewart Calculus: Multivariable Integration',
+        category: 'Calculus',
+        snippet: 'Green Theorem, Stokes Theorem: ∬ (∇ × F)·dS = ∮ F·dr.',
+        ext: 'doc',
+        pages: 5,
+      ),
+      (
+        title: 'Organic Chemistry: Reaction Mechanisms',
+        category: 'Chemistry',
+        snippet: 'SN1 vs SN2 kinetics, nucleophilic addition, resonance structures.',
+        ext: 'pdf',
+        pages: 7,
+      ),
+    ].where((item) => _matchesFilter('${item.title} ${item.snippet}', item.category)).toList();
+
+    if (items.isEmpty) {
+      return [
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 8),
+          child: Text('No references match filter', style: TextStyle(color: Color(0xFF64748B), fontSize: 11)),
+        ),
+      ];
+    }
+
+    return items.map((r) {
+      return Container(
+        margin: const EdgeInsets.only(top: 8),
+        padding: const EdgeInsets.all(11),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E293B).withValues(alpha: 0.7),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFF334155), width: 1),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    r.title,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6366F1).withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    r.category,
+                    style: const TextStyle(color: Color(0xFFA5B4FC), fontSize: 9.5, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 5),
+            Text(
+              r.snippet,
+              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 11, height: 1.35),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton.icon(
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  icon: const Icon(Icons.open_in_browser_rounded, size: 14, color: Color(0xFF60A5FA)),
+                  label: const Text('Open in Dock & Canvas', style: TextStyle(color: Color(0xFF60A5FA), fontSize: 11)),
+                  onPressed: () => _loadSampleDocument(r.title, r.ext, r.category, r.pages, r.snippet),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  // ── Section 2: Academic Citations (IEEE, APA, MLA) ─────────────────────────
+  List<Widget> _buildCitationsSection() {
+    final citations = [
+      (
+        label: 'IEEE: Maxwell Equations Foundation',
+        category: 'Physics',
+        citation: 'J. C. Maxwell, "A Dynamical Theory of the Electromagnetic Field," Philos. Trans. R. Soc. Lond., vol. 155, pp. 459–512, 1865.',
+      ),
+      (
+        label: 'APA: Modern Circuit Synthesis',
+        category: 'Circuits',
+        citation: 'Sedra, A. S., & Smith, K. C. (2020). Microelectronic Circuits (8th ed.). Oxford University Press.',
+      ),
+      (
+        label: 'IEEE: Vector Calculus Formulations',
+        category: 'Calculus',
+        citation: 'J. Stewart, Calculus: Early Transcendentals, 9th ed. Boston, MA: Cengage Learning, 2021.',
+      ),
+      (
+        label: 'MLA: Quantum Wave Mechanics',
+        category: 'Physics',
+        citation: 'Griffiths, David J., and Darrell F. Schroeter. Introduction to Quantum Mechanics. 3rd ed., Cambridge UP, 2018.',
+      ),
+    ].where((c) => _matchesFilter('${c.label} ${c.citation}', c.category)).toList();
+
+    if (citations.isEmpty) {
+      return [
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 8),
+          child: Text('No citations match filter', style: TextStyle(color: Color(0xFF64748B), fontSize: 11)),
+        ),
+      ];
+    }
+
+    return citations.map((c) {
+      return Container(
+        margin: const EdgeInsets.only(top: 8),
+        padding: const EdgeInsets.all(11),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E293B).withValues(alpha: 0.7),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFF334155), width: 1),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    c.label,
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11.5),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF10B981).withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    c.category,
+                    style: const TextStyle(color: Color(0xFF34D399), fontSize: 9.5, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              c.citation,
+              style: const TextStyle(
+                color: Color(0xFFCBD5E1),
+                fontSize: 10.5,
+                fontStyle: FontStyle.italic,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    minimumSize: Size.zero,
+                    side: const BorderSide(color: Color(0xFF475569)),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  icon: const Icon(Icons.copy_rounded, size: 12, color: Color(0xFFCBD5E1)),
+                  label: const Text('Copy', style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 10.5)),
+                  onPressed: () => _copyCitationToClipboard(c.citation),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2563EB),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  icon: const Icon(Icons.add_to_photos_rounded, size: 12, color: Colors.white),
+                  label: const Text('Place on Board', style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
+                  onPressed: () => _insertCitationIntoCanvas(c.citation),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  // ── Section 3: AI Derivations & Formulas ───────────────────────────────────
+  List<Widget> _buildAiDerivationsSection() {
+    final derivations = [
+      (
+        title: "Maxwell Equations Set",
+        category: 'Physics',
+        formula: "∇·E = ρ/ε₀\n∇·B = 0\n∇×E = -∂B/∂t\n∇×B = μ₀J + μ₀ε₀(∂E/∂t)",
+      ),
+      (
+        title: "Kirchhoff Laws & RC Transient",
+        category: 'Circuits',
+        formula: "∑ I_in = ∑ I_out (KCL)\n∑ V_loop = 0 (KVL)\nV_C(t) = V₀(1 - e^(-t/RC))",
+      ),
+      (
+        title: "Taylor Series Polynomial Expansion",
+        category: 'Calculus',
+        formula: "f(x) = ∑ [f^(n)(a)/n!] (x - a)^n\ne^x = 1 + x + x²/2! + x³/3! + ...",
+      ),
+      (
+        title: "Schrödinger Time-Dependent Equation",
+        category: 'Physics',
+        formula: "iℏ ∂Ψ/∂t = ĤΨ = [-ℏ²/(2m) ∇² + V(r)]Ψ",
+      ),
+    ].where((d) => _matchesFilter('${d.title} ${d.formula}', d.category)).toList();
+
+    if (derivations.isEmpty) {
+      return [
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 8),
+          child: Text('No AI formulas match filter', style: TextStyle(color: Color(0xFF64748B), fontSize: 11)),
+        ),
+      ];
+    }
+
+    return derivations.map((d) {
+      return Container(
+        margin: const EdgeInsets.only(top: 8),
+        padding: const EdgeInsets.all(11),
+        decoration: BoxDecoration(
+          color: const Color(0xFF1E293B).withValues(alpha: 0.7),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFF334155), width: 1),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    d.title,
+                    style: const TextStyle(color: Color(0xFF38BDF8), fontWeight: FontWeight.bold, fontSize: 11.5),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF38BDF8).withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    d.category,
+                    style: const TextStyle(color: Color(0xFF38BDF8), fontSize: 9.5, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0F172A),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                d.formula,
+                style: const TextStyle(
+                  color: Color(0xFFE2E8F0),
+                  fontFamily: 'monospace',
+                  fontSize: 11,
+                  height: 1.4,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF6366F1),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    minimumSize: Size.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  icon: const Icon(Icons.add_rounded, size: 14, color: Colors.white),
+                  label: const Text('Place Derivation on Board', style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
+                  onPressed: () => _insertDerivationIntoCanvas(d.title, d.formula),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  // ── Section 4: Linked Files & Attached Problem Sets ────────────────────────
+  List<Widget> _buildLinkedFilesSection() {
+    final files = [
+      (name: 'Midterm_Formula_Sheet.pdf', category: 'Physics', size: '240 KB', pages: 4),
+      (name: 'RLC_Filter_Schematic.png', category: 'Circuits', size: '1.2 MB', pages: 1),
+      (name: 'Integration_Problem_Set_04.docx', category: 'Calculus', size: '180 KB', pages: 5),
+    ].where((f) => _matchesFilter('${f.name} ${f.category}', f.category)).toList();
+
+    return files.map((f) {
+      return ListTile(
+        dense: true,
+        contentPadding: EdgeInsets.zero,
+        leading: Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: const Color(0xFF3B82F6).withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Icon(Icons.description_rounded, color: Color(0xFF60A5FA), size: 16),
+        ),
+        title: Text(
+          f.name,
+          style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w600),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        subtitle: Text('${f.category} • ${f.size}', style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10)),
+        trailing: TextButton(
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          onPressed: () => _loadSampleDocument(f.name, f.name.split('.').last, f.category, f.pages, 'Loaded attached material ${f.name} into session.'),
+          child: const Text('Open', style: TextStyle(color: Color(0xFF38BDF8), fontSize: 11)),
+        ),
+      );
+    }).toList();
+  }
+
+  // ── Section 5: Sources & Repositories ──────────────────────────────────────
+  List<Widget> _buildSourcesSection() {
+    final sources = [
+      (title: 'MIT OCW 8.02: Electricity & Magnetism', desc: 'Walter Lewin lecture series & problem formulations.'),
+      (title: 'Stanford Online EE101', desc: 'Circuits and systems repository with lab work sheets.'),
+      (title: 'OpenStax University Physics Vol 2', desc: 'Peer-reviewed open textbooks & diagrams.'),
+    ];
+
+    return sources.map((s) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Icon(Icons.link_rounded, color: Color(0xFF64748B), size: 14),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(s.title, style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 11, fontWeight: FontWeight.bold)),
+                  Text(s.desc, style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }).toList();
+  }
 }

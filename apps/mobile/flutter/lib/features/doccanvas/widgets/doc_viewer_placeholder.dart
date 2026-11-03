@@ -234,40 +234,42 @@ class DocViewerPlaceholder extends ConsumerWidget {
       return Container(
         color: const Color(0xFF0F172A),
         padding: const EdgeInsets.all(16),
-        child: ListView.builder(
-          itemCount: pageLines.length,
-          itemBuilder: (ctx, i) {
-            final lineNum = start + i + 1;
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 2),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: 30,
-                    child: Text(
-                      '$lineNum',
-                      style: const TextStyle(
-                        color: Color(0xFF475569),
-                        fontFamily: 'monospace',
-                        fontSize: 11,
+        child: SingleChildScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          child: Column(
+            children: List.generate(pageLines.length, (i) {
+              final lineNum = start + i + 1;
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 30,
+                      child: Text(
+                        '$lineNum',
+                        style: const TextStyle(
+                          color: Color(0xFF475569),
+                          fontFamily: 'monospace',
+                          fontSize: 11,
+                        ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      pageLines[i],
-                      style: const TextStyle(
-                        color: Color(0xFFE2E8F0),
-                        fontSize: 12.5,
-                        height: 1.4,
+                    Expanded(
+                      child: Text(
+                        pageLines[i],
+                        style: const TextStyle(
+                          color: Color(0xFFE2E8F0),
+                          fontSize: 12.5,
+                          height: 1.4,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            );
-          },
+                  ],
+                ),
+              );
+            }),
+          ),
         ),
       );
     }

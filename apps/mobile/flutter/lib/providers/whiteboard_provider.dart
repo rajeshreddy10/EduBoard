@@ -51,11 +51,13 @@ class WhiteboardState {
   final bool isStepRevealActive;
   final DocumentModel? referenceDocument;
   final bool showDocOnCanvas;
+  final bool isLoading;
+  final String? errorMessage;
 
   const WhiteboardState({
     this.activeTool = WhiteboardTool.pen,
     this.activeShape = WhiteboardShapeType.rectangle,
-    this.activeColor = const Color(0xFF000000),
+    this.activeColor = const Color(0xFFFFFFFF),
     this.activeStrokeWidth = AppConstants.defaultStrokeWidth,
     this.strokes = const [],
     this.undoneStrokes = const [],
@@ -102,9 +104,14 @@ class WhiteboardState {
     this.isStepRevealActive = false,
     this.referenceDocument,
     this.showDocOnCanvas = true,
+    this.isLoading = false,
+    this.errorMessage,
   });
 
   WhiteboardState copyWith({
+    bool? isLoading,
+    String? errorMessage,
+    bool clearErrorMessage = false,
     WhiteboardTool? activeTool,
     WhiteboardShapeType? activeShape,
     Color? activeColor,
@@ -183,6 +190,8 @@ class WhiteboardState {
           ? null
           : (referenceDocument ?? this.referenceDocument),
       showDocOnCanvas: showDocOnCanvas ?? this.showDocOnCanvas,
+      isLoading: isLoading ?? this.isLoading,
+      errorMessage: clearErrorMessage ? null : (errorMessage ?? this.errorMessage),
     );
   }
 }
@@ -231,6 +240,7 @@ class WhiteboardNotifier extends Notifier<WhiteboardState> {
 
   Future<void> _initBoard(String boardId) async {
     _strokesSub?.cancel();
+    state = state.copyWith(isLoading: true, clearErrorMessage: true);
 
     // 1. Load initial strokes, text elements and teacher notes from the live
     // backend / Firestore. Repository calls are internally guarded (they
@@ -273,9 +283,17 @@ class WhiteboardNotifier extends Notifier<WhiteboardState> {
       );
     }
 
+    // Ensure web-drawn dark strokes are visible on mobile dark canvas
+    final contrastStrokes = strokes.map((s) {
+      if (s.tool != WhiteboardTool.eraser && s.color.computeLuminance() < 0.12) {
+        return s.copyWith(color: const Color(0xFFF1F5F9));
+      }
+      return s;
+    }).toList();
+
     state = state.copyWith(
       activeBoardId: boardId,
-      strokes: strokes,
+      strokes: contrastStrokes,
       teacherNotes: notes,
       textElements: texts,
       undoneStrokes: [],
@@ -286,6 +304,7 @@ class WhiteboardNotifier extends Notifier<WhiteboardState> {
       isReferenceOpen: loadedDoc != null ? true : state.isReferenceOpen,
       saveStatus: '',
       clearSaveStatus: true,
+      isLoading: false,
     );
 
     // 2. Subscribe to real-time changes from Firestore (strokes, text elements, title) and Socket.IO
@@ -319,12 +338,59 @@ class WhiteboardNotifier extends Notifier<WhiteboardState> {
 
   /// Switch to an existing board (deep link from History / dashboard).
   /// Saves the outgoing board first so no stroke is lost in the switch.
-  Future<void> setActiveBoard(String boardId) async {
-    if (boardId.isEmpty || boardId == state.activeBoardId) return;
+  Future<void> setActiveBoard(String boardId, {bool forceReload = false}) async {
+    if (boardId.isEmpty) return;
+    if (!forceReload && boardId == state.activeBoardId && state.strokes.isNotEmpty) return;
     _autoSaveTimer?.cancel();
     await _flushAutoSave();
     await StorageService.put(AppConstants.whiteboardBox, 'active_board_id', boardId);
     await _initBoard(boardId);
+  }
+
+  /// Interactive vector eraser: removes strokes and elements that collide with touch position
+  void eraseAt(Offset point, [double radius = 24.0]) {
+    final remainingStrokes = <WhiteboardStroke>[];
+    bool erasedAny = false;
+
+    for (final s in state.strokes) {
+      bool hit = false;
+      for (final p in s.points) {
+        if ((Offset(p.x, p.y) - point).distance <= radius + (s.strokeWidth / 2)) {
+          hit = true;
+          break;
+        }
+      }
+      if (hit) {
+        erasedAny = true;
+        _repo.deleteStroke(state.activeBoardId, s.id);
+      } else {
+        remainingStrokes.add(s);
+      }
+    }
+
+    final remainingTexts = <WhiteboardTextElement>[];
+    for (final t in state.textElements) {
+      if ((t.position - point).distance <= radius + 30) {
+        erasedAny = true;
+      } else {
+        remainingTexts.add(t);
+      }
+    }
+
+    if (erasedAny) {
+      state = state.copyWith(
+        strokes: remainingStrokes,
+        textElements: remainingTexts,
+      );
+      _scheduleAutoSave();
+    }
+  }
+
+  /// 1-tap insertion for citations, formulas, and references from the Knowledge Dock
+  void insertTextCard(String text, [Offset? position]) {
+    final count = state.textElements.length;
+    final pos = position ?? Offset(60.0 + (count % 3) * 30.0, 100.0 + (count % 6) * 45.0);
+    addTextElement(text, pos);
   }
 
   /// Start a brand-new board (Quick Actions "New Whiteboard").

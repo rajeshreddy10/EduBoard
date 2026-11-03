@@ -80,7 +80,7 @@ class _DocAnnotationLayerState extends ConsumerState<DocAnnotationLayer> {
       onPanEnd: (details) {
         if (tool == DocAnnotationType.eraser) return;
 
-        if (_activePoints.length >= 2) {
+        if (_activePoints.isNotEmpty) {
           final isHighlight = tool == DocAnnotationType.highlight;
           final color = isHighlight
               ? state.activeHighlighterColor.withValues(alpha: 0.38)
@@ -155,21 +155,28 @@ class _AnnotationPainter extends CustomPainter {
     // 1. Render all committed annotations on this page
     for (final a in annotations) {
       if (a.points != null && a.points!.isNotEmpty) {
-        final path = Path();
-        path.moveTo(a.points!.first.dx, a.points!.first.dy);
-        for (int i = 1; i < a.points!.length; i++) {
-          path.lineTo(a.points![i].dx, a.points![i].dy);
-        }
-
         final isHl = a.type == DocAnnotationType.highlight;
-        final paint = Paint()
-          ..color = isHl ? a.color.withValues(alpha: 0.38) : a.color
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = isHl ? 20.0 : a.strokeWidth
-          ..strokeCap = StrokeCap.round
-          ..strokeJoin = StrokeJoin.round;
+        if (a.points!.length == 1) {
+          final paint = Paint()
+            ..color = isHl ? a.color.withValues(alpha: 0.38) : a.color
+            ..style = PaintingStyle.fill;
+          canvas.drawCircle(a.points!.first, isHl ? 10.0 : (a.strokeWidth / 2).clamp(2.0, 8.0), paint);
+        } else {
+          final path = Path();
+          path.moveTo(a.points!.first.dx, a.points!.first.dy);
+          for (int i = 1; i < a.points!.length; i++) {
+            path.lineTo(a.points![i].dx, a.points![i].dy);
+          }
 
-        canvas.drawPath(path, paint);
+          final paint = Paint()
+            ..color = isHl ? a.color.withValues(alpha: 0.38) : a.color
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = isHl ? 20.0 : a.strokeWidth
+            ..strokeCap = StrokeCap.round
+            ..strokeJoin = StrokeJoin.round;
+
+          canvas.drawPath(path, paint);
+        }
       } else if (a.boundingBox != null) {
         final paint = Paint()
           ..color = a.color
@@ -182,7 +189,13 @@ class _AnnotationPainter extends CustomPainter {
     }
 
     // 2. Render live in-progress stroke while finger is on screen
-    if (activePoints.length >= 2) {
+    if (activePoints.length == 1) {
+      final isHl = activeTool == DocAnnotationType.highlight;
+      final livePaint = Paint()
+        ..color = isHl ? activeColor.withValues(alpha: 0.38) : activeColor
+        ..style = PaintingStyle.fill;
+      canvas.drawCircle(activePoints.first, isHl ? 10.0 : 2.5, livePaint);
+    } else if (activePoints.length >= 2) {
       final isHl = activeTool == DocAnnotationType.highlight;
       final livePath = Path();
       livePath.moveTo(activePoints.first.dx, activePoints.first.dy);
