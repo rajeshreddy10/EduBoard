@@ -657,14 +657,15 @@ class _DocCanvasScreenState extends ConsumerState<DocCanvasScreen> {
                               ),
                               const SizedBox(width: 4),
 
-                              // 3. Eraser Tool
+                              // 3. Eraser Tool (Interactive touch-to-erase)
                               _CircleToolButton(
                                 icon: Icons.cleaning_services_rounded,
-                                tooltip: 'Eraser',
-                                isSelected: false,
+                                tooltip: 'Eraser Tool',
+                                isSelected: state.activeAnnotationTool == DocAnnotationType.eraser,
+                                activeColor: const Color(0xFFEF4444),
                                 onTap: () {
-                                  notifier.clearAnnotations();
-                                  HapticFeedback.lightImpact();
+                                  notifier.setAnnotationTool(DocAnnotationType.eraser);
+                                  HapticFeedback.selectionClick();
                                 },
                               ),
                               const SizedBox(width: 4),
@@ -672,10 +673,11 @@ class _DocCanvasScreenState extends ConsumerState<DocCanvasScreen> {
                               // 4. Brush / Highlighter Tool
                               _CircleToolButton(
                                 icon: Icons.brush_rounded,
-                                tooltip: 'Highlighter',
+                                tooltip: 'Highlighter Tool',
                                 isSelected: state.activeAnnotationTool == DocAnnotationType.highlight,
+                                activeColor: const Color(0xFFFBBF24),
                                 onTap: () {
-                                  notifier.toggleHighlighter();
+                                  notifier.setAnnotationTool(DocAnnotationType.highlight);
                                   HapticFeedback.selectionClick();
                                 },
                               ),
@@ -722,6 +724,9 @@ class _DocCanvasScreenState extends ConsumerState<DocCanvasScreen> {
                                   onTap: () {
                                     setState(() => _selectedColor = color);
                                     notifier.setHighlighterColor(color);
+                                    if (state.activeAnnotationTool == DocAnnotationType.eraser) {
+                                      notifier.setAnnotationTool(DocAnnotationType.pen);
+                                    }
                                     HapticFeedback.selectionClick();
                                   },
                                   child: Container(

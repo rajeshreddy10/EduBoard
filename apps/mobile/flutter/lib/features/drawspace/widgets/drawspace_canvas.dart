@@ -393,13 +393,9 @@ class _DrawSpaceCanvasState extends ConsumerState<DrawSpaceCanvas> {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                if (state.referenceDocument != null &&
-                    ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp'].contains(state.referenceDocument!.fileType.toLowerCase()))
+                if (state.referenceDocument != null && state.showDocOnCanvas)
                   Center(
-                    child: Opacity(
-                      opacity: 0.92,
-                      child: _buildCanvasBackgroundImage(state.referenceDocument!),
-                    ),
+                    child: _buildCanvasDocumentUnderlay(state.referenceDocument!),
                   ),
                 CustomPaint(
                   size: Size.infinite,
@@ -424,35 +420,180 @@ class _DrawSpaceCanvasState extends ConsumerState<DrawSpaceCanvas> {
     );
   }
 
-  Widget _buildCanvasBackgroundImage(DocumentModel doc) {
-    if (doc.url != null && doc.url!.startsWith('data:image')) {
-      try {
-        final base64String = doc.url!.split(',').last;
-        final bytes = base64Decode(base64String);
-        return Image.memory(
-          bytes,
-          fit: BoxFit.contain,
-          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-        );
-      } catch (_) {}
-    }
+  Widget _buildCanvasDocumentUnderlay(DocumentModel doc) {
+    final ext = doc.fileType.toLowerCase();
+    final isImage = ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp', 'svg'].contains(ext);
 
-    if (doc.filePath != null && File(doc.filePath!).existsSync()) {
-      return Image.file(
-        File(doc.filePath!),
-        fit: BoxFit.contain,
-        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+    if (isImage) {
+      Widget? imgWidget;
+      if (doc.url != null && doc.url!.startsWith('data:image')) {
+        try {
+          final base64String = doc.url!.split(',').last;
+          final bytes = base64Decode(base64String);
+          imgWidget = Image.memory(bytes, fit: BoxFit.contain);
+        } catch (_) {}
+      } else if (doc.filePath != null && File(doc.filePath!).existsSync()) {
+        imgWidget = Image.file(File(doc.filePath!), fit: BoxFit.contain);
+      } else if (doc.url != null && doc.url!.startsWith('http')) {
+        imgWidget = Image.network(doc.url!, fit: BoxFit.contain);
+      }
+
+      return Container(
+        constraints: const BoxConstraints(maxWidth: 880, maxHeight: 680),
+        margin: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: const Color(0xFF131823),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFF3B82F6).withValues(alpha: 0.4), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.5),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: imgWidget ??
+            Center(
+              child: Text(doc.title, style: const TextStyle(color: Colors.white, fontSize: 14)),
+            ),
       );
     }
 
-    if (doc.url != null && doc.url!.startsWith('http')) {
-      return Image.network(
-        doc.url!,
-        fit: BoxFit.contain,
-        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-      );
-    }
-
-    return const SizedBox.shrink();
+    // PDF, Text, or Academic Document Sheet on Canvas
+    final isPdf = ext == 'pdf';
+    return Container(
+      width: 760,
+      height: 940,
+      margin: const EdgeInsets.all(32),
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFCBD5E1), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.45),
+            blurRadius: 28,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: isPdf ? const Color(0xFFFEE2E2) : const Color(0xFFDBEAFE),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      isPdf ? Icons.picture_as_pdf_rounded : Icons.description_rounded,
+                      color: isPdf ? const Color(0xFFDC2626) : const Color(0xFF2563EB),
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        doc.title,
+                        style: const TextStyle(
+                          color: Color(0xFF0F172A),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                      Text(
+                        ' • Academic Problem Set',
+                        style: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEDE9FE),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFF8B5CF6).withValues(alpha: 0.3)),
+                ),
+                child: const Text(
+                  'Write & Solve on Sheet',
+                  style: TextStyle(color: Color(0xFF6D28D9), fontSize: 11, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          const Divider(color: Color(0xFFE2E8F0), height: 28),
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const NeverScrollableScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    doc.fileContent != null && doc.fileContent!.isNotEmpty
+                        ? doc.fileContent!
+                        : (doc.previewExcerpt.isNotEmpty
+                            ? doc.previewExcerpt
+                            : 'Solve problem statement and draw coordinates directly on this sheet.'),
+                    style: const TextStyle(
+                      color: Color(0xFF1E293B),
+                      fontSize: 13,
+                      height: 1.5,
+                      fontFamily: 'sans-serif',
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Container(
+                    height: 280,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'Canvas Work Area: Graph, Draw & Annotate with Pen',
+                        style: TextStyle(
+                          color: Color(0xFF94A3B8),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'EduBoard Smart Whiteboard Canvas Layer',
+                style: TextStyle(color: Color(0xFF94A3B8), fontSize: 10, fontWeight: FontWeight.w600),
+              ),
+              Text(
+                'Page 1 of ',
+                style: const TextStyle(color: Color(0xFF64748B), fontSize: 10, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }

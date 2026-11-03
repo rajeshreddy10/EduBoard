@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/utilities/safe_json.dart';
 
-enum DocAnnotationType { highlight, pen, text, mathBox }
+enum DocAnnotationType { highlight, pen, text, mathBox, eraser }
 
 /// Represents an annotation overlay on top of the document canvas
 class DocAnnotationModel {

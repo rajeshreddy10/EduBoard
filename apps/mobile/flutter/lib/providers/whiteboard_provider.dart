@@ -50,6 +50,7 @@ class WhiteboardState {
   final List<String> stepTitles;
   final bool isStepRevealActive;
   final DocumentModel? referenceDocument;
+  final bool showDocOnCanvas;
 
   const WhiteboardState({
     this.activeTool = WhiteboardTool.pen,
@@ -100,6 +101,7 @@ class WhiteboardState {
     ],
     this.isStepRevealActive = false,
     this.referenceDocument,
+    this.showDocOnCanvas = true,
   });
 
   WhiteboardState copyWith({
@@ -140,6 +142,7 @@ class WhiteboardState {
     bool? isStepRevealActive,
     DocumentModel? referenceDocument,
     bool clearReferenceDocument = false,
+    bool? showDocOnCanvas,
   }) {
     return WhiteboardState(
       activeTool: activeTool ?? this.activeTool,
@@ -179,6 +182,7 @@ class WhiteboardState {
       referenceDocument: clearReferenceDocument
           ? null
           : (referenceDocument ?? this.referenceDocument),
+      showDocOnCanvas: showDocOnCanvas ?? this.showDocOnCanvas,
     );
   }
 }
@@ -578,6 +582,7 @@ class WhiteboardNotifier extends Notifier<WhiteboardState> {
         isReferenceOpen: doc != null ? true : state.isReferenceOpen,
       );
   void clearReferenceDocument() => state = state.copyWith(clearReferenceDocument: true);
+  void toggleShowDocOnCanvas() => state = state.copyWith(showDocOnCanvas: !state.showDocOnCanvas);
   void togglePresentationMode() => state = state.copyWith(isPresentationMode: !state.isPresentationMode);
 
   void addTeacherNote(String title, String content) {

@@ -8,8 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../models/doc_annotation_model.dart';
 import '../../../providers/whiteboard_provider.dart';
 
-/// 30/70 Reference Drawer for PDFs, Images, and Lesson Resources.
-/// Mirrors the EduBoard web application Reference Drawer.
+/// Modern 2026 Material 3 Reference Dock (30/70 Split Screen)
+/// Supports real device file picking (PDF, Images, Docs, Code) and instant canvas synchronization.
 class ReferenceDrawer extends ConsumerStatefulWidget {
   const ReferenceDrawer({super.key});
 
@@ -18,14 +18,14 @@ class ReferenceDrawer extends ConsumerStatefulWidget {
 }
 
 class _ReferenceDrawerState extends ConsumerState<ReferenceDrawer> {
+  int _selectedCategoryIndex = 0;
   int _currentPage = 1;
+
+  final List<String> _categories = ['All', 'Physics', 'Circuits', 'Calculus', 'Chemistry'];
 
   Future<void> _pickAndOpenFile() async {
     try {
-      final files = await FilePicker.pickFiles(
-        type: FileType.any,
-      );
-
+      final files = await FilePicker.pickFiles(type: FileType.any);
       if (files.isEmpty) return;
 
       final picked = files.first;
@@ -53,8 +53,8 @@ class _ReferenceDrawerState extends ConsumerState<ReferenceDrawer> {
       String? dataUrl;
       String? effectivePath = path;
 
-      if (['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp'].contains(ext)) {
-        category = 'Image Document';
+      if (['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'].contains(ext)) {
+        category = 'Image Diagram';
         pageCount = 1;
         if (rawBytes != null && rawBytes.isNotEmpty) {
           dataUrl = 'data:image/$ext;base64,${base64Encode(rawBytes)}';
@@ -94,7 +94,7 @@ class _ReferenceDrawerState extends ConsumerState<ReferenceDrawer> {
         category: category,
         previewExcerpt: content != null
             ? content.substring(0, content.length.clamp(0, 180))
-            : '$category ready for pedagogical reference on canvas.',
+            : '$category loaded into Reference Dock and rendered on Whiteboard.',
         updatedAt: DateTime.now(),
         filePath: effectivePath,
         fileType: ext,
@@ -109,7 +109,7 @@ class _ReferenceDrawerState extends ConsumerState<ReferenceDrawer> {
         HapticFeedback.lightImpact();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('$name loaded into Reference Drawer'),
+            content: Text('$name is now active in Reference Dock and on Canvas'),
             backgroundColor: const Color(0xFF059669),
             duration: const Duration(seconds: 2),
           ),
@@ -148,10 +148,11 @@ class _ReferenceDrawerState extends ConsumerState<ReferenceDrawer> {
   Widget build(BuildContext context) {
     final state = ref.watch(whiteboardProvider);
     final doc = state.referenceDocument;
+    final showOnCanvas = state.showDocOnCanvas;
 
     return Container(
       decoration: const BoxDecoration(
-        color: Color(0xFF0F172A),
+        color: Color(0xFF0A0E17),
         border: Border(
           right: BorderSide(color: Color(0xFF1E293B), width: 1.5),
         ),
@@ -159,33 +160,209 @@ class _ReferenceDrawerState extends ConsumerState<ReferenceDrawer> {
       child: SafeArea(
         child: Column(
           children: [
-            // ── Drawer Header ──────────────────────────────────────────────
+            // ── Modern Sleek Header ──────────────────────────────────────────
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               decoration: const BoxDecoration(
-                color: Color(0xFF131823),
-                border: Border(
-                  bottom: BorderSide(color: Color(0xFF262F40), width: 1),
-                ),
+                color: Color(0xFF111827),
+                border: Border(bottom: BorderSide(color: Color(0xFF1F2937), width: 1)),
               ),
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(6),
+                    padding: const EdgeInsets.all(7),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF2563EB).withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(8),
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF3B82F6), Color(0xFF8B5CF6)],
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF3B82F6).withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
-                    child: const Icon(Icons.menu_book_rounded, color: Color(0xFF60A5FA), size: 16),
+                    child: const Icon(Icons.auto_stories_rounded, color: Colors.white, size: 16),
                   ),
+                  const SizedBox(width: 10),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Reference Dock',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                        Text(
+                          '30/70 Split View • Live on Canvas',
+                          style: TextStyle(
+                            color: Color(0xFF94A3B8),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded, color: Color(0xFF94A3B8), size: 20),
+                    tooltip: 'Close Reference Dock',
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: () {
+                      ref.read(whiteboardProvider.notifier).toggleReferencePanel();
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+            // ── Primary Action Controls ──────────────────────────────────────
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: const BoxDecoration(
+                color: Color(0xFF0F172A),
+                border: Border(bottom: BorderSide(color: Color(0xFF1E293B), width: 1)),
+              ),
+              child: Row(
+                children: [
+                  // Open File Button with gradient
+                  Expanded(
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: _pickAndOpenFile,
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF2563EB), Color(0xFF4F46E5)],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF2563EB).withValues(alpha: 0.35),
+                                blurRadius: 10,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.file_upload_outlined, color: Colors.white, size: 16),
+                              SizedBox(width: 6),
+                              Text(
+                                'Import File',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+
+                  // Toggle Canvas Overlay Pill
+                  if (doc != null)
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () {
+                          ref.read(whiteboardProvider.notifier).toggleShowDocOnCanvas();
+                          HapticFeedback.selectionClick();
+                        },
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: showOnCanvas
+                                ? const Color(0xFF10B981).withValues(alpha: 0.15)
+                                : const Color(0xFF334155).withValues(alpha: 0.3),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: showOnCanvas ? const Color(0xFF10B981) : const Color(0xFF475569),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                showOnCanvas ? Icons.visibility_rounded : Icons.visibility_off_rounded,
+                                color: showOnCanvas ? const Color(0xFF34D399) : const Color(0xFF94A3B8),
+                                size: 15,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                showOnCanvas ? 'On Canvas' : 'Dock Only',
+                                style: TextStyle(
+                                  color: showOnCanvas ? const Color(0xFF34D399) : const Color(0xFF94A3B8),
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
+            // ── Main Body: Active Document View or Interactive Library ───────
+            Expanded(
+              child: doc != null ? _buildActiveDocView(doc) : _buildModernLibraryView(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActiveDocView(DocumentModel doc) {
+    final ext = doc.fileType.toLowerCase();
+    final isImage = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'].contains(ext);
+    final isText = ['txt', 'md', 'csv', 'json', 'log', 'py', 'dart', 'js', 'html'].contains(ext);
+
+    return Column(
+      children: [
+        // Active Document Info Card
+        Container(
+          margin: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: const Color(0xFF131823),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFF262F40), width: 1.2),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  _buildExtBadge(ext),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Reference Materials',
-                          style: TextStyle(
+                        Text(
+                          doc.title,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
@@ -194,186 +371,151 @@ class _ReferenceDrawerState extends ConsumerState<ReferenceDrawer> {
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
-                          doc != null ? doc.title : 'Split Screen 30/70',
-                          style: const TextStyle(
-                            color: Color(0xFF94A3B8),
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                          '${doc.category} • ${doc.totalPages} Pages',
+                          style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 10),
                         ),
                       ],
                     ),
                   ),
-                  if (doc != null)
-                    IconButton(
-                      icon: const Icon(Icons.close_rounded, color: Color(0xFF94A3B8), size: 18),
-                      tooltip: 'Close Reference',
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      onPressed: () {
-                        ref.read(whiteboardProvider.notifier).clearReferenceDocument();
-                      },
-                    )
-                  else
-                    IconButton(
-                      icon: const Icon(Icons.add_rounded, color: Color(0xFF38BDF8), size: 20),
-                      tooltip: 'Open File',
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      onPressed: _pickAndOpenFile,
-                    ),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444), size: 18),
+                    tooltip: 'Remove from Dock',
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: () {
+                      ref.read(whiteboardProvider.notifier).clearReferenceDocument();
+                      HapticFeedback.lightImpact();
+                    },
+                  ),
                 ],
               ),
-            ),
-
-            // ── Drawer Body: Either Loaded Document OR Sample Resource List ─
-            Expanded(
-              child: doc != null ? _buildLoadedDocumentView(doc) : _buildResourcePickerView(),
-            ),
-
-            // ── Drawer Bottom Action ────────────────────────────────────────
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: const BoxDecoration(
-                color: Color(0xFF131823),
-                border: Border(top: BorderSide(color: Color(0xFF262F40), width: 1)),
-              ),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF2563EB),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                  ),
-                  icon: const Icon(Icons.file_upload_outlined, size: 16),
-                  label: Text(
-                    doc != null ? 'Open Different File' : 'Open Device Document',
-                    style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold),
-                  ),
-                  onPressed: _pickAndOpenFile,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLoadedDocumentView(DocumentModel doc) {
-    final ext = doc.fileType.toLowerCase();
-    final isImage = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp'].contains(ext);
-    final isText = ['txt', 'md', 'csv', 'json', 'log', 'py', 'dart', 'js', 'html'].contains(ext);
-
-    return Column(
-      children: [
-        // Page Navigation header if multi-page
-        if (doc.totalPages > 1)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            color: const Color(0xFF1E293B),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                InkWell(
-                  onTap: _currentPage > 1 ? () => setState(() => _currentPage--) : null,
-                  borderRadius: BorderRadius.circular(6),
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: Icon(
-                      Icons.chevron_left_rounded,
-                      color: _currentPage > 1 ? Colors.white : Colors.white24,
-                      size: 20,
+              if (doc.totalPages > 1) ...[
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    InkWell(
+                      onTap: _currentPage > 1 ? () => setState(() => _currentPage--) : null,
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E293B),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.chevron_left_rounded, size: 16, color: _currentPage > 1 ? Colors.white : Colors.white24),
+                            const Text('Prev', style: TextStyle(color: Colors.white, fontSize: 10.5)),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                Text(
-                  'Page $_currentPage of ${doc.totalPages}',
-                  style: const TextStyle(color: Color(0xFF93C5FD), fontSize: 11, fontWeight: FontWeight.bold),
-                ),
-                InkWell(
-                  onTap: _currentPage < doc.totalPages ? () => setState(() => _currentPage++) : null,
-                  borderRadius: BorderRadius.circular(6),
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: Icon(
-                      Icons.chevron_right_rounded,
-                      color: _currentPage < doc.totalPages ? Colors.white : Colors.white24,
-                      size: 20,
+                    Text(
+                      'Page $_currentPage / ${doc.totalPages}',
+                      style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 11, fontWeight: FontWeight.bold),
                     ),
-                  ),
+                    InkWell(
+                      onTap: _currentPage < doc.totalPages ? () => setState(() => _currentPage++) : null,
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E293B),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          children: [
+                            const Text('Next', style: TextStyle(color: Colors.white, fontSize: 10.5)),
+                            Icon(Icons.chevron_right_rounded, size: 16, color: _currentPage < doc.totalPages ? Colors.white : Colors.white24),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
-            ),
+            ],
           ),
+        ),
 
-        // Main Viewer
+        // Live Viewer Area
         Expanded(
           child: Container(
-            color: const Color(0xFF0B0F19),
+            margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFF0F172A),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFF1E293B)),
+            ),
+            clipBehavior: Clip.antiAlias,
             child: isImage
-                ? _buildImageViewer(doc)
+                ? _buildImageDockViewer(doc)
                 : isText
-                    ? _buildTextViewer(doc)
-                    : _buildAcademicDocViewer(doc),
+                    ? _buildTextDockViewer(doc)
+                    : _buildAcademicDockViewer(doc),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildImageViewer(DocumentModel doc) {
+  Widget _buildExtBadge(String ext) {
+    Color bg = const Color(0xFF2563EB);
+    IconData icon = Icons.description_rounded;
+
+    if (ext == 'pdf') {
+      bg = const Color(0xFFEF4444);
+      icon = Icons.picture_as_pdf_rounded;
+    } else if (['jpg', 'jpeg', 'png', 'webp', 'gif'].contains(ext)) {
+      bg = const Color(0xFFA855F7);
+      icon = Icons.image_rounded;
+    } else if (['txt', 'md', 'py', 'js', 'dart'].contains(ext)) {
+      bg = const Color(0xFF10B981);
+      icon = Icons.code_rounded;
+    } else if (['doc', 'docx'].contains(ext)) {
+      bg = const Color(0xFF3B82F6);
+      icon = Icons.description_rounded;
+    } else if (['ppt', 'pptx'].contains(ext)) {
+      bg = const Color(0xFFF97316);
+      icon = Icons.slideshow_rounded;
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: bg.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Icon(icon, color: bg, size: 18),
+    );
+  }
+
+  Widget _buildImageDockViewer(DocumentModel doc) {
     if (doc.url != null && doc.url!.startsWith('data:image')) {
       try {
         final base64String = doc.url!.split(',').last;
         final bytes = base64Decode(base64String);
         return InteractiveViewer(
-          maxScale: 5.0,
-          child: Center(
-            child: Image.memory(
-              bytes,
-              fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => _buildImageError(),
-            ),
-          ),
+          maxScale: 6.0,
+          child: Center(child: Image.memory(bytes, fit: BoxFit.contain)),
         );
       } catch (_) {}
     }
 
     if (doc.filePath != null && File(doc.filePath!).existsSync()) {
       return InteractiveViewer(
-        maxScale: 5.0,
-        child: Center(
-          child: Image.file(
-            File(doc.filePath!),
-            fit: BoxFit.contain,
-            errorBuilder: (_, __, ___) => _buildImageError(),
-          ),
-        ),
+        maxScale: 6.0,
+        child: Center(child: Image.file(File(doc.filePath!), fit: BoxFit.contain)),
       );
     }
 
-    return _buildImageError();
-  }
-
-  Widget _buildImageError() {
     return const Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.broken_image_rounded, color: Color(0xFF94A3B8), size: 36),
-          SizedBox(height: 8),
-          Text('Image rendered from storage', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
-        ],
-      ),
+      child: Text('Image Active in Dock', style: TextStyle(color: Color(0xFF94A3B8), fontSize: 11)),
     );
   }
 
-  Widget _buildTextViewer(DocumentModel doc) {
+  Widget _buildTextDockViewer(DocumentModel doc) {
     final text = doc.fileContent ?? doc.previewExcerpt;
     final lines = text.split('\n');
     const linesPerPage = 28;
@@ -382,7 +524,7 @@ class _ReferenceDrawerState extends ConsumerState<ReferenceDrawer> {
     final pageLines = lines.sublist(start, end);
 
     return ListView.builder(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(10),
       itemCount: pageLines.length,
       itemBuilder: (ctx, i) {
         return Padding(
@@ -391,16 +533,16 @@ class _ReferenceDrawerState extends ConsumerState<ReferenceDrawer> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(
-                width: 26,
+                width: 24,
                 child: Text(
                   '${start + i + 1}',
-                  style: const TextStyle(color: Color(0xFF475569), fontSize: 10, fontFamily: 'monospace'),
+                  style: const TextStyle(color: Color(0xFF475569), fontSize: 9.5, fontFamily: 'monospace'),
                 ),
               ),
               Expanded(
                 child: Text(
                   pageLines[i],
-                  style: const TextStyle(color: Color(0xFFE2E8F0), fontSize: 11.5, height: 1.35),
+                  style: const TextStyle(color: Color(0xFFE2E8F0), fontSize: 11, height: 1.35),
                 ),
               ),
             ],
@@ -410,41 +552,14 @@ class _ReferenceDrawerState extends ConsumerState<ReferenceDrawer> {
     );
   }
 
-  Widget _buildAcademicDocViewer(DocumentModel doc) {
+  Widget _buildAcademicDockViewer(DocumentModel doc) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1E293B),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFF334155)),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  doc.fileType == 'pdf' ? Icons.picture_as_pdf_rounded : Icons.description_rounded,
-                  color: doc.fileType == 'pdf' ? const Color(0xFFEF4444) : const Color(0xFF38BDF8),
-                  size: 20,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    doc.title,
-                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: const Color(0xFF131823),
               borderRadius: BorderRadius.circular(10),
@@ -454,7 +569,7 @@ class _ReferenceDrawerState extends ConsumerState<ReferenceDrawer> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Section $_currentPage: Key Principles & Questions',
+                  'Page $_currentPage Concept & Equations',
                   style: const TextStyle(color: Color(0xFF60A5FA), fontSize: 11.5, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 6),
@@ -465,21 +580,21 @@ class _ReferenceDrawerState extends ConsumerState<ReferenceDrawer> {
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFF0F172A),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: const Color(0xFF1E293B)),
+              color: const Color(0xFF1E293B).withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: const Color(0xFF334155)),
             ),
             child: const Row(
               children: [
-                Icon(Icons.edit_note_rounded, color: Color(0xFF3B82F6), size: 16),
+                Icon(Icons.draw_rounded, color: Color(0xFFF59E0B), size: 16),
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Solve and annotate directly on the whiteboard on the right (70% canvas).',
+                    'Rendered on canvas: Annotate, solve, and write directly on top of this sheet.',
                     style: TextStyle(color: Color(0xFF94A3B8), fontSize: 10),
                   ),
                 ),
@@ -491,151 +606,202 @@ class _ReferenceDrawerState extends ConsumerState<ReferenceDrawer> {
     );
   }
 
-  Widget _buildResourcePickerView() {
+  Widget _buildModernLibraryView() {
     final sampleResources = [
-      _SampleResource(
-        icon: Icons.picture_as_pdf_rounded,
+      _DockResource(
         title: 'Physics Mechanics Notes.pdf',
-        type: 'PDF Document',
+        category: 'Physics',
+        ext: 'pdf',
         color: const Color(0xFFEF4444),
+        icon: Icons.picture_as_pdf_rounded,
         pages: 5,
-        preview: 'Classical Mechanics Problem Set:\n\n1. Calculate the projectile trajectory with air resistance.\n2. Apply conservation of angular momentum to orbiting masses.\n3. Derive kinetic friction coefficient on an inclined plane.\n\nUse the pen tool on the right whiteboard canvas to graph coordinates.',
+        preview: 'Classical Mechanics Problem Set:\n\n1. Calculate projectile range with launch angle theta and air drag.\n2. Angular momentum conservation: L = r x p = I * omega.\n3. Friction force on 30 deg incline: f_k = mu_k * N = mu_k * m * g * cos(theta).\n\nGraph free-body diagrams and solve equations on the whiteboard.',
       ),
-      _SampleResource(
-        icon: Icons.image_rounded,
+      _DockResource(
         title: 'Circuit Analysis Diagram.png',
-        type: 'Image Diagram',
+        category: 'Circuits',
+        ext: 'png',
         color: const Color(0xFF38BDF8),
+        icon: Icons.image_rounded,
         pages: 1,
-        preview: 'RLC Circuit Schematic Diagram:\n\nAnalyze nodes A, B, and C under 60Hz alternating sinusoidal drive. Verify Kirchhoff Current Law (KCL) summation at junction.',
+        preview: 'RLC Circuit Schematic Diagram:\n\nAnalyze nodes A, B, and C under sinusoidal excitation. Verify Kirchhoff Current Law summation at junction.',
       ),
-      _SampleResource(
-        icon: Icons.description_rounded,
+      _DockResource(
         title: 'Calculus Formulas.docx',
-        type: 'Word Document',
+        category: 'Calculus',
+        ext: 'docx',
         color: const Color(0xFF818CF8),
+        icon: Icons.description_rounded,
         pages: 4,
-        preview: 'Essential Derivatives & Integrals:\n\n- d/dx [sin(x)] = cos(x)\n- d/dx [ln(x)] = 1/x\n- Integral [e^(kx) dx] = (1/k) * e^(kx) + C\n- Integration by parts: Integral [u dv] = u*v - Integral [v du].',
+        preview: 'Calculus Theorems & Derivatives:\n\n- d/dx [sin(x)] = cos(x)\n- d/dx [ln(x)] = 1/x\n- Fundamental Theorem of Calculus: d/dx Integral [f(t) dt from a to x] = f(x)\n- Integration by parts: Integral [u dv] = u*v - Integral [v du].',
       ),
-      _SampleResource(
-        icon: Icons.slideshow_rounded,
-        title: 'Thermodynamics Lecture.pptx',
-        type: 'Presentation',
-        color: const Color(0xFFF97316),
-        pages: 6,
-        preview: 'Slide 1: First and Second Laws of Thermodynamics.\nDelta U = Q - W.\nEntropy of an isolated system always increases.\nCarnot engine ideal efficiency eta = 1 - (Tc/Th).',
-      ),
-      _SampleResource(
-        icon: Icons.article_rounded,
-        title: 'Lab Experiments.txt',
-        type: 'Text Notes',
+      _DockResource(
+        title: 'Organic Chemistry Lab.txt',
+        category: 'Chemistry',
+        ext: 'txt',
         color: const Color(0xFF10B981),
+        icon: Icons.article_rounded,
         pages: 3,
-        preview: 'Chemistry Laboratory Procedure:\n1. Calibrate analytical balance to +/- 0.001g.\n2. Titrate standard HCl against NaOH solution.\n3. Record phenolphthalein color change endpoint.',
+        preview: 'Chemistry Titration Guide:\n1. Prepare 0.1M standard acid.\n2. Record burrette volume reading at equivalence.\n3. Calculate molarity: M1*V1 = M2*V2.',
       ),
     ];
 
-    return ListView(
-      padding: const EdgeInsets.all(12),
+    final filtered = _selectedCategoryIndex == 0
+        ? sampleResources
+        : sampleResources.where((r) => r.category == _categories[_selectedCategoryIndex]).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Category Pills
+        SizedBox(
+          height: 38,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            itemCount: _categories.length,
+            itemBuilder: (ctx, i) {
+              final isSel = _selectedCategoryIndex == i;
+              return GestureDetector(
+                onTap: () {
+                  setState(() => _selectedCategoryIndex = i);
+                  HapticFeedback.selectionClick();
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(right: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isSel ? const Color(0xFF2563EB) : const Color(0xFF1E293B),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: isSel ? const Color(0xFF60A5FA) : const Color(0xFF334155),
+                      width: 1,
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      _categories[i],
+                      style: TextStyle(
+                        color: isSel ? Colors.white : const Color(0xFF94A3B8),
+                        fontSize: 10.5,
+                        fontWeight: isSel ? FontWeight.bold : FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+
         const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+          padding: EdgeInsets.fromLTRB(14, 10, 14, 6),
           child: Text(
-            'SELECT REFERENCE MATERIAL',
+            'QUICK LESSON MATERIALS',
             style: TextStyle(
               color: Color(0xFF64748B),
-              fontSize: 10,
+              fontSize: 9.5,
               fontWeight: FontWeight.bold,
-              letterSpacing: 0.8,
+              letterSpacing: 0.6,
             ),
           ),
         ),
-        const SizedBox(height: 6),
-        ...sampleResources.map((res) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  _loadSampleDocument(
-                    res.title,
-                    res.title.split('.').last,
-                    res.type,
-                    res.pages,
-                    res.preview,
-                  );
-                },
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF131823),
+
+        // Material Cards
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            itemCount: filtered.length,
+            itemBuilder: (ctx, i) {
+              final res = filtered[i];
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      _loadSampleDocument(
+                        res.title,
+                        res.ext,
+                        res.category,
+                        res.pages,
+                        res.preview,
+                      );
+                    },
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFF262F40)),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: res.color.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Icon(res.icon, color: res.color, size: 18),
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF131823),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFF262F40)),
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              res.title,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 11.5,
-                              ),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: res.color.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              '${res.type} • ${res.pages} Pages',
-                              style: const TextStyle(
-                                color: Color(0xFF94A3B8),
-                                fontSize: 10,
-                              ),
+                            child: Icon(res.icon, color: res.color, size: 18),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  res.title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 11.5,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${res.category} • Tap to solve on Canvas',
+                                  style: const TextStyle(
+                                    color: Color(0xFF94A3B8),
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                          const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFF64748B), size: 12),
+                        ],
                       ),
-                      const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFF64748B), size: 12),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ),
-          );
-        }),
+              );
+            },
+          ),
+        ),
       ],
     );
   }
 }
 
-class _SampleResource {
-  final IconData icon;
+class _DockResource {
   final String title;
-  final String type;
+  final String category;
+  final String ext;
   final Color color;
+  final IconData icon;
   final int pages;
   final String preview;
 
-  _SampleResource({
-    required this.icon,
+  _DockResource({
     required this.title,
-    required this.type,
+    required this.category,
+    required this.ext,
     required this.color,
+    required this.icon,
     required this.pages,
     required this.preview,
   });

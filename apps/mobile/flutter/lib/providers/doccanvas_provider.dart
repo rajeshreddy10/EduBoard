@@ -262,6 +262,16 @@ class DocCanvasNotifier extends Notifier<DocCanvasState> {
     }
   }
 
+  Future<void> deleteAnnotation(String annotationId) async {
+    final currentDocId = state.activeDocument?.id;
+    if (currentDocId != null) {
+      await _repo.deleteAnnotation(currentDocId, annotationId);
+    }
+    state = state.copyWith(
+      annotations: state.annotations.where((a) => a.id != annotationId).toList(),
+    );
+  }
+
   Future<void> clearAnnotations() async {
     final currentDocId = state.activeDocument?.id;
     if (currentDocId != null) {

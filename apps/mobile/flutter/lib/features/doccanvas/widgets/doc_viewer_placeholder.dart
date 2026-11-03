@@ -184,47 +184,38 @@ class DocViewerPlaceholder extends ConsumerWidget {
     bool isPdf,
     int pageIndex,
   ) {
-    // 1. Real local or memory Image file
+    // 1. Real local or memory Image file: direct rendering so annotation layer captures 100% of gestures
     if (isImage) {
       if (doc.url != null && doc.url!.startsWith('data:image')) {
         try {
           final base64String = doc.url!.split(',').last;
           final bytes = base64Decode(base64String);
-          return InteractiveViewer(
-            maxScale: 5.0,
-            child: Center(
-              child: Image.memory(
-                bytes,
-                fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => _buildFallbackImage(doc),
-              ),
+          return Center(
+            child: Image.memory(
+              bytes,
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) => _buildFallbackImage(doc),
             ),
           );
         } catch (_) {}
       }
 
       if (doc.filePath != null && File(doc.filePath!).existsSync()) {
-        return InteractiveViewer(
-          maxScale: 5.0,
-          child: Center(
-            child: Image.file(
-              File(doc.filePath!),
-              fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => _buildFallbackImage(doc),
-            ),
+        return Center(
+          child: Image.file(
+            File(doc.filePath!),
+            fit: BoxFit.contain,
+            errorBuilder: (_, __, ___) => _buildFallbackImage(doc),
           ),
         );
       }
 
       if (doc.url != null && doc.url!.startsWith('http')) {
-        return InteractiveViewer(
-          maxScale: 5.0,
-          child: Center(
-            child: Image.network(
-              doc.url!,
-              fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => _buildFallbackImage(doc),
-            ),
+        return Center(
+          child: Image.network(
+            doc.url!,
+            fit: BoxFit.contain,
+            errorBuilder: (_, __, ___) => _buildFallbackImage(doc),
           ),
         );
       }
@@ -311,6 +302,7 @@ class DocViewerPlaceholder extends ConsumerWidget {
       color: const Color(0xFF0B0F19),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: SingleChildScrollView(
+        physics: const NeverScrollableScrollPhysics(),
         child: Center(
           child: Container(
             constraints: const BoxConstraints(maxWidth: 680),
